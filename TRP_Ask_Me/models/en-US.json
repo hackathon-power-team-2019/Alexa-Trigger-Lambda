@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "team lookup",
+      "invocationName": "t rowe price",
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
@@ -44,54 +44,71 @@
         },
         {
           "name": "SearchByCityIntent",
+          "slots": [
+            {
+              "name": "cityName",
+              "type": "AMAZON.US_CITY"
+            }
+          ],
           "samples": [
             "who is in {cityName} ",
             "find me an evangelist in {cityName} ",
             "find me someone in {cityName} ",
             "{cityName} ",
             "{cityName} evangelist"
-          ],
-          "slots": [
-            {
-              "name": "cityName",
-              "type": "AMAZON.US_CITY",
-              "samples": []
-            }
           ]
         },
         {
           "name": "SearchByInfoTypeIntent",
+          "slots": [
+            {
+              "name": "firstName",
+              "type": "AMAZON.US_FIRST_NAME"
+            },
+            {
+              "name": "lastName",
+              "type": "LAST_NAME"
+            },
+            {
+              "name": "infoType",
+              "type": "LIST_OF_INFO_TYPES"
+            },
+            {
+              "name": "whatPhrase",
+              "type": "WHAT_PHRASE"
+            }
+          ],
           "samples": [
             "{whatPhrase} {firstName} {lastName} {infoType}",
             "{whatPhrase} {lastName} {infoType}",
             "{whatPhrase} {firstName}  {infoType} handle",
             "{whatPhrase} {firstName} {infoType} username"
-          ],
-          "slots": [
-            {
-              "name": "firstName",
-              "type": "AMAZON.US_FIRST_NAME",
-              "samples": []
-            },
-            {
-              "name": "lastName",
-              "type": "LAST_NAME",
-              "samples": []
-            },
-            {
-              "name": "infoType",
-              "type": "LIST_OF_INFO_TYPES",
-              "samples": []
-            },
-            {
-              "name": "whatPhrase",
-              "type": "WHAT_PHRASE",
-              "samples": []
-            }
           ]
         },
         {
           "name": "SearchByNameIntent",
+          "slots": [
+            {
+              "name": "firstName",
+              "type": "AMAZON.US_FIRST_NAME"
+            },
+            {
+              "name": "lastName",
+              "type": "LAST_NAME"
+            },
+            {
+              "name": "infoType",
+              "type": "LIST_OF_INFO_TYPES"
+            },
+            {
+              "name": "whoPhrase",
+              "type": "WHO_PHRASE"
+            },
+            {
+              "name": "whatPhrase",
+              "type": "WHAT_PHRASE"
+            }
+          ],
           "samples": [
             "{firstName}",
             "{lastName}",
@@ -102,46 +119,29 @@
             "{whatPhrase} {firstName} {lastName} {infoType} username",
             "{whatPhrase} {infoType} for {firstName} ",
             "{whatPhrase} {firstName} {lastName} {infoType} handle"
-          ],
-          "slots": [
-            {
-              "name": "firstName",
-              "type": "AMAZON.US_FIRST_NAME",
-              "samples": []
-            },
-            {
-              "name": "lastName",
-              "type": "LAST_NAME",
-              "samples": []
-            },
-            {
-              "name": "infoType",
-              "type": "LIST_OF_INFO_TYPES",
-              "samples": []
-            },
-            {
-              "name": "whoPhrase",
-              "type": "WHO_PHRASE",
-              "samples": []
-            },
-            {
-              "name": "whatPhrase",
-              "type": "WHAT_PHRASE",
-              "samples": []
-            }
           ]
         },
         {
           "name": "TellMeMoreIntent",
+          "slots": [],
           "samples": [
             "contact info",
             "tell me more",
             "more details"
-          ],
-          "slots": []
+          ]
         },
         {
           "name": "TellMeThisIntent",
+          "slots": [
+            {
+              "name": "infoType",
+              "type": "LIST_OF_INFO_TYPES"
+            },
+            {
+              "name": "whatPhrase",
+              "type": "WHAT_PHRASE"
+            }
+          ],
           "samples": [
             "{whatPhrase} her {infoType} handle",
             "{whatPhrase} her {infoType} username",
@@ -149,19 +149,11 @@
             "{whatPhrase} his {infoType} handle",
             "tell me his {infoType} username",
             "tell me her {infoType} handle"
-          ],
-          "slots": [
-            {
-              "name": "infoType",
-              "type": "LIST_OF_INFO_TYPES",
-              "samples": []
-            },
-            {
-              "name": "whatPhrase",
-              "type": "WHAT_PHRASE",
-              "samples": []
-            }
           ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
         }
       ],
       "types": [
