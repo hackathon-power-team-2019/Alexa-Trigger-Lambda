@@ -3,18 +3,18 @@
     "publishingInformation": {
       "locales": {
         "en-US": {
-          "summary": "Find contact info for any Alexa team member.",
+          "summary": "Find and subscribe to fund info for any T. Rowe Price Fund",
           "examplePhrases": [
-            "Alexa, open Alexa Team Lookup",
-            "Alexa, start Alexa Team Lookup"
+            "Alexa, open T. Rowe Price",
+            "Alexa, start T. Rowe Price"
           ],
           "keywords": [
-            "directory",
-            "alexa team",
-            "phone book"
+            "T. Rowe Price Funds",
+            "Financial Advisor",
+            "T. Rowe Price"
           ],
           "name": "TRP_Ask_Me_Funds",
-          "description": "Find contact info for Alexa team members.\n\nAlexa Team Lookup can find the person you want to find easily.\n\nTo start, just say \"Alexa, launch Alexa Team Lookup\" or \"Alexa, open Alexa Team Lookup\" to start your search\".\n\nAt any time, you can stop the search by saying \"Alexa, stop\""
+          "description": "Find fund info for TRP Mutual Funds.\n\nT. Rowe Price Fund lookup can find and subscribe to the fund you want easily.\n\nTo start, just say \"Alexa, launch T. Rowe Price\" or \"Alexa, open T. Rowe Price\" to start your search\".\n\nAt any time, you can stop the search by saying \"Alexa, stop\""
         }
       },
       "isAvailableWorldwide": true,
