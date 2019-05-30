@@ -13,16 +13,11 @@ const StartTRoweSkillHandler = {
   handle(handlerInput) {
     const welcome = `Welcome to T. Rowe Price Alexa skill.`;
     const prompt = `You can do any of of the following.`;
-    const promptOptions = [
-      'Ask about a T. Rowe Price fund',
-      'Inquire about the performance of your subscribed funds',
-      'Learn about an investment oppurtunity'
-    ]
 
     return handlerInput.responseBuilder
-      .speak(welcome + prompt + promptOptions)
-      .reprompt(prompt + promptOptions)
-      .withSimpleCard(SKILL_NAME, promptOptions)
+      .speak(welcome + prompt + PROMPT_OPTIONS)
+      .reprompt(prompt + PROMPT_OPTIONS)
+      .withSimpleCard(SKILL_NAME, PROMPT_OPTIONS)
       .getResponse();
   },
 };
@@ -98,24 +93,22 @@ const ErrorHandler = {
   },
 };
 
-const SKILL_NAME = 'Space Facts';
-const GET_FACT_MESSAGE = 'Here\'s your fact: ';
-const HELP_MESSAGE = 'You can say tell me a space fact, or, you can say exit... What can I help you with?';
+const SKILL_NAME = 'T. Rowe Price';
+const HELP_MESSAGE = 'You can say ' + PROMPT_OPTIONS + ', or, you can say exit... What can I help you with?';
 const HELP_REPROMPT = 'What can I help you with?';
 const STOP_MESSAGE = 'Goodbye!';
-
-const data = [
-  'Fund 1',
-  'Fund 2',
-  'Fund 3',
-  'Fund 4',
-];
+const PROMPT_OPTIONS = [
+  'Ask about a T. Rowe Price fund',
+  'Inquire about the performance of your subscribed funds',
+  'Learn about an investment oppurtunity'
+]
 
 const skillBuilder = Alexa.SkillBuilders.standard();
 
 exports.handler = skillBuilder
   .addRequestHandlers(
     StartTRoweSkillHandler,
+    GetFundDataHandler,
     HelpHandler,
     ExitHandler,
     SessionEndedRequestHandler
