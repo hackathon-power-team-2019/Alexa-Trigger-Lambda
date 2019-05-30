@@ -3,7 +3,7 @@
 
 const Alexa = require('ask-sdk');
 
-const StartTRoweSkill = {
+const GetNewFactHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     return request.type === 'LaunchRequest'
@@ -14,17 +14,10 @@ const StartTRoweSkill = {
     const factArr = data;
     const factIndex = Math.floor(Math.random() * factArr.length);
     const randomFact = factArr[factIndex];
-    const speechOutput = `Welcome to T. Rowe Price Alexa skill.` 
-    + `You can do any of of the following.`;
-    const promptOptions = [
-      'Ask about a T. Rowe Price fund',
-      'Inquire about the performance of your subscribed funds',
-      'Learn about an investment oppurtunity'
-    ]
+    const speechOutput = 'Here\'s your T. Rowe Price Fund:' + randomFact;
 
     return handlerInput.responseBuilder
-      .speak(speechOutput + promptOptions)
-      .reprompt(speechOutput + promptOptions)
+      .speak(speechOutput)
       .withSimpleCard(SKILL_NAME, randomFact)
       .getResponse();
   },
@@ -101,7 +94,7 @@ const skillBuilder = Alexa.SkillBuilders.standard();
 
 exports.handler = skillBuilder
   .addRequestHandlers(
-    StartTRoweSkill,
+    GetNewFactHandler,
     HelpHandler,
     ExitHandler,
     SessionEndedRequestHandler
