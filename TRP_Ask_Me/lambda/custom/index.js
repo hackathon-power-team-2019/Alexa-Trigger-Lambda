@@ -29,7 +29,7 @@ const data=[
 //TODO: Replace these text strings to edit the welcome and help messages
 //======================================================================================================
 
-const skillName = "Team Lookup";
+const skillName = "T Rowe Price";
 
 //This is the welcome message for when a user starts the skill without a specific intent.
 const WELCOME_MESSAGE = "Hello, I am Trusty Alexa from T. Rowe Price.  I go by Trusty for short.  You can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
@@ -48,7 +48,7 @@ const DESCRIPTION_STATE_HELP_MESSAGE = "Here are some things you can say: Tell m
 const MULTIPLE_RESULTS_STATE_HELP_MESSAGE = "Sorry, please say the first and last name of the person you'd like to learn more about";
 
 // This is the message use when the decides to end the search
-const SHUTDOWN_MESSAGE = "Ok. ";
+const SHUTDOWN_MESSAGE = "Goodbye from Trusty. ";
 
 //This is the message a user will hear when they try to cancel or stop the skill.
 const EXIT_SKILL_MESSAGE = "Ok. ";
