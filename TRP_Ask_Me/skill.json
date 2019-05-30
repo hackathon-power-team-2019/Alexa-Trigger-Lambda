@@ -1,0 +1,43 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "summary": "Find contact info for any Alexa team member.",
+          "examplePhrases": [
+            "Alexa, open Alexa Team Lookup",
+            "Alexa, start Alexa Team Lookup"
+          ],
+          "keywords": [
+            "directory",
+            "alexa team",
+            "phone book"
+          ],
+          "name": "TRP_Ask_Me_Funds",
+          "description": "Find contact info for Alexa team members.\n\nAlexa Team Lookup can find the person you want to find easily.\n\nTo start, just say \"Alexa, launch Alexa Team Lookup\" or \"Alexa, open Alexa Team Lookup\" to start your search\".\n\nAt any time, you can stop the search by saying \"Alexa, stop\""
+        }
+      },
+      "isAvailableWorldwide": true,
+      "testingInstructions": "Include your testing instruction (if any) here",
+      "category": "EDUCATION_AND_REFERENCE",
+      "distributionCountries": []
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "sourceDir": "lambda/custom",
+          "uri": "ask-custom-TRP_Ask_Me_Funds-default"
+        }
+      }
+    },
+    "manifestVersion": "1.0",
+    "permissions": [],
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "isExportCompliant": true,
+      "containsAds": false,
+      "isChildDirected": false,
+      "usesPersonalInfo": false
+    }
+  }
+}
