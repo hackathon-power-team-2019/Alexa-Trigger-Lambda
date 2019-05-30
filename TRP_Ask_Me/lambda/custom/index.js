@@ -32,7 +32,7 @@ const data=[
 const skillName = "Team Lookup";
 
 //This is the welcome message for when a user starts the skill without a specific intent.
-const WELCOME_MESSAGE = "Welcome to " + skillName + "Learn about Alexa Evangelists and Solutions Architects. For example, " + getGenericHelpMessage(data);
+const WELCOME_MESSAGE = "Hello, I am Trusty Alexa from T. Rowe Price.  I go by Trusty for short.  You can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
 
 //This is the message a user will hear when they ask Alexa for help in your skill.
 const HELP_MESSAGE = "I can help you find Alexa Evangelists and Solutions Architects. ";
