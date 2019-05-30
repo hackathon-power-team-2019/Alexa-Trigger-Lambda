@@ -2,7 +2,11 @@
 /* eslint-disable  no-console */
 
 const Alexa = require('ask-sdk/index');
+const FundDataFlow = require('./flow/fund-data-flow')
 
+/**
+ * Entrypoint handler for the Alexa skill
+ */
 const StartTRoweSkillHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -11,30 +15,9 @@ const StartTRoweSkillHandler = {
         && request.intent.name === 'TRoweFunds');
   },
   handle(handlerInput) {
-    const welcome = `Welcome to T. Rowe Price Alexa skill.`;
-    const prompt = `You can do any of of the following.`;
-
     return handlerInput.responseBuilder
-      .speak(welcome + prompt + PROMPT_OPTIONS)
-      .reprompt(prompt + PROMPT_OPTIONS)
-      .withSimpleCard(SKILL_NAME, PROMPT_OPTIONS)
-      .getResponse();
-  },
-};
-
-const GetFundDataHandler = {
-  canHandle(handlerInput) {
-    const request = handlerInput.requestEnvelope.request;
-    return request.type === 'LaunchRequest'
-      || (request.type === 'IntentRequest'
-        && request.intent.name === 'GetFundDataIntent');
-  },
-  handle(handlerInput) {
-    const speechResponse = `Here is the info about: fund`;
-  
-    return handlerInput.responseBuilder
-      .speak(speechResponse)
-      .withSimpleCard(SKILL_NAME, speechResponse)
+      .speak(WELCOME + PROMPT + PROMPT_OPTIONS)
+      .reprompt(PROMPT + PROMPT_OPTIONS)
       .getResponse();
   },
 };
@@ -97,6 +80,8 @@ const SKILL_NAME = 'T. Rowe Price';
 const HELP_MESSAGE = 'You can say ' + PROMPT_OPTIONS + ', or, you can say exit... What can I help you with?';
 const HELP_REPROMPT = 'What can I help you with?';
 const STOP_MESSAGE = 'Goodbye!';
+const WELCOME = `Welcome to T. Rowe Price Alexa skill.`;
+const PROMPT = `You can do any of of the following.`;
 const PROMPT_OPTIONS = [
   'Ask about a T. Rowe Price fund',
   'Inquire about the performance of your subscribed funds',
@@ -108,7 +93,7 @@ const skillBuilder = Alexa.SkillBuilders.standard();
 exports.handler = skillBuilder
   .addRequestHandlers(
     StartTRoweSkillHandler,
-    GetFundDataHandler,
+    FundDataFlow.GetFundDataHandler,
     HelpHandler,
     ExitHandler,
     SessionEndedRequestHandler
