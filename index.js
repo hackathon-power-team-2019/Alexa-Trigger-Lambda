@@ -3,22 +3,43 @@
 
 const Alexa = require('ask-sdk');
 
-const GetNewFactHandler = {
+const StartTRoweSkillHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
     return request.type === 'LaunchRequest'
       || (request.type === 'IntentRequest'
-        && request.intent.name === 'GetNewFactIntent');
+        && request.intent.name === 'TRoweFunds');
   },
   handle(handlerInput) {
-    const factArr = data;
-    const factIndex = Math.floor(Math.random() * factArr.length);
-    const randomFact = factArr[factIndex];
-    const speechOutput = 'Here\'s your T. Rowe Price Fund:' + randomFact;
+    const welcome = `Welcome to T. Rowe Price Alexa skill.`;
+    const prompt = `You can do any of of the following.`;
+    const promptOptions = [
+      'Ask about a T. Rowe Price fund',
+      'Inquire about the performance of your subscribed funds',
+      'Learn about an investment oppurtunity'
+    ]
 
     return handlerInput.responseBuilder
-      .speak(speechOutput)
-      .withSimpleCard(SKILL_NAME, randomFact)
+      .speak(welcome + prompt + promptOptions)
+      .reprompt(prompt + promptOptions)
+      .withSimpleCard(SKILL_NAME, promptOptions)
+      .getResponse();
+  },
+};
+
+const GetFundDataHandler = {
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    return request.type === 'LaunchRequest'
+      || (request.type === 'IntentRequest'
+        && request.intent.name === 'GetFundDataIntent');
+  },
+  handle(handlerInput) {
+    const speechResponse = `Here is the info about: fund`;
+  
+    return handlerInput.responseBuilder
+      .speak(speechResponse)
+      .withSimpleCard(SKILL_NAME, speechResponse)
       .getResponse();
   },
 };
@@ -94,7 +115,7 @@ const skillBuilder = Alexa.SkillBuilders.standard();
 
 exports.handler = skillBuilder
   .addRequestHandlers(
-    GetNewFactHandler,
+    StartTRoweSkillHandler,
     HelpHandler,
     ExitHandler,
     SessionEndedRequestHandler
