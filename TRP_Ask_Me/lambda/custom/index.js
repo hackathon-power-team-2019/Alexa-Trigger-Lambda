@@ -91,9 +91,9 @@ const newSessionHandlers = {
 		this.response.speak(WELCOME_MESSAGE).listen(getGenericHelpMessage(data));
 		const builder = new Alexa.templateBuilders.BodyTemplate1Builder();
 		const template = builder.setTitle(WELCOME_MESSAGE)
-			.setBackgroundImage(makeImage(imageURL))
-			.setTextContent(makeRichText('' + description + ''), null, null)
-			.build();
+            .setImage(makeImage(imageURL))
+            .setTextContent(makeRichText('' + description + ''), null, null)
+            .build();
 
 		this.response.renderTemplate(template);
 		this.emit(':responseReady');
