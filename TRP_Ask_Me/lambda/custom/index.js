@@ -89,7 +89,7 @@ const newSessionHandlers = {
 
 		this.handler.state = states.SEARCHMODE;
 		this.response.speak(WELCOME_MESSAGE).listen(getGenericHelpMessage(data));
-		const builder = new Alexa.templateBuilders.BodyTemplate1Builder();
+		const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
 		const template = builder.setTitle(WELCOME_MESSAGE)
             .setImage(makeImage(imageURL))
             .setTextContent(makeRichText('' + description + ''), null, null)
@@ -554,7 +554,11 @@ function searchByFundIntentHandler(){
 			this.attributes.lastSearch.lastSpeech = output;
 			// this.emit(":ask", generateSearchResultsMessage(searchQuery,searchResults.results));
 			this.response.speak(output).listen(output);
-
+			const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
+			const template = builder.setTitle(searchResults.results[0].productName)
+				.setTextContent(makeRichText('' + output + ''), null, null)
+				.build();
+			this.response.renderTemplate(template);
 		}
 		else{//no match found
 			console.log("no match found");
