@@ -236,50 +236,8 @@ let multipleSearchResultsHandlers = Alexa.CreateStateHandler(states.MULTIPLE_RES
         this.emit(':responseReady');
     },
     "SearchByNameIntent": function () {
-        let slots = this.event.request.intent.slots;
-        let productName = isSlotValid(this.event.request, "productName");
-        let productCode = isSlotValid(this.event.request, "productCode");
-        let ticker = isSlotValid(this.event.request, "ticker");
-        let assetClass = isSlotValid(this.event.request, "assetClass");
-
-        console.log("productName:" + productName);
-        console.log("productCode:" + productCode);
-        console.log("ticker:" + ticker);
-        console.log("assetClass:" + assetClass);
-        console.log("Intent Name:" + this.event.request.intent.name);
-
-        let canSearch = figureOutWhichSlotToSearchBy('', productName, productCode, assetClass);
-        console.log("Multiple results found. canSearch is set to = " + canSearch);
-        let speechOutput;
-
-        if (canSearch) {
-            var searchQuery = slots[canSearch].value;
-        }
-
-        var searchResults = searchDatabase(this.attributes.lastSearch.results, searchQuery, canSearch);
-        var lastSearch;
-        var output;
-
-        if (searchResults.count > 1) { //multiple results found again
-            console.log("multiple results were found again");
-            this.handler.state = states.MULTIPLE_RESULTS;
-            output = this.attributes.lastSearch.lastSpeech;
-            this.response.speak(output).listen(output);
-        } else if (searchResults.count === 1) { //one result found
-            this.attributes.lastSearch = searchResults;
-            lastSearch = this.attributes.lastSearch;
-            this.handler.state = states.DESCRIPTION;
-            output = generateSearchResultsMessage(searchQuery, searchResults.results);
-            this.attributes.lastSearch.lastSpeech = output;
-            this.response.speak(output).listen(output);
-
-        } else { //no match found
-            lastSearch = this.attributes.lastSearch;
-            let listOfPeopleFound = loopThroughArrayOfObjects(lastSearch.results);
-            speechOutput = MULTIPLE_RESULTS_STATE_HELP_MESSAGE + ", " + listOfPeopleFound;
-            this.response.speak(speechOutput).listen(speechOutput);
-        }
-        this.emit(':responseReady');
+        this.handler.state = states.SEARCHMODE;
+        this.emitWithState("SearchByNameIntent");
     },
     "SearchByFundIntent": function () {
         this.handler.state = states.SEARCHMODE;
@@ -461,64 +419,50 @@ function figureOutWhichSlotToSearchBy(productName, productCode, ticker, assetCla
 }
 
 function searchByNameIntentHandler() {
-    let firstName = isSlotValid(this.event.request, "firstName");
-    let lastName = isSlotValid(this.event.request, "lastName");
-    let cityName = isSlotValid(this.event.request, "cityName");
-    let infoType = isSlotValid(this.event.request, "infoType");
+    let slots = this.event.request.intent.slots;
+    let productName = isSlotValid(this.event.request, "productName");
+    let productCode = isSlotValid(this.event.request, "productCode");
+        let ticker = isSlotValid(this.event.request, "ticker");
+        let assetClass = isSlotValid(this.event.request, "assetClass");
 
-    let canSearch = figureOutWhichSlotToSearchBy('', firstName, lastName, cityName);
-    console.log("canSearch is set to = " + canSearch);
+        console.log("productName:" + productName);
+        console.log("productCode:" + productCode);
+        console.log("ticker:" + ticker);
+        console.log("assetClass:" + assetClass);
+        console.log("Intent Name:" + this.event.request.intent.name);
 
-    if (canSearch) {
-        var searchQuery = this.event.request.intent.slots[canSearch].value;
-        var searchResults = searchDatabase(data, searchQuery, canSearch);
+        let canSearch = figureOutWhichSlotToSearchBy('', productName, productCode, assetClass);
+        console.log("Multiple results found. canSearch is set to = " + canSearch);
+        let speechOutput;
 
-        //saving lastSearch results to the current session
-        var lastSearch = this.attributes.lastSearch = searchResults;
+        if (canSearch) {
+            var searchQuery = slots[canSearch].value;
+        }
+
+        var searchResults = searchDatabase(this.attributes.lastSearch.results, searchQuery, canSearch);
+        var lastSearch;
         var output;
 
-        //saving last intent to session attributes
-        this.attributes.lastSearch.lastIntent = "SearchByNameIntent";
-
-        if (searchResults.count > 1) { //multiple results found
-            console.log("Search complete. Multiple results were found");
-            let listOfPeopleFound = loopThroughArrayOfObjects(lastSearch.results);
-            output = generateSearchResultsMessage(searchQuery, searchResults.results) + listOfPeopleFound + ". Who would you like to learn more about?";
-            this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
-            this.attributes.lastSearch.lastSpeech = output;
+        if (searchResults.count > 1) { //multiple results found again
+            console.log("multiple results were found again");
+            this.handler.state = states.MULTIPLE_RESULTS;
+            output = this.attributes.lastSearch.lastSpeech;
             this.response.speak(output).listen(output);
-        } else if (searchResults.count == 1) { //one result found
-            this.handler.state = states.DESCRIPTION; // change state to description
-            console.log("one match was found");
-            if (infoType) {
-                //if a specific infoType was requested, redirect to specificInfoIntent
-                console.log("infoType was provided as well");
-                this.emitWithState("TellMeThisIntent");
-            }
-            else {
-                console.log("no infoType was provided.");
-                output = generateSearchResultsMessage(searchQuery, searchResults.results);
-                this.attributes.lastSearch.lastSpeech = output;
-                this.response.speak(output).listen(output);
-            }
-        }
-        else {//no match found
-            console.log("no match found");
-            console.log("searchQuery was  = " + searchQuery);
-            console.log("searchResults.results was  = " + searchResults);
+        } else if (searchResults.count === 1) { //one result found
+            this.attributes.lastSearch = searchResults;
+            lastSearch = this.attributes.lastSearch;
+            this.handler.state = states.DESCRIPTION;
             output = generateSearchResultsMessage(searchQuery, searchResults.results);
             this.attributes.lastSearch.lastSpeech = output;
-            // this.emit(":ask", generateSearchResultsMessage(searchQuery,searchResults.results));
             this.response.speak(output).listen(output);
+
+        } else { //no match found
+            lastSearch = this.attributes.lastSearch;
+            let listOfPeopleFound = loopThroughArrayOfObjects(lastSearch.results);
+            speechOutput = MULTIPLE_RESULTS_STATE_HELP_MESSAGE + ", " + listOfPeopleFound;
+            this.response.speak(speechOutput).listen(speechOutput);
         }
-    }
-    else {
-        console.log("no searchable slot was provided");
-
-        this.response.speak(generateSearchResultsMessage(searchQuery, false)).listen(generateSearchResultsMessage(searchQuery, false));
-    }
-
-    this.emit(':responseReady');
+        this.emit(':responseReady');
 }
 
 function searchByFundIntentHandler() {
