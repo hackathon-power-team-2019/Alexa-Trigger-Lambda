@@ -1,7 +1,7 @@
 "use strict";
-const main = require('./main.json');
+const Main = require('./main.json');
 const Alexa = require("alexa-sdk"); // import the library
-const Alexa = require("/flow/fund-data-flow"); // import the fund data flow
+const FundDataFlow = require("./flow/fund-data-flow"); // import the fund data flow
 
 
 //=========================================================================================================================================
