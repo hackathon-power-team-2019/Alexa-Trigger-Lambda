@@ -435,8 +435,8 @@ function searchDatabase(dataset, searchQuery, searchType) {
 
 function figureOutWhichSlotToSearchBy(fundName,firstName,lastName,cityName) {
 	if (fundName && fundName.length > 0) {
-		console.log("search by fundName");
-		return "fundName";
+		console.log("search by productName");
+		return "productName";
 	}
 	else if (lastName){
 		console.log("search by lastName");
