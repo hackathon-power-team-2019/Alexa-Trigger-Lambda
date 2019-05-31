@@ -454,7 +454,8 @@ function searchByFundIntentHandler() {
     if (fundTerms) {
         var searchQuery = slots.fundTerms.value;
         console.log("will begin search with  " + slots.fundTerms.value + " in productName");
-        var searchResults = searchAemFundDatabase(searchQuery);
+        var searchResults = searchDatabase(data, searchQuery, "productName");
+        //var searchResults = searchDatabase(searchQuery);
 
         //saving lastSearch results to the current session
         let lastSearch = this.attributes.lastSearch = searchResults;
@@ -472,7 +473,7 @@ function searchByFundIntentHandler() {
             this.response.speak(output).listen(output);
             const template = loopThroughArrayOfFunds(searchResults.results);
             this.response.renderTemplate(template);
-        } else if (searchResults.count == 1) { //one result found
+        } else if (searchResults.count === 1) { //one result found
             console.log("one match found");
             this.handler.state = states.DESCRIPTION; // change state to description
             output = generateSearchResultsMessage(searchQuery, searchResults.results);
@@ -834,12 +835,12 @@ async function searchAemFundDatabase(answer) {
 
 
     if(answer) {
+        let encodedQuery = encodeURIComponent(answer);
         const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${answer}`;
         const response = await doRequest(URL);
-        return {
-            statusCode: 200,
-            body: response
-        };
+
+
+        return "Blue Chip Growth Fund";
     }
 }
 
