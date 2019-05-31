@@ -1,4 +1,5 @@
 "use strict";
+const main = require('./main.json');
 const Alexa = require("alexa-sdk"); // import the library
 const Alexa = require("/flow/fund-data-flow"); // import the fund data flow 
 
@@ -59,7 +60,7 @@ const MULTIPLE_RESULTS_STATE_HELP_MESSAGE = "Sorry, please say the first and las
 const SHUTDOWN_MESSAGE = "Goodbye from Trusty. ";
 
 //This is the message a user will hear when they try to cancel or stop the skill.
-const EXIT_SKILL_MESSAGE = "We go beyond the numbers.";
+const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
 
 const makePlainText = Alexa.utils.TextUtils.makePlainText;
 const makeRichText = Alexa.utils.TextUtils.makeRichText;
@@ -537,7 +538,7 @@ function searchByFundIntentHandler() {
 		this.attributes.lastSearch.lastIntent = "SearchByFundIntent";
 
 		if (searchResults.count > 1) { //multiple results found
-			console.log("Search completed by city. Multiple results were found");
+			console.log("Search completed by fund. Multiple fund results were found");
 			let listOfFundsFound = loopThroughArrayOfObjects(lastSearch.results);
 			output = generateSearchResultsMessage(searchQuery, searchResults.results) + listOfFundsFound + ". Which would you like to learn more about?";
 			this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
@@ -784,7 +785,7 @@ function loopThroughArrayOfObjects(arrayOfStrings) {
 	// Looping through the each object in the array
 	for (let i = 0; i < arrayOfStrings.length; i++) {
 		//concatenating names (firstName + lastName ) for each item
-		joinedResult = joinedResult + ", " + arrayOfStrings[i].firstName + " " + arrayOfStrings[i].lastName;
+		joinedResult = joinedResult + ", " + arrayOfStrings[i].productName;
 	}
 	return joinedResult;
 }
