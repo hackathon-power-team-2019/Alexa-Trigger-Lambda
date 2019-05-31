@@ -841,11 +841,12 @@ async function searchAemFundDatabase(answer) {
 
         const bcgURL ='https://www.troweprice.com/financial-intermediary/us/en/investments/mutual-funds/us-products/blue-chip-growth-fund/jcr:content.json';
         const bcgResponse = await doRequest(bcgURL);
-        const bcgProductCode = await doRequest('https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=BCG');
+        const bcgProductCode = bcgResponse.productCode;
+        const bcgProductCodeResponce = await doRequest('https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=' + bcgProductCode);
 
         return {
             count: 1,
-            results: [bcgProductCode],
+            results: [bcgProductCodeResponce],
         };
 
     }
