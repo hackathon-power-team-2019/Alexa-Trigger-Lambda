@@ -55,6 +55,7 @@
             }
           ],
           "samples": [
+            "find a mutual fund {fundTerms}",
             "for the fund {fundTerms}",
             "what is {fundTerms}",
             "what is the  {fundTerms} fund"
