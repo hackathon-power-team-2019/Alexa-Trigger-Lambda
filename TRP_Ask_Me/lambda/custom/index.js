@@ -1,7 +1,8 @@
 "use strict";
 const main = require('./main.json');
 const Alexa = require("alexa-sdk"); // import the library
-const FundDataFlow = require("./flow/fund-data-flow"); // import the fund data flow
+const Alexa = require("/flow/fund-data-flow"); // import the fund data flow
+
 
 //=========================================================================================================================================
 //TODO: The items below this comment need your attention
@@ -14,7 +15,7 @@ const APP_ID = undefined;
 // =====================================================================================================
 // --------------------------------- Section 1. Data and Text strings  ---------------------------------
 // =====================================================================================================
-
+//TODO: Replace this data with your own.
 //======================================================================================================
 
 const data = [

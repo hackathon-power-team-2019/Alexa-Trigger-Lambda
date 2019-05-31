@@ -6,7 +6,7 @@
       "merge": {},
       "resources": {
         "manifest": {
-          "eTag": "0ab105867081c84c799eb0639793f362"
+          "eTag": "30e39d6f3d26c1cd7eb978629f6cef62"
         },
         "interactionModel": {
           "en-US": {
@@ -23,7 +23,7 @@
             "codeUri": "lambda/custom",
             "functionName": "ask-custom-TRP_Ask_Me_Funds-default",
             "handler": "index.handler",
-            "revisionId": "22a691f8-7acf-453c-a810-0569a7185d0f",
+            "revisionId": "1e1eb35a-0cc1-45fb-a2fb-8c5dcb3f3a40",
             "runtime": "nodejs8.10"
           }
         ]
