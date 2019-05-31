@@ -813,7 +813,7 @@ async function subscribeToFund(product) {
 }
 
 function doRequest(url){
-    return new Promise(function(resolve, reject){
+    return new Promise((resolve, reject)=>{
         console.log('URL', url);
         https.get(url, (resp) => {
             let data = '';
@@ -836,26 +836,32 @@ function doRequest(url){
 
 async function searchAemFundDatabase(answer) {
 
+
     if(answer) {
+        console.log(`ANSWER!!!!!! ${answer}`);
         // let encodedQuery = encodeURIComponent(answer);
         // const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${encodedQuery}`;
         // const response = await doRequest(URL);
         let productDetailsURL = 'https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=BCG';
 
-        /*
+
         const bcgURL ='https://www.troweprice.com/financial-intermediary/us/en/investments/mutual-funds/us-products/blue-chip-growth-fund/jcr:content.json';
         await doRequest(bcgURL).then((val)=>{
-            console.log(val);
+            console.log(`SUCCESS!!!!!!! ${val}`);
             productDetailsURL = `https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=${val.productCode}`;
+        }).catch((err) => {
+            console.log(`ERROR: ${err}`)
         });
-*/
+        console.log(`PRODUCT DETAILS URL!!!!!! ${productDetailsURL}`);
         let bcgProductCodeResponse = null;
         await doRequest(productDetailsURL).then((val)=>{
             bcgProductCodeResponse = val;
             console.log('hello world ' + bcgProductCodeResponse);
+        }).catch((err) => {
+            console.log(`ERROR: ${err}`)
         });
 
-        console.log(`Returning ${bcgProductCodeResponse}`);
+        console.log(`Returning ${JSON.stringify(bcgProductCodeResponse)}`);
 
         return {
             count: 1,
