@@ -1,22 +1,12 @@
 "use strict";
-const main = require('./main.json');
+//const Main = require('./main.json');
 const Alexa = require("alexa-sdk"); // import the library
-const Alexa = require("/flow/fund-data-flow"); // import the fund data flow
+//const FundDataFlow = require("./flow/fund-data-flow"); // import the fund data flow
 
-
-//=========================================================================================================================================
-//TODO: The items below this comment need your attention
-//=========================================================================================================================================
-
-//Replace with your app ID (OPTIONAL).  You can find this value at the top of your skill's page on http://developer.amazon.com.
-//Make sure to enclose your value in quotes, like this:  const APP_ID = "amzn1.ask.skill.bb4045e6-b3e8-4133-b650-72923c5980f1";
-const APP_ID = undefined;
+const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 
 // =====================================================================================================
 // --------------------------------- Section 1. Data and Text strings  ---------------------------------
-// =====================================================================================================
-//TODO: Replace this data with your own.
-//======================================================================================================
 
 const data = [
     { productCode: "AME", productName: "Africa & Middle East Fund", ticker: "TRAMX", cusip: "77956H740", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "International Equity/Multi-Cap", "price": "$9.07", morningStarRating: "3", portfolioManager: "Oliver Bell", totalNetOfAssets: "$135.5m", investmentObjective: "The fund seeks long-term growth of capital by investing primarily in the common stocks of companies located (or with primary operations) in Africa and the Middle East." },
@@ -66,9 +56,6 @@ const makePlainText = Alexa.utils.TextUtils.makePlainText;
 const makeRichText = Alexa.utils.TextUtils.makeRichText;
 const makeImage = Alexa.utils.ImageUtils.makeImage;
 
-const description = 'What would you like to know about today?';
-const imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410397885898802_origin.png'
-
 // =====================================================================================================
 // ------------------------------ Section 2. Skill Code - Intent Handlers  -----------------------------
 // =====================================================================================================
@@ -81,25 +68,25 @@ const states = {
     MULTIPLE_RESULTS: "_MULTIPLE_RESULTS"
 };
 
-const viewportProfile = Alexa.getViewportProfile(handlerInput.requestEnvelope);
-
 const newSessionHandlers = {
     "LaunchRequest": function() {
+        var description = 'What would you like to know about today?';
+        var imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410397885898802_origin.png'
+
         this.handler.state = states.SEARCHMODE;
         this.response.speak(WELCOME_MESSAGE).listen(getGenericHelpMessage(data));
         const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
         const template = builder.setTitle(WELCOME_MESSAGE)
-			.setImage(makeImage(imageURL))
             .setTextContent(makeRichText('' + description + ''), null, null)
             .build();
 
         this.response.renderTemplate(template);
         this.emit(':responseReady');
     },
-    "SearchByNameIntent": function () {
+    "SearchByFundIntent": function () {
         console.log("SEARCH INTENT");
         this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByNameIntent");
+        this.emitWithState("SearchByFundIntent");
     },
     "TellMeMoreIntent": function () {
         this.handler.state = states.SEARCHMODE;
@@ -108,7 +95,7 @@ const newSessionHandlers = {
     },
     "TellMeThisIntent": function () {
         this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByNameIntent");
+        this.emitWithState("SearchByFundIntent");
     },
     "SearchByInfoTypeIntent": function () {
         this.handler.state = states.SEARCHMODE;
@@ -149,7 +136,7 @@ const newSessionHandlers = {
     },
     "Unhandled": function () {
         this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByNameIntent");
+        this.emitWithState("SearchByFundIntent");
     }
 };
 let startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
@@ -172,9 +159,6 @@ let startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
             console.log("no last speech availble. outputting standard help message.");
         }
         this.emit(":ask", output, output);
-    },
-    "SearchByNameIntent": function () {
-        searchByNameIntentHandler.call(this);
     },
     "SearchByFundIntent": function () {
         searchByFundIntentHandler.call(this);
@@ -236,52 +220,6 @@ let multipleSearchResultsHandlers = Alexa.CreateStateHandler(states.MULTIPLE_RES
     },
     "AMAZON.RepeatIntent": function () {
         this.response.speak(this.attributes.lastSearch.lastSpeech).listen(this.attributes.lastSearch.lastSpeech);
-        this.emit(':responseReady');
-    },
-    "SearchByNameIntent": function () {
-        let slots = this.event.request.intent.slots;
-        let productName = isSlotValid(this.event.request, "productName");
-        let productCode = isSlotValid(this.event.request, "productCode");
-        let ticker = isSlotValid(this.event.request, "ticker");
-        let assetClass = isSlotValid(this.event.request, "assetClass");
-
-        console.log("productName:" + productName);
-        console.log("productCode:" + productCode);
-        console.log("ticker:" + ticker);
-        console.log("assetClass:" + assetClass);
-        console.log("Intent Name:" + this.event.request.intent.name);
-
-        let canSearch = figureOutWhichSlotToSearchBy('', productName, productCode, assetClass);
-        console.log("Multiple results found. canSearch is set to = " + canSearch);
-        let speechOutput;
-
-        if (canSearch) {
-            var searchQuery = slots[canSearch].value;
-        }
-
-        var searchResults = searchDatabase(this.attributes.lastSearch.results, searchQuery, canSearch);
-        var lastSearch;
-        var output;
-
-        if (searchResults.count > 1) { //multiple results found again
-            console.log("multiple results were found again");
-            this.handler.state = states.MULTIPLE_RESULTS;
-            output = this.attributes.lastSearch.lastSpeech;
-            this.response.speak(output).listen(output);
-        } else if (searchResults.count === 1) { //one result found
-            this.attributes.lastSearch = searchResults;
-            lastSearch = this.attributes.lastSearch;
-            this.handler.state = states.DESCRIPTION;
-            output = generateSearchResultsMessage(searchQuery, searchResults.results);
-            this.attributes.lastSearch.lastSpeech = output;
-            this.response.speak(output).listen(output);
-
-        } else { //no match found
-            lastSearch = this.attributes.lastSearch;
-            let listOfPeopleFound = loopThroughArrayOfObjects(lastSearch.results);
-            speechOutput = MULTIPLE_RESULTS_STATE_HELP_MESSAGE + ", " + listOfPeopleFound;
-            this.response.speak(speechOutput).listen(speechOutput);
-        }
         this.emit(':responseReady');
     },
     "SearchByFundIntent": function () {
@@ -358,16 +296,14 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
             this.response.speak(speechOutput).listen(repromptSpeech);
         } else {
             //not a valid slot. no card needs to be set up. respond with simply a voice response.
-            speechOutput = generateSearchHelpMessage(product.gender);
-            repromptSpeech = "You can ask me - what's " + genderize("his-her", product.gender) + " twitter, or give me " + genderize("his-her", person.gender) + " git-hub username";
+            speechOutput = generateSearchHelpMessage(product.productCode);
+            repromptSpeech = "Ask me something useful";
+            // repromptSpeech = "You can ask me - what's " + genderize("his-her", product.gender) + " twitter, or give me " + genderize("his-her", person.gender) + " git-hub username";
             this.attributes.lastSearch.lastSpeech = speechOutput;
             this.handler.state = states.SEARCHMODE;
             this.response.speak(speechOutput).listen(repromptSpeech);
         }
         this.emit(':responseReady');
-    },
-    "SearchByNameIntent": function () {
-        searchByNameIntentHandler.call(this);
     },
     "SearchByFundIntent": function () {
         searchByFundIntentHandler.call(this);
@@ -422,11 +358,13 @@ function searchDatabase(dataset, searchQuery, searchType) {
 
     //beginning search
     for (let i = 0; i < dataset.length; i++) {
-        if (sanitizeSearchQuery(searchQuery) == dataset[i][searchType]) {
+        let dataValue = (dataset[i][searchType] || '').toLowerCase();
+        if (sanitizeSearchQuery(searchQuery) === dataValue) {
             results.push(dataset[i]);
             matchFound = true;
+            console.log('matched! ' + dataValue );
         }
-        if ((i == dataset.length - 1) && (matchFound == false)) {
+        if ((i === dataset.length - 1) && (matchFound === false)) {
             //this means that we are on the last record, and no match was found
             matchFound = false;
             console.log("no match was found using " + searchType);
@@ -463,67 +401,6 @@ function figureOutWhichSlotToSearchBy(productName, productCode, ticker, assetCla
     }
 }
 
-function searchByNameIntentHandler() {
-    let firstName = isSlotValid(this.event.request, "firstName");
-    let lastName = isSlotValid(this.event.request, "lastName");
-    let cityName = isSlotValid(this.event.request, "cityName");
-    let infoType = isSlotValid(this.event.request, "infoType");
-
-    let canSearch = figureOutWhichSlotToSearchBy('', firstName, lastName, cityName);
-    console.log("canSearch is set to = " + canSearch);
-
-    if (canSearch) {
-        var searchQuery = this.event.request.intent.slots[canSearch].value;
-        var searchResults = searchDatabase(data, searchQuery, canSearch);
-
-        //saving lastSearch results to the current session
-        var lastSearch = this.attributes.lastSearch = searchResults;
-        var output;
-
-        //saving last intent to session attributes
-        this.attributes.lastSearch.lastIntent = "SearchByNameIntent";
-
-        if (searchResults.count > 1) { //multiple results found
-            console.log("Search complete. Multiple results were found");
-            let listOfPeopleFound = loopThroughArrayOfObjects(lastSearch.results);
-            output = generateSearchResultsMessage(searchQuery, searchResults.results) + listOfPeopleFound + ". Who would you like to learn more about?";
-            this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
-            this.attributes.lastSearch.lastSpeech = output;
-            this.response.speak(output).listen(output);
-        } else if (searchResults.count == 1) { //one result found
-            this.handler.state = states.DESCRIPTION; // change state to description
-            console.log("one match was found");
-            if (infoType) {
-                //if a specific infoType was requested, redirect to specificInfoIntent
-                console.log("infoType was provided as well");
-                this.emitWithState("TellMeThisIntent");
-            }
-            else {
-                console.log("no infoType was provided.");
-                output = generateSearchResultsMessage(searchQuery, searchResults.results);
-                this.attributes.lastSearch.lastSpeech = output;
-                this.response.speak(output).listen(output);
-            }
-        }
-        else {//no match found
-            console.log("no match found");
-            console.log("searchQuery was  = " + searchQuery);
-            console.log("searchResults.results was  = " + searchResults);
-            output = generateSearchResultsMessage(searchQuery, searchResults.results);
-            this.attributes.lastSearch.lastSpeech = output;
-            // this.emit(":ask", generateSearchResultsMessage(searchQuery,searchResults.results));
-            this.response.speak(output).listen(output);
-        }
-    }
-    else {
-        console.log("no searchable slot was provided");
-
-        this.response.speak(generateSearchResultsMessage(searchQuery, false)).listen(generateSearchResultsMessage(searchQuery, false));
-    }
-
-    this.emit(':responseReady');
-}
-
 function searchByFundIntentHandler() {
     var slots = this.event.request.intent.slots;
     var fundTerms = isSlotValid(this.event.request, "fundTerms");
@@ -547,9 +424,7 @@ function searchByFundIntentHandler() {
             this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
             this.attributes.lastSearch.lastSpeech = output;
             this.response.speak(output).listen(output);
-            const template = loopThroughArrayOfFunds(searchResults.results);
-            this.response.renderTemplate(template);
-        } else if (searchResults.count == 1) { //one result found
+        } else if (searchResults.count === 1) { //one result found
             console.log("one match found");
             this.handler.state = states.DESCRIPTION; // change state to description
             output = generateSearchResultsMessage(searchQuery, searchResults.results);
@@ -558,13 +433,7 @@ function searchByFundIntentHandler() {
             this.response.speak(output).listen(output);
             const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
             const template = builder.setTitle(searchResults.results[0].productName)
-                .setTextContent(makeRichText('Morning Star Rating' + searchResults.results[0].morningStarRating + '\n' + 'Price'
-                    + searchResults.results[0].price + '\n' + 'Total Net Assets' + searchResults.results[0].totalNetOfAssets + '\n'
-                    + 'CUSIP' + searchResults.results[0].cusip + '\n' + 'Ticker' + searchResults.results[0].totalNetOfAssets + '\n'
-                    + 'Share Class' + searchResults.results[0].shareClass + '\n' + 'Asset Class' + searchResults.results[0].assetClass + '\n'
-                    + 'Core Category' + searchResults.results[0].coreCategory + '\n' + 'Portfolio Manager' + searchResults.results[0].portfolioManager + '\n'
-                    + 'Investment Objective:' + searchResults.results[0].investmentObjective
-                    + '\n' + output + ''), null, null)
+                .setTextContent(makeRichText('' + output + ''), null, null)
                 .build();
             this.response.renderTemplate(template);
         }
@@ -613,7 +482,7 @@ function searchByInfoTypeIntentHandler() {
         var output;
 
         //saving last intent to session attributes
-        this.attributes.lastSearch.lastIntent = "SearchByNameIntent";
+        this.attributes.lastSearch.lastIntent = "SearchByFundIntent";
 
         if (searchResults.count > 1) { //multiple results found
             console.log("multiple results were found");
@@ -622,7 +491,7 @@ function searchByInfoTypeIntentHandler() {
             this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
             this.attributes.lastSearch.lastSpeech = output;
             this.response.speak(output).listen(output);
-        } else if (searchResults.count == 1) { //one result found
+        } else if (searchResults.count === 1) { //one result found
             this.handler.state = states.DESCRIPTION; // change state to description
             console.log("one match was found");
             if (infoType) {
@@ -668,19 +537,19 @@ function generateNextPromptMessage(person, mode) {
     let infoTypes = ["price", "investment strategy", "net asset value", "morningstar rating", "portfolio manager"];
     let prompt;
 
-    if (mode == "current") {
+    if (mode === "current") {
         // if the mode is current, we should give more informaiton about the current contact
         prompt = ". You can say - tell me more, or  tell me its " + infoTypes[getRandom(0, infoTypes.length - 1)];
     }
     //if the mode is general, we should provide general help information
-    else if (mode == "general") {
+    else if (mode === "general") {
         prompt = ". " + getGenericHelpMessage(data);
     }
     return prompt;
 }
 
 function generateSendingCardToAlexaAppMessage(person, mode) {
-    let sentence = "I have sent " + person.firstName + "'s contact card to your Alexa app" + generateNextPromptMessage(person, mode);
+    let sentence = "I have sent " + person.productName + "'s contact card to your Alexa app" + generateNextPromptMessage(person, mode);
     return sentence;
 }
 
@@ -691,13 +560,13 @@ function generateSearchResultsMessage(searchQuery, results) {
 
     if (results) {
         switch (true) {
-            case (results.length == 0):
+            case (results.length === 0):
                 sentence = "Hmm. I couldn't find " + searchQuery + ". " + getGenericHelpMessage(data);
                 break;
-            case (results.length == 1):
+            case (results.length === 1):
                 let product = results[0];
-                details = product.productName + " is " + product.productCode + ", with a price of " + (Math.random() * 101) + " US dollars";
-                prompt = generateNextPromptMessage(person, "current");
+                details = product.productName + " is " + product.productCode + ", with a price of " + (Math.random() * 101).toFixed(2) + " US dollars";
+                prompt = generateNextPromptMessage(product, "current");
                 sentence = details + prompt;
                 console.log(sentence);
                 break;
@@ -718,15 +587,15 @@ function getGenericHelpMessage(data) {
 }
 
 function generateSearchHelpMessage(gender) {
-    let sentence = "Sorry, I don't know that. You can ask me - what's " + genderize("his-her", gender) + " twitter, or give me " + genderize("his-her", gender) + " git-hub username";
+    let sentence = "Sorry, I don't know that. You can ask me - what's BCG fund's price" ;
     return sentence;
 }
 
-function generateTellMeMoreMessage(person) {
-    let sentence = person.firstName + " joined the Alexa team in " + person.joinDate + ". " + genderize("his-her", person.gender) + " Twitter handle is " + person.saytwitter + " . " + generateSendingCardToAlexaAppMessage(person, "general");
+function generateTellMeMoreMessage(product) {
+    let sentence = product.productName + " current price " + (Math.random() * 101).toFixed(2) + " US dollars. " + generateSendingCardToAlexaAppMessage(product, "general");
     return sentence;
 }
-function generateSpecificInfoMessage(slots, person) {
+function generateSpecificInfoMessage(slots, product) {
     let infoTypeValue;
     let sentence;
 
@@ -739,7 +608,7 @@ function generateSpecificInfoMessage(slots, person) {
         infoTypeValue = slots.infoType.value;
     }
 
-    sentence = person.firstName + "'s " + infoTypeValue.toLowerCase() + " is - " + person["say" + infoTypeValue.toLowerCase()] + " . Would you like to find another evangelist? " + getGenericHelpMessage(data);
+    sentence = product.productName + "'s " + infoTypeValue.toLowerCase() + " is - " + person["say" + infoTypeValue.toLowerCase()] + " . Would you like to find another evangelist? " + getGenericHelpMessage(data);
     return optimizeForSpeech(sentence);
 }
 
@@ -760,34 +629,30 @@ function getRandom(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function getRandomCity(arrayOfStrings) {
-    return arrayOfStrings[getRandom(0, data.length - 1)].cityName;
-}
-
 function getRandomFund(arrayOfStrings) {
     return arrayOfStrings[getRandom(0, data.length - 1)].productName;
 }
 
 function getRandomName(arrayOfStrings) {
     let randomNumber = getRandom(0, data.length - 1);
-    return arrayOfStrings[randomNumber].firstName + " " + arrayOfStrings[randomNumber].lastName;
+    return arrayOfStrings[randomNumber].productName;
 }
 
 function titleCase(str) {
     return str.replace(str[0], str[0].toUpperCase());
 }
 
-function generateCard(person) {
-    let cardTitle = "Contact Info for " + titleCase(person.firstName) + " " + titleCase(person.lastName);
-    let cardBody = "Twitter: " + "@" + person.twitter + " \n" + "GitHub: " + person.github + " \n" + "LinkedIn: " + person.linkedin;
-    let imageObj = {
+function generateCard(product) {
+    let cardTitle = "Product Info for " + titleCase(product.productName);
+    let cardBody = "Price: " + product.price + " \n" + "Fund Manager: " + product.portfolioManager + " \n";
+    /*let imageObj = {
         smallImageUrl: "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/team-lookup/avatars/" + person.firstName + "._TTH_.jpg",
         largeImageUrl: "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/team-lookup/avatars/" + person.firstName + "._TTH_.jpg",
-    };
+    }; */
     return {
         "title": cardTitle,
         "body": cardBody,
-        "image": imageObj
+        //"image": imageObj
     };
 }
 
@@ -799,15 +664,6 @@ function loopThroughArrayOfObjects(arrayOfStrings) {
         joinedResult = joinedResult + ", " + arrayOfStrings[i].productName;
     }
     return joinedResult;
-}
-
-function loopThroughArrayOfFunds(arrayOfStrings) {
-    const builder = new Alexa.templateBuilders.ListTemplate1Builder();
-    // Looping through the each object in the array
-    for (let i = 0; i < arrayOfStrings.length; i++) {
-        builder.addItem("","123","primaryText","secondaryText","tertiaryText");
-    }
-    return builder;
 }
 
 function genderize(type, gender) {

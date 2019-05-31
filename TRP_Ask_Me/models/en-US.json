@@ -55,6 +55,7 @@
             }
           ],
           "samples": [
+            "find a mutual fund {fundTerms}",
             "for the fund {fundTerms}",
             "what is {fundTerms}",
             "what is the  {fundTerms} fund"
@@ -93,42 +94,6 @@
             "{whatPhrase} {lastName} {infoType}",
             "{whatPhrase} {firstName}  {infoType} handle",
             "{whatPhrase} {firstName} {infoType} username"
-          ]
-        },
-        {
-          "name": "SearchByNameIntent",
-          "slots": [
-            {
-              "name": "firstName",
-              "type": "AMAZON.US_FIRST_NAME"
-            },
-            {
-              "name": "lastName",
-              "type": "LAST_NAME"
-            },
-            {
-              "name": "infoType",
-              "type": "LIST_OF_INFO_TYPES"
-            },
-            {
-              "name": "whoPhrase",
-              "type": "WHO_PHRASE"
-            },
-            {
-              "name": "whatPhrase",
-              "type": "WHAT_PHRASE"
-            }
-          ],
-          "samples": [
-            "{firstName}",
-            "{lastName}",
-            "{firstName} {lastName}",
-            "{whoPhrase} {firstName} ",
-            "{whoPhrase} {firstName} {lastName} ",
-            "{whoPhrase} {lastName} ",
-            "{whatPhrase} {firstName} {lastName} {infoType} username",
-            "{whatPhrase} {infoType} for {firstName} ",
-            "{whatPhrase} {firstName} {lastName} {infoType} handle"
           ]
         },
         {
