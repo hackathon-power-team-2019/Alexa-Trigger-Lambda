@@ -482,12 +482,12 @@ function searchByFundIntentHandler() {
             this.response.speak(output).listen(output);
             const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
             const template = builder.setTitle(searchResults.results[0].productName)
-                .setTextContent(makeRichText('Morning Star Rating' + searchResults.results[0].morningStarRating + '\n' + 'Price'
-                    + searchResults.results[0].price + '\n' + 'Total Net Assets' + searchResults.results[0].totalNetOfAssets + '\n'
-                    + 'CUSIP' + searchResults.results[0].cusip + '\n' + 'Ticker' + searchResults.results[0].totalNetOfAssets + '\n'
-                    + 'Share Class' + searchResults.results[0].shareClass + '\n' + 'Asset Class' + searchResults.results[0].assetClass + '\n'
-                    + 'Core Category' + searchResults.results[0].coreCategory + '\n' + 'Portfolio Manager' + searchResults.results[0].portfolioManager + '\n'
-                    + 'Investment Objective:' + searchResults.results[0].investmentObjective
+                .setTextContent(makeRichText('Morning Star Rating : ' + searchResults.results[0].morningStarRating + '\n' + 'Price : '
+                    + searchResults.results[0].price + '\n' + 'Total Net Assets : ' + searchResults.results[0].totalNetOfAssets + '\n'
+                    + 'CUSIP : ' + searchResults.results[0].cusip + '\n' + 'Ticker : ' + searchResults.results[0].totalNetOfAssets + '\n'
+                    + 'Share Class : ' + searchResults.results[0].shareClass + '\n' + 'Asset Class : ' + searchResults.results[0].assetClass + '\n'
+                    + 'Core Category : ' + searchResults.results[0].coreCategory + '\n' + 'Portfolio Manager : ' + searchResults.results[0].portfolioManager + '\n'
+                    + 'Investment Objective : ' + searchResults.results[0].investmentObjective
                     + '\n' + output + ''), null, null)
                 .build();
             this.response.renderTemplate(template);
@@ -725,7 +725,7 @@ function loopThroughArrayOfFunds(arrayOfStrings) {
     const builder = new Alexa.templateBuilders.ListTemplate1Builder();
     // Looping through the each object in the array
     for (let i = 0; i < arrayOfStrings.length; i++) {
-        builder.addItem("","123","primaryText","secondaryText","tertiaryText");
+        builder.addItem(makeImage(imageURL),searchResults.results[i].cusip,arrayOfStrings[i].productName,searchResults.results[i].morningStarRating,arrayOfStrings[i].price);
     }
     return builder;
 }
