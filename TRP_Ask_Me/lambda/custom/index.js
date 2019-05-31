@@ -3,20 +3,10 @@
 const Alexa = require("alexa-sdk"); // import the library
 //const FundDataFlow = require("./flow/fund-data-flow"); // import the fund data flow
 
-
-//=========================================================================================================================================
-//TODO: The items below this comment need your attention
-//=========================================================================================================================================
-
-//Replace with your app ID (OPTIONAL).  You can find this value at the top of your skill's page on http://developer.amazon.com.
-//Make sure to enclose your value in quotes, like this:  const APP_ID = "amzn1.ask.skill.bb4045e6-b3e8-4133-b650-72923c5980f1";
-const APP_ID = undefined;
+const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 
 // =====================================================================================================
 // --------------------------------- Section 1. Data and Text strings  ---------------------------------
-// =====================================================================================================
-//TODO: Replace this data with your own.
-//======================================================================================================
 
 const data = [
     { productCode: "AME", productName: "Africa & Middle East Fund", ticker: "TRAMX", cusip: "77956H740", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "International Equity/Multi-Cap", "price": "$9.07", morningStarRating: "3", portfolioManager: "Oliver Bell", totalNetOfAssets: "$135.5m", investmentObjective: "The fund seeks long-term growth of capital by investing primarily in the common stocks of companies located (or with primary operations) in Africa and the Middle East." },
@@ -547,12 +537,12 @@ function generateNextPromptMessage(person, mode) {
     let infoTypes = ["price", "investment strategy", "net asset value", "morningstar rating", "portfolio manager"];
     let prompt;
 
-    if (mode == "current") {
+    if (mode === "current") {
         // if the mode is current, we should give more informaiton about the current contact
         prompt = ". You can say - tell me more, or  tell me its " + infoTypes[getRandom(0, infoTypes.length - 1)];
     }
     //if the mode is general, we should provide general help information
-    else if (mode == "general") {
+    else if (mode === "general") {
         prompt = ". " + getGenericHelpMessage(data);
     }
     return prompt;
