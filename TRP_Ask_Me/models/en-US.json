@@ -1,434 +1,301 @@
 {
-  "interactionModel": {
-    "languageModel": {
-      "invocationName": "t rowe price",
-      "intents": [
-        {
-          "name": "AMAZON.CancelIntent",
-          "samples": []
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "t rowe price",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": [
+                        "how do I search"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NoIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.RepeatIntent",
+                    "samples": [
+                        "repeat that",
+                        "say that again",
+                        "can you say that again",
+                        "please repeat"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StartOverIntent",
+                    "samples": [
+                        "startover",
+                        "new search",
+                        "search again"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": []
+                },
+                {
+                    "name": "SearchByFundIntent",
+                    "slots": [
+                        {
+                            "name": "cityName",
+                            "type": "AMAZON.US_CITY"
+                        },
+                        {
+                            "name": "fundTerms",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "find a mutual fund {fundTerms}",
+                        "for the fund {fundTerms}",
+                        "what is {fundTerms}",
+                        "what is the  {fundTerms}"
+                    ]
+                },
+                {
+                    "name": "SearchByInfoTypeIntent",
+                    "slots": [
+                        {
+                            "name": "fund",
+                            "type": "AMAZON.SearchQuery"
+                        },
+                        {
+                            "name": "fundAttrTypes",
+                            "type": "LIST_OF_FUND_INFO_TYPES"
+                        },
+                        {
+                            "name": "whatPhrase",
+                            "type": "WHAT_PHRASE"
+                        },
+                        {
+                            "name": "whoPhrase",
+                            "type": "WHO_PHRASE"
+                        }
+                    ],
+                    "samples": [
+                        "{whoPhrase} {fund} {fundAttrTypes}",
+                        "{whatPhrase} {fund} {fundAttrTypes}",
+                        "{whatPhrase} the {fundAttrTypes} of {fund}",
+                        "{whoPhrase} the {fundAttrTypes} of {fund}"
+                    ]
+                },
+                {
+                    "name": "TellMeMoreIntent",
+                    "slots": [],
+                    "samples": [
+                        "contact info",
+                        "tell me more",
+                        "more details"
+                    ]
+                },
+                {
+                    "name": "TellMeThisIntent",
+                    "slots": [
+                        {
+                            "name": "infoType",
+                            "type": "LIST_OF_FUND_INFO_TYPES"
+                        },
+                        {
+                            "name": "whatPhrase",
+                            "type": "WHAT_PHRASE"
+                        }
+                    ],
+                    "samples": [
+                        "{whatPhrase} is {infoType}",
+                        "{whatPhrase} is its {infoType} ",
+                        "{whatPhrase} the {infoType} ",
+                        "{whatPhrase} {infoType} articles",
+                        "tell me its {infoType} ",
+                        "tell me her {infoType} handle"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.MoreIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateSettingsIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NextIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PageUpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PageDownIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PreviousIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollRightIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollDownIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollLeftIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollUpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "SubscribeToFund",
+                    "slots": [
+                        {
+                            "name": "fundCode",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "Subscribe me to {fundCode}",
+                        "Subscribe me to fund"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "WHAT_PHRASE",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "what is"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "what's"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "give me"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "tell me"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "WHO_PHRASE",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "find"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "who is"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "LIST_OF_FUND_INFO_TYPES",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "manager",
+                                "synonyms": [
+                                    "fund manager",
+                                    "portfolio manager",
+                                    "money manager"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "morningstar",
+                                "synonyms": [
+                                    "rating"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "investment objective",
+                                "synonyms": [
+                                    "objective"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "price"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "net asset",
+                                "synonyms": [
+                                    "net asset value",
+                                    "N.A.V.",
+                                    "NAV"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
         },
-        {
-          "name": "AMAZON.HelpIntent",
-          "samples": [
-            "how do I search"
-          ]
+        "dialog": {
+            "intents": [
+                {
+                    "name": "SubscribeToFund",
+                    "confirmationRequired": true,
+                    "prompts": {
+                        "confirmation": "Confirm.Intent.829474869552"
+                    },
+                    "slots": [
+                        {
+                            "name": "fundCode",
+                            "type": "AMAZON.SearchQuery",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        }
+                    ]
+                }
+            ],
+            "delegationStrategy": "ALWAYS"
         },
-        {
-          "name": "AMAZON.NoIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.RepeatIntent",
-          "samples": [
-            "repeat that",
-            "say that again",
-            "can you say that again",
-            "please repeat"
-          ]
-        },
-        {
-          "name": "AMAZON.StartOverIntent",
-          "samples": [
-            "startover",
-            "new search",
-            "search again"
-          ]
-        },
-        {
-          "name": "AMAZON.StopIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.YesIntent",
-          "samples": []
-        },
-        {
-          "name": "SearchByFundIntent",
-          "slots": [
+        "prompts": [
             {
-              "name": "cityName",
-              "type": "AMAZON.US_CITY"
-            },
-            {
-              "name": "fundTerms",
-              "type": "AMAZON.SearchQuery"
-            }
-          ],
-          "samples": [
-            "find a mutual fund {fundTerms}",
-            "for the fund {fundTerms}",
-            "what is {fundTerms}",
-            "what is the  {fundTerms} fund"
-          ]
-        },
-        {
-          "name": "SearchByInfoTypeIntent",
-          "slots": [
-            {
-              "name": "fund",
-              "type": "AMAZON.SearchQuery"
-            },
-            {
-              "name": "firstName",
-              "type": "AMAZON.US_FIRST_NAME"
-            },
-            {
-              "name": "lastName",
-              "type": "LAST_NAME"
-            },
-            {
-              "name": "fundAttrTypes",
-              "type": "LIST_OF_FUND_INFO_TYPES"
-            },
-            {
-              "name": "infoType",
-              "type": "LIST_OF_INFO_TYPES"
-            },
-            {
-              "name": "whatPhrase",
-              "type": "WHAT_PHRASE"
-            }
-          ],
-          "samples": [
-            "{whatPhrase} {firstName} {lastName} {infoType}",
-            "{whatPhrase} {lastName} {infoType}",
-            "{whatPhrase} {firstName}  {infoType} handle",
-            "{whatPhrase} {firstName} {infoType} username"
-          ]
-        },
-        {
-          "name": "TellMeMoreIntent",
-          "slots": [],
-          "samples": [
-            "contact info",
-            "tell me more",
-            "more details"
-          ]
-        },
-        {
-          "name": "TellMeThisIntent",
-          "slots": [
-            {
-              "name": "infoType",
-              "type": "LIST_OF_INFO_TYPES"
-            },
-            {
-              "name": "whatPhrase",
-              "type": "WHAT_PHRASE"
-            }
-          ],
-          "samples": [
-            "{whatPhrase} is {infoType}",
-            "{whatPhrase} is its {infoType} ",
-            "{whatPhrase} the {infoType} ",
-            "{whatPhrase} {infoType} articles",
-            "tell me its {infoType} ",
-            "tell me her {infoType} handle"
-          ]
-        },
-        {
-          "name": "AMAZON.NavigateHomeIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.MoreIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.NavigateSettingsIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.NextIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.PageUpIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.PageDownIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.PreviousIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.ScrollRightIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.ScrollDownIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.ScrollLeftIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.ScrollUpIntent",
-          "samples": []
-        },
-        {
-          "name": "SubscribeToFund",
-          "slots": [
-            {
-              "name": "fundCode",
-              "type": "AMAZON.SearchQuery"
-            }
-          ],
-          "samples": [
-            "Subscribe me to {fundCode}",
-            "Subscribe me to fund"
-          ]
-        }
-      ],
-      "types": [
-        {
-          "name": "AMAZON.US_FIRST_NAME",
-          "values": [
-            {
-              "name": {
-                "value": "paul"
-              }
-            },
-            {
-              "name": {
-                "value": "jeff"
-              }
-            },
-            {
-              "name": {
-                "value": "memo"
-              }
-            },
-            {
-              "name": {
-                "value": "rob"
-              }
-            },
-            {
-              "name": {
-                "value": "dave"
-              }
-            },
-            {
-              "name": {
-                "value": "amit"
-              }
-            },
-            {
-              "name": {
-                "value": "liz"
-              }
-            },
-            {
-              "name": {
-                "value": "dean"
-              }
-            }
-          ]
-        },
-        {
-          "name": "LAST_NAME",
-          "values": [
-            {
-              "name": {
-                "value": "cutsinger"
-              }
-            },
-            {
-              "name": {
-                "value": "blankenburg"
-              }
-            },
-            {
-              "name": {
-                "value": "doring"
-              }
-            },
-            {
-              "name": {
-                "value": "mccauley"
-              }
-            },
-            {
-              "name": {
-                "value": "isbitsky"
-              }
-            },
-            {
-              "name": {
-                "value": "palermo"
-              }
-            },
-            {
-              "name": {
-                "value": "jotwani"
-              }
-            },
-            {
-              "name": {
-                "value": "myers"
-              }
-            },
-            {
-              "name": {
-                "value": "bryen"
-              }
-            },
-            {
-              "name": {
-                "value": "gilbert"
-              }
-            }
-          ]
-        },
-        {
-          "name": "LIST_OF_INFO_TYPES",
-          "values": [
-            {
-              "name": {
-                "value": "twitter"
-              }
-            },
-            {
-              "name": {
-                "value": "git hub"
-              }
-            },
-            {
-              "name": {
-                "value": "linkedin"
-              }
-            },
-            {
-              "name": {
-                "value": "github"
-              }
-            }
-          ]
-        },
-        {
-          "name": "WHAT_PHRASE",
-          "values": [
-            {
-              "name": {
-                "value": "what is"
-              }
-            },
-            {
-              "name": {
-                "value": "what's"
-              }
-            },
-            {
-              "name": {
-                "value": "give me"
-              }
-            },
-            {
-              "name": {
-                "value": "tell me"
-              }
-            }
-          ]
-        },
-        {
-          "name": "WHO_PHRASE",
-          "values": [
-            {
-              "name": {
-                "value": "find"
-              }
-            },
-            {
-              "name": {
-                "value": "who is"
-              }
-            }
-          ]
-        },
-        {
-          "name": "LIST_OF_FUND_INFO_TYPES",
-          "values": [
-            {
-              "name": {
-                "value": "manager",
-                "synonyms": [
-                  "fund manager",
-                  "portfolio manager",
-                  "money manager"
+                "id": "Confirm.Intent.829474869552",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "You are subscribed to the fund."
+                    }
                 ]
-              }
-            },
-            {
-              "name": {
-                "value": "morningstar",
-                "synonyms": [
-                  "rating"
-                ]
-              }
-            },
-            {
-              "name": {
-                "value": "investment objective",
-                "synonyms": [
-                  "objective"
-                ]
-              }
-            },
-            {
-              "name": {
-                "value": "price"
-              }
-            },
-            {
-              "name": {
-                "value": "net asset",
-                "synonyms": [
-                  "net asset value",
-                  "N.A.V.",
-                  "NAV"
-                ]
-              }
             }
-          ]
-        }
-      ]
-    },
-    "dialog": {
-      "intents": [
-        {
-          "name": "SubscribeToFund",
-          "confirmationRequired": true,
-          "prompts": {
-            "confirmation": "Confirm.Intent.829474869552"
-          },
-          "slots": [
-            {
-              "name": "fundCode",
-              "type": "AMAZON.SearchQuery",
-              "confirmationRequired": false,
-              "elicitationRequired": false,
-              "prompts": {}
-            }
-          ]
-        }
-      ],
-      "delegationStrategy": "ALWAYS"
-    },
-    "prompts": [
-      {
-        "id": "Confirm.Intent.829474869552",
-        "variations": [
-          {
-            "type": "PlainText",
-            "value": "You are subscribed to the fund."
-          }
         ]
-      }
-    ]
-  }
+    }
 }
