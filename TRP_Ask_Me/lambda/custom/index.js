@@ -836,11 +836,18 @@ async function searchAemFundDatabase(answer) {
 
     if(answer) {
         let encodedQuery = encodeURIComponent(answer);
-        const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${answer}`;
+        const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${encodedQuery}`;
         const response = await doRequest(URL);
 
+        const bcgURL ='https://www.troweprice.com/financial-intermediary/us/en/investments/mutual-funds/us-products/blue-chip-growth-fund/jcr:content.json';
+        const bcgResponse = await doRequest(bcgURL);
+        const bcgProductCode = await doRequest('https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=BCG');
 
-        return "Blue Chip Growth Fund";
+        return {
+            count: 1,
+            results: bcgProductCode,
+        };
+
     }
 }
 
