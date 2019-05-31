@@ -6,11 +6,11 @@
       "merge": {},
       "resources": {
         "manifest": {
-          "eTag": "4756d73b70743b8b38a5841d1a95acb3"
+          "eTag": "0ab105867081c84c799eb0639793f362"
         },
         "interactionModel": {
           "en-US": {
-            "eTag": "47102e62daa567d6839843601e4731e7"
+            "eTag": "334ab16e8bcd6ef04e0a80a571e40807"
           }
         },
         "lambda": [
@@ -23,7 +23,7 @@
             "codeUri": "lambda/custom",
             "functionName": "ask-custom-TRP_Ask_Me_Funds-default",
             "handler": "index.handler",
-            "revisionId": "56e81f11-3191-42c0-9b3d-1ce54c13fe60",
+            "revisionId": "a530ccd4-6777-4ce7-8ff8-bcf8992cd019",
             "runtime": "nodejs8.10"
           }
         ]
