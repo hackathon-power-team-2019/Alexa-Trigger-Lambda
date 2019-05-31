@@ -837,7 +837,9 @@ async function searchAemFundDatabase(answer) {
     if(answer) {
         let encodedQuery = encodeURIComponent(answer);
         const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${answer}`;
-        const response = await doRequest(URL);
+        const aemSearchResults = await doRequest(URL);
+
+        aemSearchResults.predictiveSearchModal;
 
 
         return "Blue Chip Growth Fund";
