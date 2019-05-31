@@ -43,24 +43,30 @@
           "samples": []
         },
         {
-          "name": "SearchByCityIntent",
+          "name": "SearchByFundIntent",
           "slots": [
             {
               "name": "cityName",
               "type": "AMAZON.US_CITY"
+            },
+            {
+              "name": "fundTerms",
+              "type": ""
             }
           ],
           "samples": [
-            "who is in {cityName} ",
-            "find me an evangelist in {cityName} ",
-            "find me someone in {cityName} ",
-            "{cityName} ",
-            "{cityName} evangelist"
+            "for the fund {fundTerms}",
+            "what is {fundTerms}",
+            "what is the  {fundTerms} fund"
           ]
         },
         {
           "name": "SearchByInfoTypeIntent",
           "slots": [
+            {
+              "name": "fund",
+              "type": ""
+            },
             {
               "name": "firstName",
               "type": "AMAZON.US_FIRST_NAME"
@@ -68,6 +74,10 @@
             {
               "name": "lastName",
               "type": "LAST_NAME"
+            },
+            {
+              "name": "fundAttrTypes",
+              "type": "LIST_OF_FUND_INFO_TYPES"
             },
             {
               "name": "infoType",
@@ -79,6 +89,7 @@
             }
           ],
           "samples": [
+            "{whatPhrase} {fund} {fundAttrTypes}",
             "{whatPhrase} {firstName} {lastName} {infoType}",
             "{whatPhrase} {lastName} {infoType}",
             "{whatPhrase} {firstName}  {infoType} handle",
@@ -135,7 +146,7 @@
           "slots": [
             {
               "name": "infoType",
-              "type": "LIST_OF_INFO_TYPES"
+              "type": "LIST_OF_FUND_INFO_TYPES"
             },
             {
               "name": "whatPhrase",
@@ -143,16 +154,56 @@
             }
           ],
           "samples": [
-            "{whatPhrase} her {infoType} handle",
-            "{whatPhrase} her {infoType} username",
-            "{whatPhrase} {infoType} username",
-            "{whatPhrase} his {infoType} handle",
-            "tell me his {infoType} username",
+            "{whatPhrase} is {infoType}",
+            "{whatPhrase} is its {infoType} ",
+            "{whatPhrase} the {infoType} ",
+            "{whatPhrase} {infoType} articles",
+            "tell me its {infoType} ",
             "tell me her {infoType} handle"
           ]
         },
         {
           "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.MoreIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateSettingsIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NextIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PageUpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PageDownIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PreviousIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ScrollRightIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ScrollDownIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ScrollLeftIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ScrollUpIntent",
           "samples": []
         }
       ],
@@ -318,6 +369,52 @@
             {
               "name": {
                 "value": "who is"
+              }
+            }
+          ]
+        },
+        {
+          "name": "LIST_OF_FUND_INFO_TYPES",
+          "values": [
+            {
+              "name": {
+                "value": "manager",
+                "synonyms": [
+                  "fund manager",
+                  "portfolio manager",
+                  "money manager"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "morningstar",
+                "synonyms": [
+                  "rating"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "investment objective",
+                "synonyms": [
+                  "objective"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "price"
+              }
+            },
+            {
+              "name": {
+                "value": "net asset",
+                "synonyms": [
+                  "net asset value",
+                  "N.A.V.",
+                  "NAV"
+                ]
               }
             }
           ]

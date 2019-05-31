@@ -5,8 +5,9 @@
         "en-US": {
           "summary": "Find and subscribe to fund info for any T. Rowe Price Fund",
           "examplePhrases": [
-            "Alexa, open T. Rowe Price",
-            "Alexa, start T. Rowe Price"
+            "Alexa, open T Rowe Price",
+            "Alexa, start T Rowe Price",
+            "Alexa, ask T Rowe Price"
           ],
           "keywords": [
             "T. Rowe Price Funds",
