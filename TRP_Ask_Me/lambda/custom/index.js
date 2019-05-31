@@ -765,7 +765,7 @@ function isInfoTypeValid(infoType) {
     return isInArray(infoType, validTypes);
 }
 
-function subscribeToFund(product) {
+async function subscribeToFund(product) {
     function doRequest(url){
         return new Promise(function(resolve, reject){
             console.log('URL', url);
@@ -802,6 +802,42 @@ function subscribeToFund(product) {
 
     if(queryValue) {
         const URL = 'https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription';
+        const response = await doRequest(URL);
+        return {
+            statusCode: 200,
+            body: response
+        };
+    }
+}
+
+async function searchAemFundDatabase(answer) {
+
+    function doRequest(url){
+        return new Promise(function(resolve, reject){
+            console.log('URL', url);
+            https.get(url, (resp) => {
+                let data = '';
+
+                // A chunk of data has been recieved.
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                // The whole response has been received. Print out the result.
+                resp.on('end', () => {
+                    resolve(JSON.parse(data));
+                });
+
+            }).on("error", (err) => {
+                reject(err);
+            });
+        });
+    }
+
+    const queryValue = event.query;
+
+    if(queryValue) {
+        const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${answer}`;
         const response = await doRequest(URL);
         return {
             statusCode: 200,
