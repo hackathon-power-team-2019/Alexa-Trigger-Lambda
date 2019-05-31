@@ -43,7 +43,7 @@ const data=[
 const skillName = "T Rowe Price";
 
 //This is the welcome message for when a user starts the skill without a specific intent.
-const WELCOME_MESSAGE = "Hello, I am Trusty Alexa from T. Rowe Price.  I go by Trusty for short.  You can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
+const WELCOME_MESSAGE = "Hello, I am Trusty Alexa from " + skillName + ".  I go by Trusty for short.  You can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
 
 //This is the message a user will hear when they ask Alexa for help in your skill.
 const HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";
@@ -164,8 +164,8 @@ let startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
 	"SearchByNameIntent": function() {
 		searchByNameIntentHandler.call(this);
 	},
-	"SearchByCityIntent": function() {
-		searchByCityIntentHandler.call(this);
+	"SearchByFundIntent": function() {
+		searchByFundIntentHandler.call(this);
 	},
 	"SearchByInfoTypeIntent": function() {
 		searchByInfoTypeIntentHandler.call(this);
@@ -239,7 +239,7 @@ let multipleSearchResultsHandlers = Alexa.CreateStateHandler(states.MULTIPLE_RES
 		console.log("firstName:" + infoType);
 		console.log("Intent Name:" + this.event.request.intent.name);
 
-		let canSearch = figureOutWhichSlotToSearchBy(firstName,lastName,cityName);
+		let canSearch = figureOutWhichSlotToSearchBy('',firstName,lastName,cityName);
 		console.log("Multiple results found. canSearch is set to = " + canSearch);
 		let speechOutput;
 
@@ -270,9 +270,9 @@ let multipleSearchResultsHandlers = Alexa.CreateStateHandler(states.MULTIPLE_RES
 		}
 		this.emit(':responseReady');
 	},
-	"SearchByCityIntent": function() {
+	"SearchByFundIntent": function() {
 		this.handler.state = states.SEARCHMODE;
-		this.emitWithState("SearchByCityIntent");
+		this.emitWithState("SearchByFundIntent");
 	},
 	"AMAZON.HelpIntent": function() {
 		this.response.speak(MULTIPLE_RESULTS_STATE_HELP_MESSAGE).listen(MULTIPLE_RESULTS_STATE_HELP_MESSAGE);
@@ -355,8 +355,8 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
 	"SearchByNameIntent": function() {
 		searchByNameIntentHandler.call(this);
 	},
-	"SearchByCityIntent": function() {
-		searchByCityIntentHandler.call(this);
+	"SearchByFundIntent": function() {
+		searchByFundIntentHandler.call(this);
 	},
 	"AMAZON.HelpIntent": function() {
 		var person = this.attributes.lastSearch.results[0];
@@ -426,8 +426,12 @@ function searchDatabase(dataset, searchQuery, searchType) {
 	};
 }
 
-function figureOutWhichSlotToSearchBy(firstName,lastName,cityName) {
-	if (lastName){
+function figureOutWhichSlotToSearchBy(fundName,firstName,lastName,cityName) {
+	if (fundName && fundName.length > 0) {
+		console.log("search by fundName");
+		return "fundName";
+	}
+	else if (lastName){
 		console.log("search by lastName");
 		return "lastName";
 	}
@@ -451,7 +455,7 @@ function searchByNameIntentHandler(){
 	let cityName = isSlotValid(this.event.request, "cityName");
 	let infoType = isSlotValid(this.event.request, "infoType");
 
-	let canSearch = figureOutWhichSlotToSearchBy(firstName,lastName,cityName);
+	let canSearch = figureOutWhichSlotToSearchBy('',firstName,lastName,cityName);
 	console.log("canSearch is set to = " + canSearch);
 
 	if (canSearch){
@@ -499,8 +503,6 @@ function searchByNameIntentHandler(){
 	}
 	else {
 		console.log("no searchable slot was provided");
-		console.log("searchQuery was  = " + searchQuery);
-		console.log("searchResults.results was  = " + searchResults);
 
 		this.response.speak(generateSearchResultsMessage(searchQuery,false)).listen(generateSearchResultsMessage(searchQuery,false));
 	}
@@ -508,26 +510,26 @@ function searchByNameIntentHandler(){
 	this.emit(':responseReady');
 }
 
-function searchByCityIntentHandler(){
+function searchByFundIntentHandler(){
 	var slots = this.event.request.intent.slots;
-	var cityName = isSlotValid(this.event.request, "cityName");
+	var fundTerms = isSlotValid(this.event.request, "fundTerms");
 
-	if (cityName){
-		var searchQuery = slots.cityName.value;
-		console.log("will begin search with  " + slots.cityName.value + " in cityName");
-		var searchResults = searchDatabase(data, searchQuery, "cityName");
+	if (fundTerms){
+		var searchQuery = slots.fundTerms.value;
+		console.log("will begin search with  " + slots.fundTerms.value + " in productName");
+		var searchResults = searchDatabase(data, searchQuery, "productName");
 
 		//saving lastSearch results to the current session
 		let lastSearch = this.attributes.lastSearch = searchResults;
 		let output;
 
 		//saving last intent to session attributes
-		this.attributes.lastSearch.lastIntent = "SearchByNameIntent";
+		this.attributes.lastSearch.lastIntent = "SearchByFundIntent";
 
 		if (searchResults.count > 1) { //multiple results found
 			console.log("Search completed by city. Multiple results were found");
-			let listOfPeopleFound = loopThroughArrayOfObjects(lastSearch.results);
-			output = generateSearchResultsMessage(searchQuery,searchResults.results) + listOfPeopleFound + ". Who would you like to learn more about?";
+			let listOfFundsFound = loopThroughArrayOfObjects(lastSearch.results);
+			output = generateSearchResultsMessage(searchQuery,searchResults.results) + listOfFundsFound + ". Which would you like to learn more about?";
 			this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
 			this.attributes.lastSearch.lastSpeech = output;
 			this.response.speak(output).listen(output);
@@ -565,12 +567,15 @@ function searchByCityIntentHandler(){
 
 function searchByInfoTypeIntentHandler(){
 	var slots = this.event.request.intent.slots;
+	var fundName = isSlotValid(this.event.request, "fund");
+	var fundAttrTypes = isSlotValid(this.event.request, "fundAttrTypes");
+
 	var firstName = isSlotValid(this.event.request, "firstName");
 	var lastName = isSlotValid(this.event.request, "lastName");
 	var cityName = isSlotValid(this.event.request, "cityName");
 	var infoType = isSlotValid(this.event.request, "infoType");
 
-	var canSearch = figureOutWhichSlotToSearchBy(firstName,lastName,cityName);
+	var canSearch = figureOutWhichSlotToSearchBy(fundName,firstName,lastName,cityName);
 	console.log("canSearch is set to = " + canSearch);
 
 	if (canSearch){
@@ -625,13 +630,6 @@ function searchByInfoTypeIntentHandler(){
 			this.response.speak(output).listen(output);
 		}
 	}
-	else {
-		console.log("no searchable slot was provided");
-		console.log("searchQuery was  = " + searchQuery);
-		console.log("searchResults.results was  = " + searchResults);
-
-		this.response.speak(generateSearchResultsMessage(searchQuery,false)).listen(generateSearchResultsMessage(searchQuery,false));
-	}
 
 	this.emit(':responseReady');
 
@@ -641,12 +639,12 @@ function searchByInfoTypeIntentHandler(){
 // =====================================================================================================
 
 function generateNextPromptMessage(person,mode){
-	let infoTypes = ["git-hub username","twitter handle","linked-in"];
+	let infoTypes = ["price","investment strategy","net asset value", "morningstar rating", "portfolio manager"];
 	let prompt;
 
 	if (mode == "current"){
 		// if the mode is current, we should give more informaiton about the current contact
-		prompt = ". You can say - tell me more, or  tell me " + genderize("his-her", person.gender) + " " + infoTypes[getRandom(0,infoTypes.length-1)];
+		prompt = ". You can say - tell me more, or  tell me its " + infoTypes[getRandom(0,infoTypes.length-1)];
 	}
 	//if the mode is general, we should provide general help information
 	else if (mode == "general"){
@@ -671,8 +669,8 @@ function generateSearchResultsMessage(searchQuery,results){
 			sentence = "Hmm. I couldn't find " + searchQuery + ". " + getGenericHelpMessage(data);
 			break;
 		case (results.length == 1):
-			let person = results[0];
-			details = person.firstName + " " + person.lastName + " is " + person.title + ", based out of " + person.cityName;
+			let product = results[0];
+			details = product.productName + " is " + product.productCode + ", with a price of " + (Math.random()*101) + " US dollars";
 			prompt = generateNextPromptMessage(person,"current");
 			sentence = details + prompt;
 			console.log(sentence);
@@ -799,8 +797,8 @@ function isSlotValid(request, slotName){
 
 	//if we have a slot, get the text and store it into speechOutput
 	if (slot && slot.value) {
-		//we have a value in the slot
-		slotValue = slot.value.toLowerCase();
+		// strip the invalid characters (added by Shain)
+		slotValue = slot.value.replace(/[^a-zA-Z0-9 ]+/g, "").toLowerCase();
 		return slotValue;
 	} else {
 		//we didn't get a value in the slot.
@@ -813,6 +811,6 @@ function isInArray(value, array) {
 }
 
 function isInfoTypeValid(infoType){
-	let validTypes = ["git hub","github","twitter","linkedin"];
+	let validTypes = ["price","investment strategy","net asset", "morningstar", "manager"];
 	return isInArray(infoType,validTypes);
 }
