@@ -51,7 +51,7 @@
             },
             {
               "name": "fundTerms",
-              "type": ""
+              "type": "AMAZON.SearchQuery"
             }
           ],
           "samples": [
@@ -65,7 +65,7 @@
           "slots": [
             {
               "name": "fund",
-              "type": ""
+              "type": "AMAZON.SearchQuery"
             },
             {
               "name": "firstName",
@@ -89,7 +89,6 @@
             }
           ],
           "samples": [
-            "{whatPhrase} {fund} {fundAttrTypes}",
             "{whatPhrase} {firstName} {lastName} {infoType}",
             "{whatPhrase} {lastName} {infoType}",
             "{whatPhrase} {firstName}  {infoType} handle",
@@ -146,7 +145,7 @@
           "slots": [
             {
               "name": "infoType",
-              "type": "LIST_OF_FUND_INFO_TYPES"
+              "type": "LIST_OF_INFO_TYPES"
             },
             {
               "name": "whatPhrase",

@@ -254,7 +254,7 @@ let multipleSearchResultsHandlers = Alexa.CreateStateHandler(states.MULTIPLE_RES
 			this.handler.state = states.MULTIPLE_RESULTS;
 			output = this.attributes.lastSearch.lastSpeech;
 			this.response.speak(output).listen(output);
-		} else if (searchResults.count == 1) { //one result found
+		} else if (searchResults.count === 1) { //one result found
 			this.attributes.lastSearch = searchResults;
 			lastSearch = this.attributes.lastSearch;
 			this.handler.state = states.DESCRIPTION;
@@ -687,7 +687,7 @@ function generateSearchResultsMessage(searchQuery,results){
 }
 
 function getGenericHelpMessage(data){
-	let sentences = ["ask - who is " + getRandomName(data),"say - find an evangelist in " + getRandomCity(data)];
+	let sentences = ["ask - what is " + getRandomName(data),"say - find an mutual fund " + getRandomFund(data)];
 	return "You can " + sentences[getRandom(0,sentences.length-1)];
 }
 
@@ -736,6 +736,10 @@ function getRandom(min, max) {
 
 function getRandomCity(arrayOfStrings) {
 	return arrayOfStrings[getRandom(0, data.length - 1)].cityName;
+}
+
+function getRandomFund(arrayOfStrings) {
+	return arrayOfStrings[getRandom(0, data.length - 1)].productName;
 }
 
 function getRandomName(arrayOfStrings) {
