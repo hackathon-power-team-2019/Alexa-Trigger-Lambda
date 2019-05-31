@@ -61,6 +61,10 @@ const SHUTDOWN_MESSAGE = "Goodbye from Trusty. ";
 //This is the message a user will hear when they try to cancel or stop the skill.
 const EXIT_SKILL_MESSAGE = "We go beyond the numbers.";
 
+const makePlainText = Alexa.utils.TextUtils.makePlainText;
+const makeRichText = Alexa.utils.TextUtils.makeRichText;
+const makeImage = Alexa.utils.ImageUtils.makeImage;
+
 // =====================================================================================================
 // ------------------------------ Section 2. Skill Code - Intent Handlers  -----------------------------
 // =====================================================================================================
@@ -74,9 +78,19 @@ const states = {
 };
 
 const newSessionHandlers = {
-	"LaunchRequest": function () {
+	"LaunchRequest": function() {
+		var description = 'What would you like to know about today?';
+		var imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410397885898802_origin.png'
+
 		this.handler.state = states.SEARCHMODE;
 		this.response.speak(WELCOME_MESSAGE).listen(getGenericHelpMessage(data));
+		const builder = new Alexa.templateBuilders.BodyTemplate1Builder();
+		const template = builder.setTitle(WELCOME_MESSAGE)
+			.setBackgroundImage(makeImage(imageURL))
+			.setTextContent(makeRichText('' + description + ''), null, null)
+			.build();
+
+		this.response.renderTemplate(template);
 		this.emit(':responseReady');
 	},
 	"SearchByNameIntent": function () {
