@@ -798,9 +798,7 @@ async function subscribeToFund(product) {
         });
     }
 
-    const queryValue = event.query;
-
-    if(queryValue) {
+    if(product) {
         const URL = 'https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription';
         const response = await doRequest(URL);
         return {
@@ -834,9 +832,8 @@ async function searchAemFundDatabase(answer) {
         });
     }
 
-    const queryValue = event.query;
 
-    if(queryValue) {
+    if(answer) {
         const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${answer}`;
         const response = await doRequest(URL);
         return {
