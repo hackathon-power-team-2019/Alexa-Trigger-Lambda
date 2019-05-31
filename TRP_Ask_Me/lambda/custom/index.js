@@ -1,7 +1,6 @@
 "use strict";
 const Alexa = require("alexa-sdk"); // import the library
-const https = require("https");
-
+const https = require('https');
 
 const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 
@@ -455,7 +454,7 @@ function searchByFundIntentHandler() {
     if (fundTerms) {
         var searchQuery = slots.fundTerms.value;
         console.log("will begin search with  " + slots.fundTerms.value + " in productName");
-        var searchResults = searchDatabase(data, searchQuery, "productName");
+        var searchResults = searchAemFundDatabase(searchQuery);
 
         //saving lastSearch results to the current session
         let lastSearch = this.attributes.lastSearch = searchResults;
@@ -730,14 +729,6 @@ function loopThroughArrayOfFunds(arrayOfStrings) {
     return builder;
 }
 
-function genderize(type, gender) {
-    let pronouns = {
-        "m": { "he-she": "he", "his-her": "his", "him-her": "him" },
-        "f": { "he-she": "she", "his-her": "her", "him-her": "her" }
-    };
-    return pronouns[gender][type];
-}
-
 function sanitizeSearchQuery(searchQuery) {
     searchQuery = searchQuery.replace(/’s/g, "").toLowerCase();
     searchQuery = searchQuery.replace(/'s/g, "").toLowerCase();
@@ -774,7 +765,7 @@ function isInfoTypeValid(infoType) {
     return isInArray(infoType, validTypes);
 }
 
-function subscribeToFund(product) {
+async function subscribeToFund(product) {
     function doRequest(url){
         return new Promise(function(resolve, reject){
             console.log('URL', url);
@@ -782,39 +773,73 @@ function subscribeToFund(product) {
             const options = {
                 method: 'POST',
                 headers: {
-                  'Content-Type': 'application/json',
-                  'apikey': Q6YT1r7xii7u77ZS81PVI10pKP1srWFvS98MJhZ4
+                    'Content-Type': 'application/json',
+                    'apikey': 'Q6YT1r7xii7u77ZS81PVI10pKP1srWFvS98MJhZ4'
                 },
-                form: {'emailAddress': 'jeff_beninghove@troweprice.com', 'productCode': 'AME'}
-              }
+                form: {'emailAddress': 'idx_developers@troweprice.com', 'productCode': 'AME'}
+            };
 
             https.post(url, (resp) => {
-              let data = '';
-            
-              // A chunk of data has been recieved.
-              resp.on('data', (chunk) => {
-                data += chunk;
-              });
-            
-              // The whole response has been received. Print out the result.
-              resp.on('end', () => {
-                resolve(JSON.parse(data));
-              });
-            
+                let data = '';
+
+                // A chunk of data has been received.
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                // The whole response has been received. Print out the result.
+                resp.on('end', () => {
+                    resolve(JSON.parse(data));
+                });
+
             }).on("error", (err) => {
                 reject(err);
             });
         });
     }
-    
-    const queryValue = event.query;
 
-    if(queryValue) {
-        const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription`;
+    if(product) {
+        const URL = 'https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription';
         const response = await doRequest(URL);
-        return { 
-             statusCode: 200, 
-             body: response
-         };
+        return {
+            statusCode: 200,
+            body: response
+        };
     }
 }
+
+async function searchAemFundDatabase(answer) {
+
+    function doRequest(url){
+        return new Promise(function(resolve, reject){
+            console.log('URL', url);
+            https.get(url, (resp) => {
+                let data = '';
+
+                // A chunk of data has been recieved.
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                // The whole response has been received. Print out the result.
+                resp.on('end', () => {
+                    resolve(JSON.parse(data));
+                });
+
+            }).on("error", (err) => {
+                reject(err);
+            });
+        });
+    }
+
+
+    if(answer) {
+        const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${answer}`;
+        const response = await doRequest(URL);
+        return {
+            statusCode: 200,
+            body: response
+        };
+    }
+}
+
