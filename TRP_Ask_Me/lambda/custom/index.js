@@ -71,8 +71,6 @@ const states = {
     MULTIPLE_RESULTS: "_MULTIPLE_RESULTS"
 };
 
-const viewportProfile = Alexa.getViewportProfile(handlerInput.requestEnvelope);
-
 const newSessionHandlers = {
     "LaunchRequest": function() {
         this.handler.state = states.SEARCHMODE;
