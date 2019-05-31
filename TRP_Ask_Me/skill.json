@@ -29,9 +29,9 @@
           "sourceDir": "lambda/custom",
           "uri": "ask-custom-TRP_Ask_Me_Funds-default"
         },
-        "interfaces":[
+        "interfaces": [
           {
-            "type":"ALEXA_PRESENTATION_APL"
+            "type": "ALEXA_PRESENTATION_APL"
           },
           {
             "type": "RENDER_TEMPLATE"
@@ -40,7 +40,11 @@
       }
     },
     "manifestVersion": "1.0",
-    "permissions": [],
+    "permissions": [
+      {
+        "name": "alexa::profile:email:read"
+      }
+    ],
     "privacyAndCompliance": {
       "allowsPurchases": false,
       "isExportCompliant": true,
