@@ -1,12 +1,7 @@
 "use strict";
-//const Main = require('./main.json');
 const Alexa = require("alexa-sdk"); // import the library
-<<<<<<< HEAD
-const Alexa = require("/flow/fund-data-flow"); // import the fund data flow
 const https = require("https");
-=======
-//const FundDataFlow = require("./flow/fund-data-flow"); // import the fund data flow
->>>>>>> e7f7e6f64fc7859a0ee3f5caa85368c9d53d5c24
+
 
 const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 
