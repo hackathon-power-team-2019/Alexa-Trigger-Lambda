@@ -582,7 +582,7 @@ function searchByFundIntentHandler() {
 
 function searchByInfoTypeIntentHandler() {
     var slots = this.event.request.intent.slots;
-    var fundName = isSlotValid(this.event.request, "fund");
+    var fundName = isSlotValid(this.event.request, "fundTerms");
     var fundAttrTypes = isSlotValid(this.event.request, "fundAttrTypes");
 
     var firstName = isSlotValid(this.event.request, "firstName");
