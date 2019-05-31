@@ -770,19 +770,17 @@ async function subscribeToFund(product) {
     function doRequest(url){
         return new Promise(function(resolve, reject){
             console.log('URL', url);
-            
+
             const options = {
-                hostname: 't481wdms2i.execute-api.us-east-1.amazonaws.com',
-                path: '/default/add-subscription',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'apikey': 'Q6YT1r7xii7u77ZS81PVI10pKP1srWFvS98MJhZ4'
                 },
-                
+                form: {'emailAddress': 'idx_developers@troweprice.com', 'productCode': 'AME'}
             };
-            const postData = {'emailAddress': 'idx_developers@troweprice.com', 'productCode': 'AME'}
-            const req = https.request(options, (resp) => {
+
+            https.post(url, (resp) => {
                 let data = '';
 
                 // A chunk of data has been received.
@@ -798,10 +796,9 @@ async function subscribeToFund(product) {
             }).on("error", (err) => {
                 reject(err);
             });
-            req.write(postData);
-            req.end();
         });
     }
+
     if(product) {
         const URL = 'https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription';
         const response = await doRequest(URL);
