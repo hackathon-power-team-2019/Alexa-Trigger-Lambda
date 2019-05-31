@@ -29,7 +29,7 @@
           "sourceDir": "lambda/custom",
           "uri": "ask-custom-TRP_Ask_Me_Funds-default"
         },
-        "interface":{
+        "interfaces":{
           "type":"ALEXA_PRESENTATION_APL"
         }
       }
