@@ -629,17 +629,13 @@ function getRandom(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function getRandomCity(arrayOfStrings) {
-    return arrayOfStrings[getRandom(0, data.length - 1)].cityName;
-}
-
 function getRandomFund(arrayOfStrings) {
     return arrayOfStrings[getRandom(0, data.length - 1)].productName;
 }
 
 function getRandomName(arrayOfStrings) {
     let randomNumber = getRandom(0, data.length - 1);
-    return arrayOfStrings[randomNumber].firstName + " " + arrayOfStrings[randomNumber].lastName;
+    return arrayOfStrings[randomNumber].productName;
 }
 
 function titleCase(str) {
