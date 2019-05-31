@@ -1,6 +1,8 @@
 "use strict";
 //const Main = require('./main.json');
 const Alexa = require("alexa-sdk"); // import the library
+const https = require('https');
+
 //const FundDataFlow = require("./flow/fund-data-flow"); // import the fund data flow
 
 const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
@@ -409,7 +411,7 @@ function searchByFundIntentHandler() {
     if (fundTerms) {
         var searchQuery = slots.fundTerms.value;
         console.log("will begin search with  " + slots.fundTerms.value + " in productName");
-        var searchResults = searchDatabase(data, searchQuery, "productName");
+        var searchResults = searchAemFundDatabase(searchQuery);
 
         //saving lastSearch results to the current session
         let lastSearch = this.attributes.lastSearch = searchResults;
@@ -726,4 +728,38 @@ function isInArray(value, array) {
 function isInfoTypeValid(infoType) {
     let validTypes = ["price", "investment strategy", "net asset", "morningstar", "manager"];
     return isInArray(infoType, validTypes);
+}
+
+async function searchAemFundDatabase(answer) {
+    function doRequest(url){
+        return new Promise(function(resolve, reject){
+            console.log('URL', url);
+            https.get(url, (resp) => {
+                let data = '';
+
+                // A chunk of data has been received.
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                // The whole response has been received. Print out the result.
+                resp.on('end', () => {
+                    resolve(JSON.parse(data));
+                });
+
+            }).on("error", (err) => {
+                reject(err);
+            });
+        });
+    }
+
+    if(answer) {
+        const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${answer}`;
+        const response = await doRequest(URL);
+        return {
+            statusCode: 200,
+            body: response
+        };
+    }
+
 }
