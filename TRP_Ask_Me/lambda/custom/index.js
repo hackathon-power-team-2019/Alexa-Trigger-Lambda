@@ -73,7 +73,7 @@ const states = {
 };
 
 const newSessionHandlers = {
-    "LaunchRequest": function() {
+    "LaunchRequest": function () {
         this.handler.state = states.SEARCHMODE;
         this.response.speak(WELCOME_MESSAGE).listen(getGenericHelpMessage(data));
         const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
@@ -353,7 +353,7 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
 });
 
 let actionHandlers = Alexa.CreateStateHandler(states.ACTION, {
-    "SubscribeToFund": function() {
+    "SubscribeToFund": function () {
         let product = this.attributes.lastSearch.results[0];
 
         this.subscribeToFund(product);
@@ -409,7 +409,7 @@ function searchDatabase(dataset, searchQuery, searchType) {
         if (sanitizeSearchQuery(searchQuery) === dataValue) {
             results.push(dataset[i]);
             matchFound = true;
-            console.log('matched! ' + dataValue );
+            console.log('matched! ' + dataValue);
         }
         if ((i === dataset.length - 1) && (matchFound === false)) {
             //this means that we are on the last record, and no match was found
@@ -642,7 +642,7 @@ function getGenericHelpMessage(data) {
 }
 
 function generateSearchHelpMessage(gender) {
-    let sentence = "Sorry, I don't know that. You can ask me - what's BCG fund's price" ;
+    let sentence = "Sorry, I don't know that. You can ask me - what's BCG fund's price";
     return sentence;
 }
 
@@ -725,7 +725,7 @@ function loopThroughArrayOfFunds(arrayOfStrings) {
     const builder = new Alexa.templateBuilders.ListTemplate1Builder();
     // Looping through the each object in the array
     for (let i = 0; i < arrayOfStrings.length; i++) {
-        builder.addItem("","123","primaryText","secondaryText","tertiaryText");
+        builder.addItem("", "123", "primaryText", "secondaryText", "tertiaryText");
     }
     return builder;
 }
@@ -775,46 +775,78 @@ function isInfoTypeValid(infoType) {
 }
 
 function subscribeToFund(product) {
-    function doRequest(url){
-        return new Promise(function(resolve, reject){
+    function doRequest(url) {
+        return new Promise(function (resolve, reject) {
             console.log('URL', url);
 
             const options = {
                 method: 'POST',
                 headers: {
-                  'Content-Type': 'application/json',
-                  'apikey': Q6YT1r7xii7u77ZS81PVI10pKP1srWFvS98MJhZ4
+                    'Content-Type': 'application/json',
+                    'apikey': Q6YT1r7xii7u77ZS81PVI10pKP1srWFvS98MJhZ4
                 },
-                form: {'emailAddress': 'jeff_beninghove@troweprice.com', 'productCode': 'AME'}
-              }
+                form: { 'emailAddress': 'jeff_beninghove@troweprice.com', 'productCode': 'AME' }
+            }
 
             https.post(url, (resp) => {
-              let data = '';
-            
-              // A chunk of data has been recieved.
-              resp.on('data', (chunk) => {
-                data += chunk;
-              });
-            
-              // The whole response has been received. Print out the result.
-              resp.on('end', () => {
-                resolve(JSON.parse(data));
-              });
-            
+                let data = '';
+
+                // A chunk of data has been recieved.
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                // The whole response has been received. Print out the result.
+                resp.on('end', () => {
+                    resolve(JSON.parse(data));
+                });
+
             }).on("error", (err) => {
                 reject(err);
             });
         });
     }
-    
+
     const queryValue = event.query;
 
-    if(queryValue) {
+    if (queryValue) {
         const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription`;
         const response = await doRequest(URL);
-        return { 
-             statusCode: 200, 
-             body: response
-         };
+        return {
+            statusCode: 200,
+            body: response
+        };
     }
+}
+
+function getUserEmailAddress(apiAccessToken) {
+    const url = "https://api.amazonalexa.com/v2/accounts/~current/settings/Profile.email";
+    return new Promise(function (resolve, reject) {
+
+        const options = {
+            method: 'GET',
+            hostname: 'https://api.amazonalexa.com',
+            path: '/v2/accounts/~current/settings/Profile.email',
+            headers = {
+                Authorization: "Bearer " + apiAccessToken,
+                "content-type": "application/json"
+            }
+        }
+        https.request(options, (resp) => {
+            let data = '';
+
+            // A chunk of data has been recieved.
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            // The whole response has been received. Print out the result.
+            resp.on('end', () => {
+                resolve(JSON.parse(data));
+            });
+
+        }).on("error", (err) => {
+            reject(err);
+        });
+    });
 }
