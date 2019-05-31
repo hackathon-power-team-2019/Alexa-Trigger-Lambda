@@ -1,9 +1,6 @@
 "use strict";
-//const Main = require('./main.json');
 const Alexa = require("alexa-sdk"); // import the library
 const https = require('https');
-
-//const FundDataFlow = require("./flow/fund-data-flow"); // import the fund data flow
 
 const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 
@@ -70,7 +67,8 @@ const imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410
 const states = {
     SEARCHMODE: "_SEARCHMODE",
     DESCRIPTION: "_DESCRIPTION",
-    MULTIPLE_RESULTS: "_MULTIPLE_RESULTS"
+    MULTIPLE_RESULTS: "_MULTIPLE_RESULTS",
+    ACTION: "_ACTION",
 };
 
 const newSessionHandlers = {
@@ -314,6 +312,51 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
     "AMAZON.HelpIntent": function () {
         var person = this.attributes.lastSearch.results[0];
         this.response.speak(generateNextPromptMessage(person, "current")).listen(generateNextPromptMessage(person, "current"));
+        this.emit(':responseReady');
+    },
+    "AMAZON.StopIntent": function () {
+        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.emit(':responseReady');
+    },
+    "AMAZON.CancelIntent": function () {
+        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.emit(':responseReady');
+    },
+    "AMAZON.NoIntent": function () {
+        this.response.speak(SHUTDOWN_MESSAGE);
+        this.emit(':responseReady');
+    },
+    "AMAZON.YesIntent": function () {
+        this.emit("TellMeMoreIntent");
+    },
+    "AMAZON.RepeatIntent": function () {
+        this.response.speak(this.attributes.lastSearch.lastSpeech).listen(this.attributes.lastSearch.lastSpeech);
+        this.emit(':responseReady');
+    },
+    "AMAZON.StartOverIntent": function () {
+        this.handler.state = states.SEARCHMODE;
+        var output = "Ok, starting over. " + getGenericHelpMessage(data);
+        this.response.speak(output).listen(output);
+        this.emit(':responseReady');
+    },
+    "SessionEndedRequest": function () {
+        this.emit("AMAZON.StopIntent");
+    },
+    "Unhandled": function () {
+        let person = this.attributes.lastSearch.results[0];
+        console.log("Unhandled intent in DESCRIPTION state handler");
+        this.response.speak("Sorry, I don't know that" + generateNextPromptMessage(person, "general"))
+            .listen("Sorry, I don't know that" + generateNextPromptMessage(person, "general"));
+        this.emit(':responseReady');
+    }
+});
+
+let actionHandlers = Alexa.CreateStateHandler(states.ACTION, {
+    "SubscribeToFund": function() {
+        let product = this.attributes.lastSearch.results[0];
+
+        this.subscribeToFund(product);
+        this.response.speak("You are subscribed to the fund.");
         this.emit(':responseReady');
     },
     "AMAZON.StopIntent": function () {
@@ -686,14 +729,6 @@ function loopThroughArrayOfFunds(arrayOfStrings) {
     return builder;
 }
 
-function genderize(type, gender) {
-    let pronouns = {
-        "m": { "he-she": "he", "his-her": "his", "him-her": "him" },
-        "f": { "he-she": "she", "his-her": "her", "him-her": "her" }
-    };
-    return pronouns[gender][type];
-}
-
 function sanitizeSearchQuery(searchQuery) {
     searchQuery = searchQuery.replace(/’s/g, "").toLowerCase();
     searchQuery = searchQuery.replace(/'s/g, "").toLowerCase();
@@ -730,11 +765,21 @@ function isInfoTypeValid(infoType) {
     return isInArray(infoType, validTypes);
 }
 
-async function searchAemFundDatabase(answer) {
+function subscribeToFund(product) {
     function doRequest(url){
         return new Promise(function(resolve, reject){
             console.log('URL', url);
-            https.get(url, (resp) => {
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': 'Q6YT1r7xii7u77ZS81PVI10pKP1srWFvS98MJhZ4'
+                },
+                form: {'emailAddress': 'idx_developers@troweprice.com', 'productCode': 'AME'}
+            };
+
+            https.post(url, (resp) => {
                 let data = '';
 
                 // A chunk of data has been received.
@@ -753,13 +798,15 @@ async function searchAemFundDatabase(answer) {
         });
     }
 
-    if(answer) {
-        const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${answer}`;
+    const queryValue = event.query;
+
+    if(queryValue) {
+        const URL = 'https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription';
         const response = await doRequest(URL);
         return {
             statusCode: 200,
             body: response
         };
     }
-
 }
+
