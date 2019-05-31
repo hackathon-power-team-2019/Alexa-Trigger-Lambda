@@ -16,13 +16,6 @@ const APP_ID = undefined;
 //======================================================================================================
 
 const data=[
-	{firstName:"dave",lastName:"isbitski",title:"Chief Alexa evangelist",cityName:"philadelphia",twitter:"thedavedev",saytwitter:"the dave dev",github:"disbitski",saygithub:"d, isbitski",linkedin:"https://www.linkedin.com/in/davidisbitski",saylinkedin:"david isbitski",joinDate:"October 2015",gender:"m"},
-	{firstName:"paul",lastName:"cutsinger",title:"Head of Voice Design Education on Amazon Alexa",cityName:"seattle",twitter:"paulcutsinger",saytwitter:"paul cutsinger",github:"paulcutsinger",saygithub:"paulcutsinger",linkedin:"https://www.linkedin.com/in/paulcutsinger",saylinkedin:"paul cutsinger",joinDate:"January 2016",gender:"m"},
-	{firstName:"amit",lastName:"jotwani",title:"an Alexa AI and machine learning evangelist",cityName:"new york",twitter:"amit",saytwitter:"amit",github:"ajot",saygithub:"a, jot",linkedin:"https://www.linkedin.com/in/ajotwani",saylinkedin:"a jotwani",joinDate:"February 2016",gender:"m"},
-	{firstName:"jeff",lastName:"blankenburg",title:"an Alexa evangelist",cityName:"columbus",twitter:"jeffblankenburg",saytwitter:"jeff blankenburg",github:"jeffblankenburg",saygithub:"jeffblankenburg",linkedin:"https://www.linkedin.com/in/jeffblankenburg",saylinkedin:"jeff blankenburg",joinDate:"September 2016",gender:"m"},
-	{firstName:"rob",lastName:"mccauley",title:"a Solutions Architect on the Alexa Skills Team",cityName:"boston",twitter:"robmccauley",saytwitter:"rob mccauley",github:"robm26",saygithub:"rob m 26",linkedin:"https://www.linkedin.com/in/robm26",saylinkedin:"rob m 26",joinDate:"February 2016",gender:"m"},
-	{firstName:"memo",lastName:"doring",title:"a Solutions Architect on the Alexa Skills Team",cityName:"seattle",twitter:"memodoring",saytwitter:"memo doring",github:"memodoring",saygithub:"memo doring",linkedin:"https://www.linkedin.com/in/guillermodoring",saylinkedin:"guillermo doring",joinDate:"April 2016",gender:"m"},
-	{firstName:"jen",lastName:"gilbert",title:"a Marketing Manager on the Alexa Skills team",cityName:"seattle",twitter:"thejengil",saytwitter:"the jengil",github:"jengilbert",saygithub:"jen gilbert",linkedin:"https://www.linkedin.com/in/jenpaullgilbert/",saylinkedin:"jen paull gilbert",joinDate:"June 2016",gender:"f"},
         {productCode:"AME",productName:"Africa & Middle East Fund",ticker:"TRAMX",cusip:"77956H740",shareClass:"Investor Class",assetClass:"Equity",coreCategory:"International Equity/Multi-Cap","price":"$9.07",morningStarRating:"3",portfolioManager:"Oliver Bell",totalNetOfAssets:"$135.5m",investmentObjective:"The fund seeks long-term growth of capital by investing primarily in the common stocks of companies located (or with primary operations) in Africa and the Middle East."},
         {productCode:"BCG",productName:"Blue Chip Growth Fund",ticker:"TRBCX",cusip:"77954Q106",shareClass:"Investor Class",assetClass:"Equity",coreCategory:"Equity/Large-Cap","price":"$110.18",morningStarRating:"5",portfolioManager:"Larry Puglia",totalNetOfAssets:"$63.3b",investmentObjective:"The fund seeks to provide long-term capital growth. Income is a secondary objective."},
         {productCode:"BCA",productName:"Blue Chip Growth Fund - Advisor Class",ticker:"PABGX",cusip:"77954Q205",shareClass:"Advisor Class",assetClass:"Equity",coreCategory:"Equity/Large-Cap","price":"$108.25",morningStarRating:"5",portfolioManager:"Larry Puglia",totalNetOfAssets:"$63.3b",investmentObjective:"The fund seeks to provide long-term capital growth. Income is a secondary objective."},
@@ -64,7 +57,7 @@ const MULTIPLE_RESULTS_STATE_HELP_MESSAGE = "Sorry, please say the first and las
 const SHUTDOWN_MESSAGE = "Goodbye from Trusty. ";
 
 //This is the message a user will hear when they try to cancel or stop the skill.
-const EXIT_SKILL_MESSAGE = "We go beyond the numbers.";
+const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
 
 const makePlainText = Alexa.utils.TextUtils.makePlainText;
 const makeRichText = Alexa.utils.TextUtils.makeRichText;
@@ -541,7 +534,7 @@ function searchByFundIntentHandler(){
 		this.attributes.lastSearch.lastIntent = "SearchByFundIntent";
 
 		if (searchResults.count > 1) { //multiple results found
-			console.log("Search completed by city. Multiple results were found");
+			console.log("Search completed by fund. Multiple fund results were found");
 			let listOfFundsFound = loopThroughArrayOfObjects(lastSearch.results);
 			output = generateSearchResultsMessage(searchQuery,searchResults.results) + listOfFundsFound + ". Which would you like to learn more about?";
 			this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
@@ -784,7 +777,7 @@ function loopThroughArrayOfObjects(arrayOfStrings) {
 	// Looping through the each object in the array
 	for (let i = 0; i < arrayOfStrings.length; i++) {
 		//concatenating names (firstName + lastName ) for each item
-		joinedResult = joinedResult + ", " + arrayOfStrings[i].firstName + " " + arrayOfStrings[i].lastName;
+		joinedResult = joinedResult + ", " + arrayOfStrings[i].productName;
 	}
 	return joinedResult;
 }
