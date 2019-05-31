@@ -66,7 +66,7 @@
                     "slots": [
                         {
                             "name": "fund",
-                            "type": "AMAZON.SearchQuery"
+                            "type": "FUND_NAMES"
                         },
                         {
                             "name": "infoTypes",
@@ -258,6 +258,110 @@
                                     "net asset value",
                                     "N.A.V.",
                                     "NAV"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "FUND_NAMES",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "Global Consumer Fund",
+                                "synonyms": [
+                                    "PGLOX",
+                                    "GCF"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Emerging Markets Stock Fund",
+                                "synonyms": [
+                                    "PRMSX",
+                                    "EMF"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Spectrum International Fund",
+                                "synonyms": [
+                                    "PSILX",
+                                    "SPF"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Dynamic Global Bond Fund - Advisor Class",
+                                "synonyms": [
+                                    "PAIEX",
+                                    "GUA"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Retirement 2010 Fund - R Class",
+                                "synonyms": [
+                                    "RRTAX",
+                                    "R3A"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Global Allocation Fund - Advisor Class",
+                                "synonyms": [
+                                    "PAFGX",
+                                    "GFA"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Blue Chip Growth - Advisor Class",
+                                "synonyms": [
+                                    "PABGX",
+                                    "BCA"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Blue Chip Growth Fund - R Class",
+                                "synonyms": [
+                                    "RRBGX",
+                                    "BCR"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Blue Chip Growth - I Class",
+                                "synonyms": [
+                                    "TBCIX",
+                                    "BCI"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Africa and Middle East Fund",
+                                "synonyms": [
+                                    "TRAMX",
+                                    "AME"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Blue Chip Growth Fund",
+                                "synonyms": [
+                                    "TRBCX",
+                                    "BCG"
                                 ]
                             }
                         }
