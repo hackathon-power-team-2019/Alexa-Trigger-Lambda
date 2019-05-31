@@ -169,6 +169,19 @@
         {
           "name": "AMAZON.ScrollUpIntent",
           "samples": []
+        },
+        {
+          "name": "SubscribeToFund",
+          "slots": [
+            {
+              "name": "fundCode",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "Subscribe me to {fundCode}",
+            "Subscribe me to fund"
+          ]
         }
       ],
       "types": [
@@ -384,6 +397,38 @@
           ]
         }
       ]
-    }
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "SubscribeToFund",
+          "confirmationRequired": true,
+          "prompts": {
+            "confirmation": "Confirm.Intent.829474869552"
+          },
+          "slots": [
+            {
+              "name": "fundCode",
+              "type": "AMAZON.SearchQuery",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {}
+            }
+          ]
+        }
+      ],
+      "delegationStrategy": "ALWAYS"
+    },
+    "prompts": [
+      {
+        "id": "Confirm.Intent.829474869552",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "You are subscribed to the fund."
+          }
+        ]
+      }
+    ]
   }
 }
