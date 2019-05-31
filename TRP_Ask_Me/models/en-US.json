@@ -69,7 +69,7 @@
                             "type": "AMAZON.SearchQuery"
                         },
                         {
-                            "name": "fundAttrTypes",
+                            "name": "infoTypes",
                             "type": "LIST_OF_FUND_INFO_TYPES"
                         },
                         {
@@ -82,10 +82,10 @@
                         }
                     ],
                     "samples": [
-                        "{whoPhrase} {fund} {fundAttrTypes}",
-                        "{whatPhrase} {fund} {fundAttrTypes}",
-                        "{whatPhrase} the {fundAttrTypes} of {fund}",
-                        "{whoPhrase} the {fundAttrTypes} of {fund}"
+                        "{whoPhrase} {fund} {infoTypes}",
+                        "{whatPhrase} {fund} {infoTypes}",
+                        "{whatPhrase} the {infoTypes} of {fund}",
+                        "{whoPhrase} the {infoTypes} of {fund}"
                     ]
                 },
                 {
@@ -101,7 +101,7 @@
                     "name": "TellMeThisIntent",
                     "slots": [
                         {
-                            "name": "infoType",
+                            "name": "infoTypes",
                             "type": "LIST_OF_FUND_INFO_TYPES"
                         },
                         {
@@ -110,12 +110,12 @@
                         }
                     ],
                     "samples": [
-                        "{whatPhrase} is {infoType}",
-                        "{whatPhrase} is its {infoType} ",
-                        "{whatPhrase} the {infoType} ",
-                        "{whatPhrase} {infoType} articles",
-                        "tell me its {infoType} ",
-                        "tell me her {infoType} handle"
+                        "{whatPhrase} is {infoTypes}",
+                        "{whatPhrase} is its {infoTypes} ",
+                        "{whatPhrase} the {infoTypes} ",
+                        "{whatPhrase} {infoTypes} articles",
+                        "tell me its {infoTypes} ",
+                        "tell me her {infoTypes} handle"
                     ]
                 },
                 {
