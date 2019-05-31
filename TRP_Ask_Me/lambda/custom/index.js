@@ -31,7 +31,13 @@ const skillName = "T Rowe Price";
 const WELCOME_MESSAGE = "Hello, I am Trusty Alexa from " + skillName + ".  I go by Trusty for short.  You can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
 
 //This is the message a user will hear when they ask Alexa for help in your skill.
-const HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";
+const HELP_MESSAGE = "I can help you find and 
+
+
+
+
+
+to T. Rowe Price Mutual Funds.";
 
 //This is the message a user will hear when they begin a new search
 const NEW_SEARCH_MESSAGE = getGenericHelpMessage(data);
@@ -770,17 +776,19 @@ async function subscribeToFund(product) {
     function doRequest(url){
         return new Promise(function(resolve, reject){
             console.log('URL', url);
-
+            
             const options = {
+                hostname: 't481wdms2i.execute-api.us-east-1.amazonaws.com',
+                path: '/default/add-subscription',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'apikey': 'Q6YT1r7xii7u77ZS81PVI10pKP1srWFvS98MJhZ4'
                 },
-                form: {'emailAddress': 'idx_developers@troweprice.com', 'productCode': 'AME'}
+                
             };
-
-            https.post(url, (resp) => {
+            const postData = {'emailAddress': 'idx_developers@troweprice.com', 'productCode': 'AME'}
+            const req = https.request(options, (resp) => {
                 let data = '';
 
                 // A chunk of data has been received.
@@ -796,9 +804,10 @@ async function subscribeToFund(product) {
             }).on("error", (err) => {
                 reject(err);
             });
+            req.write(postData);
+            req.end();
         });
     }
-
     if(product) {
         const URL = 'https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription';
         const response = await doRequest(URL);
