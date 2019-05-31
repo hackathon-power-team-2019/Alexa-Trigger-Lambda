@@ -817,6 +817,7 @@ function doRequest(url){
         console.log('URL', url);
         https.get(url, (resp) => {
             let data = '';
+            console.log('LOGGING');
 
             // A chunk of data has been recieved.
             resp.on('data', (chunk) => {
@@ -825,6 +826,7 @@ function doRequest(url){
 
             // The whole response has been received. Print out the result.
             resp.on('end', () => {
+                console.log(JSON.parse(data));
                 resolve(JSON.parse(data));
             });
 
@@ -835,33 +837,21 @@ function doRequest(url){
 }
 
 async function searchAemFundDatabase(answer) {
-
-
     if(answer) {
         console.log(`ANSWER!!!!!! ${answer}`);
         // let encodedQuery = encodeURIComponent(answer);
         // const URL = `https://www.troweprice.com/aem-services/trp/fai/sitesearch/query?query=${encodedQuery}`;
         // const response = await doRequest(URL);
-        let productDetailsURL = 'https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=BCG';
-
-
         const bcgURL ='https://www.troweprice.com/financial-intermediary/us/en/investments/mutual-funds/us-products/blue-chip-growth-fund/jcr:content.json';
-        await doRequest(bcgURL).then((val)=>{
-            console.log(`SUCCESS!!!!!!! ${val}`);
-            productDetailsURL = `https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=${val.productCode}`;
-        }).catch((err) => {
-            console.log(`ERROR: ${err}`)
-        });
-        console.log(`PRODUCT DETAILS URL!!!!!! ${productDetailsURL}`);
-        let bcgProductCodeResponse = null;
-        await doRequest(productDetailsURL).then((val)=>{
-            bcgProductCodeResponse = val;
-            console.log('hello world ' + bcgProductCodeResponse);
-        }).catch((err) => {
-            console.log(`ERROR: ${err}`)
-        });
+        console.log(`CALLING PART1! ${bcgURL}`);
+        let resp1 = await doRequest(bcgURL);
+        let productDetailsURL = `https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=${resp1.productCode}`;
+        console.log(`FINISHED p1 ${JSON.stringify(resp1)}`);
 
-        console.log(`Returning ${JSON.stringify(bcgProductCodeResponse)}`);
+        console.log(`CALLING PART2! ${productDetailsURL}`);
+        let bcgProductCodeResponse = await doRequest(productDetailsURL);
+        console.log(`FINISHED p2 ${JSON.stringify(bcgProductCodeResponse)}`);
+
 
         return {
             count: 1,
