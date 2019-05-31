@@ -66,6 +66,9 @@ const makePlainText = Alexa.utils.TextUtils.makePlainText;
 const makeRichText = Alexa.utils.TextUtils.makeRichText;
 const makeImage = Alexa.utils.ImageUtils.makeImage;
 
+const description = 'What would you like to know about today?';
+const imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410397885898802_origin.png'
+
 // =====================================================================================================
 // ------------------------------ Section 2. Skill Code - Intent Handlers  -----------------------------
 // =====================================================================================================
@@ -78,11 +81,10 @@ const states = {
     MULTIPLE_RESULTS: "_MULTIPLE_RESULTS"
 };
 
+const viewportProfile = Alexa.getViewportProfile(handlerInput.requestEnvelope);
+
 const newSessionHandlers = {
     "LaunchRequest": function() {
-        var description = 'What would you like to know about today?';
-        var imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410397885898802_origin.png'
-
         this.handler.state = states.SEARCHMODE;
         this.response.speak(WELCOME_MESSAGE).listen(getGenericHelpMessage(data));
         const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
@@ -545,6 +547,8 @@ function searchByFundIntentHandler() {
             this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
             this.attributes.lastSearch.lastSpeech = output;
             this.response.speak(output).listen(output);
+            const template = loopThroughArrayOfFunds(searchResults.results);
+            this.response.renderTemplate(template);
         } else if (searchResults.count == 1) { //one result found
             console.log("one match found");
             this.handler.state = states.DESCRIPTION; // change state to description
@@ -554,7 +558,13 @@ function searchByFundIntentHandler() {
             this.response.speak(output).listen(output);
             const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
             const template = builder.setTitle(searchResults.results[0].productName)
-                .setTextContent(makeRichText('' + output + ''), null, null)
+                .setTextContent(makeRichText('Morning Star Rating' + searchResults.results[0].morningStarRating + '\n' + 'Price'
+                    + searchResults.results[0].price + '\n' + 'Total Net Assets' + searchResults.results[0].totalNetOfAssets + '\n'
+                    + 'CUSIP' + searchResults.results[0].cusip + '\n' + 'Ticker' + searchResults.results[0].totalNetOfAssets + '\n'
+                    + 'Share Class' + searchResults.results[0].shareClass + '\n' + 'Asset Class' + searchResults.results[0].assetClass + '\n'
+                    + 'Core Category' + searchResults.results[0].coreCategory + '\n' + 'Portfolio Manager' + searchResults.results[0].portfolioManager + '\n'
+                    + 'Investment Objective:' + searchResults.results[0].investmentObjective
+                    + '\n' + output + ''), null, null)
                 .build();
             this.response.renderTemplate(template);
         }
@@ -789,6 +799,15 @@ function loopThroughArrayOfObjects(arrayOfStrings) {
         joinedResult = joinedResult + ", " + arrayOfStrings[i].productName;
     }
     return joinedResult;
+}
+
+function loopThroughArrayOfFunds(arrayOfStrings) {
+    const builder = new Alexa.templateBuilders.ListTemplate1Builder();
+    // Looping through the each object in the array
+    for (let i = 0; i < arrayOfStrings.length; i++) {
+        builder.addItem("","123","primaryText","secondaryText","tertiaryText");
+    }
+    return builder;
 }
 
 function genderize(type, gender) {
