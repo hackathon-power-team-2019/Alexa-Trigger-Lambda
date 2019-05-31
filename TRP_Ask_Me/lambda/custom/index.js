@@ -93,10 +93,10 @@ const newSessionHandlers = {
         this.response.renderTemplate(template);
         this.emit(':responseReady');
     },
-    "SearchByNameIntent": function () {
+    "SearchByFundIntent": function () {
         console.log("SEARCH INTENT");
         this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByNameIntent");
+        this.emitWithState("SearchByFundIntent");
     },
     "TellMeMoreIntent": function () {
         this.handler.state = states.SEARCHMODE;
@@ -146,7 +146,7 @@ const newSessionHandlers = {
     },
     "Unhandled": function () {
         this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByNameIntent");
+        this.emitWithState("SearchByFundIntent");
     }
 };
 let startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
@@ -313,8 +313,9 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
             this.response.speak(speechOutput).listen(repromptSpeech);
         } else {
             //not a valid slot. no card needs to be set up. respond with simply a voice response.
-            speechOutput = generateSearchHelpMessage(product.gender);
-            repromptSpeech = "You can ask me - what's " + genderize("his-her", product.gender) + " twitter, or give me " + genderize("his-her", person.gender) + " git-hub username";
+            speechOutput = generateSearchHelpMessage(product.productCode);
+            repromptSpeech = "Ask me something useful";
+            // repromptSpeech = "You can ask me - what's " + genderize("his-her", product.gender) + " twitter, or give me " + genderize("his-her", person.gender) + " git-hub username";
             this.attributes.lastSearch.lastSpeech = speechOutput;
             this.handler.state = states.SEARCHMODE;
             this.response.speak(speechOutput).listen(repromptSpeech);
@@ -377,11 +378,13 @@ function searchDatabase(dataset, searchQuery, searchType) {
 
     //beginning search
     for (let i = 0; i < dataset.length; i++) {
-        if (sanitizeSearchQuery(searchQuery) == dataset[i][searchType]) {
+        let dataValue = (dataset[i][searchType] || '').toLowerCase();
+        if (sanitizeSearchQuery(searchQuery) === dataValue) {
             results.push(dataset[i]);
             matchFound = true;
+            console.log('matched! ' + dataValue );
         }
-        if ((i == dataset.length - 1) && (matchFound == false)) {
+        if ((i === dataset.length - 1) && (matchFound === false)) {
             //this means that we are on the last record, and no match was found
             matchFound = false;
             console.log("no match was found using " + searchType);
@@ -613,7 +616,7 @@ function generateNextPromptMessage(person, mode) {
 }
 
 function generateSendingCardToAlexaAppMessage(person, mode) {
-    let sentence = "I have sent " + person.firstName + "'s contact card to your Alexa app" + generateNextPromptMessage(person, mode);
+    let sentence = "I have sent " + person.productName + "'s contact card to your Alexa app" + generateNextPromptMessage(person, mode);
     return sentence;
 }
 
@@ -624,13 +627,13 @@ function generateSearchResultsMessage(searchQuery, results) {
 
     if (results) {
         switch (true) {
-            case (results.length == 0):
+            case (results.length === 0):
                 sentence = "Hmm. I couldn't find " + searchQuery + ". " + getGenericHelpMessage(data);
                 break;
-            case (results.length == 1):
+            case (results.length === 1):
                 let product = results[0];
-                details = product.productName + " is " + product.productCode + ", with a price of " + (Math.random() * 101) + " US dollars";
-                prompt = generateNextPromptMessage(person, "current");
+                details = product.productName + " is " + product.productCode + ", with a price of " + (Math.random() * 101).toFixed(2) + " US dollars";
+                prompt = generateNextPromptMessage(product, "current");
                 sentence = details + prompt;
                 console.log(sentence);
                 break;
@@ -651,15 +654,15 @@ function getGenericHelpMessage(data) {
 }
 
 function generateSearchHelpMessage(gender) {
-    let sentence = "Sorry, I don't know that. You can ask me - what's " + genderize("his-her", gender) + " twitter, or give me " + genderize("his-her", gender) + " git-hub username";
+    let sentence = "Sorry, I don't know that. You can ask me - what's BCG fund's price" ;
     return sentence;
 }
 
-function generateTellMeMoreMessage(person) {
-    let sentence = person.firstName + " joined the Alexa team in " + person.joinDate + ". " + genderize("his-her", person.gender) + " Twitter handle is " + person.saytwitter + " . " + generateSendingCardToAlexaAppMessage(person, "general");
+function generateTellMeMoreMessage(product) {
+    let sentence = product.productName + " current price " + (Math.random() * 101).toFixed(2) + " US dollars. " + generateSendingCardToAlexaAppMessage(product, "general");
     return sentence;
 }
-function generateSpecificInfoMessage(slots, person) {
+function generateSpecificInfoMessage(slots, product) {
     let infoTypeValue;
     let sentence;
 
@@ -672,7 +675,7 @@ function generateSpecificInfoMessage(slots, person) {
         infoTypeValue = slots.infoType.value;
     }
 
-    sentence = person.firstName + "'s " + infoTypeValue.toLowerCase() + " is - " + person["say" + infoTypeValue.toLowerCase()] + " . Would you like to find another evangelist? " + getGenericHelpMessage(data);
+    sentence = product.productName + "'s " + infoTypeValue.toLowerCase() + " is - " + person["say" + infoTypeValue.toLowerCase()] + " . Would you like to find another evangelist? " + getGenericHelpMessage(data);
     return optimizeForSpeech(sentence);
 }
 
@@ -710,17 +713,17 @@ function titleCase(str) {
     return str.replace(str[0], str[0].toUpperCase());
 }
 
-function generateCard(person) {
-    let cardTitle = "Contact Info for " + titleCase(person.firstName) + " " + titleCase(person.lastName);
-    let cardBody = "Twitter: " + "@" + person.twitter + " \n" + "GitHub: " + person.github + " \n" + "LinkedIn: " + person.linkedin;
-    let imageObj = {
+function generateCard(product) {
+    let cardTitle = "Product Info for " + titleCase(product.productName);
+    let cardBody = "Price: " + product.price + " \n" + "Fund Manager: " + product.portfolioManager + " \n";
+    /*let imageObj = {
         smallImageUrl: "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/team-lookup/avatars/" + person.firstName + "._TTH_.jpg",
         largeImageUrl: "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/team-lookup/avatars/" + person.firstName + "._TTH_.jpg",
-    };
+    }; */
     return {
         "title": cardTitle,
         "body": cardBody,
-        "image": imageObj
+        //"image": imageObj
     };
 }
 
