@@ -845,7 +845,7 @@ async function searchAemFundDatabase(answer) {
 
         return {
             count: 1,
-            results: bcgProductCode,
+            results: [bcgProductCode],
         };
 
     }
