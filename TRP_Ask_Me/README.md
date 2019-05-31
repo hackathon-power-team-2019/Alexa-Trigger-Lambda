@@ -5,8 +5,6 @@
 [Product Code Lambda- click here](https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=BCG)
 
 
-
-
 ## Additional Resources
 
 ### Community
