@@ -1,7 +1,7 @@
 "use strict";
 const Alexa = require("alexa-sdk"); // import the library
 const https = require('https');
-const axios = require('axios');
+
 const SPEECH = require('./handlers/speechUtil');
 const startSearchHandlers = require('./handlers/startSearchHandlers');
 
@@ -11,39 +11,11 @@ const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 // =====================================================================================================
 // --------------------------------- Section 1. Data and Text strings  ---------------------------------
 
-const data = [
-    { productCode: "AME", productName: "Africa & Middle East Fund", ticker: "TRAMX", cusip: "77956H740", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "International Equity/Multi-Cap", "price": "$9.07", morningStarRating: "3", portfolioManager: "Oliver Bell", totalNetOfAssets: "$135.5m", investmentObjective: "The fundFinder seeks long-term growth of capital by investing primarily in the common stocks of companies located (or with primary operations) in Africa and the Middle East." },
-    { productCode: "BCG", productName: "Blue Chip Growth Fund", ticker: "TRBCX", cusip: "77954Q106", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "Equity/Large-Cap", "price": "$110.18", morningStarRating: "5", portfolioManager: "Larry Puglia", totalNetOfAssets: "$63.3b", investmentObjective: "The fundFinder seeks to provide long-term capital growth. Income is a secondary objective." },
-    { productCode: "BCA", productName: "Blue Chip Growth Fund - Advisor Class", ticker: "PABGX", cusip: "77954Q205", shareClass: "Advisor Class", assetClass: "Equity", coreCategory: "Equity/Large-Cap", "price": "$108.25", morningStarRating: "5", portfolioManager: "Larry Puglia", totalNetOfAssets: "$63.3b", investmentObjective: "The fundFinder seeks to provide long-term capital growth. Income is a secondary objective." },
-    { productCode: "BCI", productName: "Blue Chip Growth Fund - I Class", ticker: "TBCIX", cusip: "77954Q403", shareClass: "I Class", assetClass: "Equity", coreCategory: "Equity/Large-Cap", "price": "$110.34", morningStarRating: "5", portfolioManager: "Larry Puglia", totalNetOfAssets: "$63.3b", investmentObjective: "The fundFinder seeks to provide long-term capital growth. Income is a secondary objective." },
-    { productCode: "BCR", productName: "Blue Chip Growth Fund - R Class", ticker: "RRBGX", cusip: "77954Q304", shareClass: "R Class", assetClass: "Equity", coreCategory: "Equity/Large-Cap", "price": "$103.91", morningStarRating: "5", portfolioManager: "Larry Puglia", totalNetOfAssets: "$63.3b", investmentObjective: "The fundFinder seeks to provide long-term capital growth. Income is a secondary objective." },
-    { productCode: "GFA", productName: "Global Allocation Fund - Advisor Class", ticker: "PAFGX", cusip: "87281T202", shareClass: "Advisor Class", assetClass: "Asset Allocation", coreCategory: "/Asset Allocation/Multi-Asset", "price": "$12.40", morningStarRating: "5", portfolioManager: "Charles M. Shriver", totalNetOfAssets: "$688.8m", investmentObjective: "The Fund seeks long-term capital appreciation and income." },
-    { productCode: "R3A", productName: "Retirement 2010 Fund - R Class", ticker: "RRTAX", cusip: "74149P606", shareClass: "R Class", assetClass: "Target Date", coreCategory: "/Target Date/Retirement Date", "price": "$17.13", morningStarRating: "4", portfolioManager: "Jerome Clark", totalNetOfAssets: "$4.1b", investmentObjective: "The fundFinder seeks the highest total return over time consistent with an emphasis on both capital growth and income." },
-    { productCode: "GUA", productName: "Dynamic Global Bond Fund - Advisor Class", ticker: "PAIEX", cusip: "77956H567", shareClass: "Advisor Class", assetClass: "Fixed Income", coreCategory: "/Fixed Income/International", "price": "$9.43", morningStarRating: "1", portfolioManager: "Arif Husain", totalNetOfAssets: "$4.2b", investmentObjective: "The fundFinder seeks high current income." },
-    { productCode: "SPF", productName: "Spectrum International Fund", ticker: "PSILX", cusip: "779906304", shareClass: "Investor Class", assetClass: "Asset Allocation", coreCategory: "/Asset Allocation/Multi-Asset", "price": "$12.60", morningStarRating: "5", portfolioManager: "Charles M. Shriver", totalNetOfAssets: "$1.5b", investmentObjective: "The fundFinder seeks long-term capital appreciation." },
-    { productCode: "EMF", productName: "Emerging Markets Stock Fund", ticker: "PRMSX", cusip: "77956H864", shareClass: "Investor Class", assetClass: "Asset Allocation", coreCategory: "/Asset Allocation/Multi-Asset", "price": "$40.20", morningStarRating: "5", portfolioManager: "Gonzalo Pangaro", totalNetOfAssets: "$13.2b", investmentObjective: "The fundFinder seeks long-term growth of capital through investments primarily in the common stocks of companies located (or with primary operations) in emerging markets." },
-    { productCode: "GCF", productName: "Global Consumer Fund", ticker: "PGLOX", cusip: "77956H344", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "/International Equity/Sector", "price": "$12.21", morningStarRating: "3", portfolioManager: "Jason Nogueira", totalNetOfAssets: "$19.9m", investmentObjective: "The fundFinder seeks to provide long-term capital growth." }
-];
+const data = require('./datasource');
 
 //======================================================================================================
 //TODO: Replace these text strings to edit the welcome and help messages
 //======================================================================================================
-
-
-
-//This is the message a user will hear when they ask Alexa for help in your skill.
-const HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";
-
-
-
-
-
-//TODO
-const DESCRIPTION_STATE_HELP_MESSAGE = "Here are some things you can say: Tell me more, or give me his or her contact info";
-
-//TODO
-const MULTIPLE_RESULTS_STATE_HELP_MESSAGE = "Sorry, please say the first and last name of the person you'd like to learn more about";
-
 
 
 //This is the message a user will hear when they try to cancel or stop the skill.
@@ -51,7 +23,6 @@ const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
 
 
 
-const description = 'What would you like to know about today?';
 
 // =====================================================================================================
 // ------------------------------ Section 2. Skill Code - Intent Handlers  -----------------------------
@@ -61,165 +32,6 @@ const description = 'What would you like to know about today?';
 
 
 const states = require('./handlers/ConstStates');
-
-
-
-let multipleSearchResultsHandlers = Alexa.CreateStateHandler(states.MULTIPLE_RESULTS, {
-
-    "AMAZON.StartOverIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + SPEECH.getGenericHelpMessage(data);
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "AMAZON.YesIntent": function () {
-        var output = "Hmm. I think you said - yes, but can you please say the name of the person you'd like to learn more about?";
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.RepeatIntent": function () {
-        this.response.speak(this.attributes.lastSearch.lastSpeech).listen(this.attributes.lastSearch.lastSpeech);
-        this.emit(':responseReady');
-    },
-    "SearchByFundIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByFundIntent");
-    },
-    "AMAZON.HelpIntent": function () {
-        this.response.speak(MULTIPLE_RESULTS_STATE_HELP_MESSAGE).listen(MULTIPLE_RESULTS_STATE_HELP_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "getSubscribedFunds": function() {
-        this.handler.state = states.ACTION;
-        this.emitWithState("getSubscribedFunds");
-    },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
-    "Unhandled": function () {
-        console.log("Unhandled intent in multipleSearchResultsHandlers");
-        this.response.speak(MULTIPLE_RESULTS_STATE_HELP_MESSAGE).listen(MULTIPLE_RESULTS_STATE_HELP_MESSAGE);
-        this.emit(':responseReady');
-    }
-});
-let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
-    "TellMeMoreIntent": function () {
-        let product;
-        let speechOutput;
-        let repromptSpeech;
-        let cardContent;
-
-        if (this.attributes.lastSearch) {
-            product = this.attributes.lastSearch.results[0];
-            cardContent = generateCard(product); //calling the helper function to generate the card content that will be sent to the Alexa app.
-            speechOutput = generateTellMeMoreMessage(product);
-            repromptSpeech = "Would you like to find another evangelist? Say yes or no";
-
-            console.log("the contact you're trying to find more info about is " + product.productName);
-            this.handler.state = states.SEARCHMODE;
-            this.attributes.lastSearch.lastSpeech = speechOutput;
-            this.response.cardRenderer(cardContent.title, cardContent.body, cardContent.image);
-            this.response.speak(speechOutput).listen(repromptSpeech);
-        }
-        else {
-            speechOutput = SPEECH.getGenericHelpMessage(data);
-            repromptSpeech = SPEECH.getGenericHelpMessage(data);
-            this.handler.state = states.SEARCHMODE;
-            this.response.speak(speechOutput).listen(repromptSpeech);
-        }
-
-        this.emit(':responseReady');
-    },
-    "TellMeThisIntent": function () {
-        let slots = this.event.request.intent.slots;
-        let product = this.attributes.lastSearch.results[0];
-        let infoType = isSlotValid(this.event.request, "infoType");
-        let speechOutput;
-        let repromptSpeech;
-        let cardContent;
-
-        console.log(isInfoTypeValid("github"));
-
-        if (this.attributes.lastSearch && isInfoTypeValid(infoType)) {
-            product = this.attributes.lastSearch.results[0];
-            cardContent = generateCard(product);
-            speechOutput = generateSpecificInfoMessage(slots, product);
-            repromptSpeech = "Would you like to find another evangelist? Say yes or no";
-            this.handler.state = states.SEARCHMODE;
-            this.attributes.lastSearch.lastSpeech = speechOutput;
-            this.response.cardRenderer(cardContent.title, cardContent.body, cardContent.image);
-            this.response.speak(speechOutput).listen(repromptSpeech);
-        } else {
-            //not a valid slot. no card needs to be set up. respond with simply a voice response.
-            speechOutput = generateSearchHelpMessage(product.productCode);
-            repromptSpeech = "Ask me something useful";
-            // repromptSpeech = "You can ask me - what's " + genderize("his-her", product.gender) + " twitter, or give me " + genderize("his-her", person.gender) + " git-hub username";
-            this.attributes.lastSearch.lastSpeech = speechOutput;
-            this.handler.state = states.SEARCHMODE;
-            this.response.speak(speechOutput).listen(repromptSpeech);
-        }
-        this.emit(':responseReady');
-    },
-    "SearchByFundIntent": function () {
-        searchByFundIntentHandler.call(this);
-    },
-    "AMAZON.HelpIntent": function () {
-        var person = this.attributes.lastSearch.results[0];
-        this.response.speak(generateNextPromptMessage(person, "current")).listen(generateNextPromptMessage(person, "current"));
-        this.emit(':responseReady');
-    },
-    "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.YesIntent": function () {
-        this.emit("TellMeMoreIntent");
-    },
-    "AMAZON.RepeatIntent": function () {
-        this.response.speak(this.attributes.lastSearch.lastSpeech).listen(this.attributes.lastSearch.lastSpeech);
-        this.emit(':responseReady');
-    },
-    "AMAZON.StartOverIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + SPEECH.getGenericHelpMessage(data);
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "getSubscribedFunds": function() {
-        this.handler.state = states.ACTION;
-        this.emitWithState("getSubscribedFunds");
-    },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
-    "Unhandled": function () {
-        let person = this.attributes.lastSearch.results[0];
-        console.log("Unhandled intent in DESCRIPTION state handler");
-        this.response.speak("Sorry, I don't know that" + generateNextPromptMessage(person, "general"))
-            .listen("Sorry, I don't know that" + generateNextPromptMessage(person, "general"));
-        this.emit(':responseReady');
-    }
-});
 
 let actionHandlers = Alexa.CreateStateHandler(states.ACTION, {
     "SubscribeToFund": function() {
@@ -470,23 +282,6 @@ exports.handler = function (event, context, callback) {
 // For more helper functions, visit the Alexa cookbook at https://github.com/alexa/alexa-cookbook
 //======================================================================================================
 
-function titleCase(str) {
-    return str.replace(str[0], str[0].toUpperCase());
-}
-
-function generateCard(product) {
-    let cardTitle = "Product Info for " + titleCase(product.productName);
-    let cardBody = "Price: " + product.price + " \n" + "Fund Manager: " + product.portfolioManager + " \n";
-    /*let imageObj = {
-        smallImageUrl: "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/team-lookup/avatars/" + person.firstName + "._TTH_.jpg",
-        largeImageUrl: "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/team-lookup/avatars/" + person.firstName + "._TTH_.jpg",
-    }; */
-    return {
-        "title": cardTitle,
-        "body": cardBody,
-        //"image": imageObj
-    };
-}
 
 function loopThroughArrayOfObjects(arrayOfStrings) {
     let joinedResult = "";
@@ -496,15 +291,6 @@ function loopThroughArrayOfObjects(arrayOfStrings) {
         joinedResult = joinedResult + ", " + arrayOfStrings[i].productName;
     }
     return joinedResult;
-}
-
-function loopThroughArrayOfFunds(arrayOfStrings) {
-    const builder = new Alexa.templateBuilders.ListTemplate1Builder();
-    // Looping through the each object in the array
-    for (let i = 0; i < arrayOfStrings.length; i++) {
-        builder.addItem(makeImage(imageURL),searchResults.results[i].cusip,arrayOfStrings[i].productName,searchResults.results[i].morningStarRating,arrayOfStrings[i].price);
-    }
-    return builder;
 }
 
 function sanitizeSearchQuery(searchQuery) {

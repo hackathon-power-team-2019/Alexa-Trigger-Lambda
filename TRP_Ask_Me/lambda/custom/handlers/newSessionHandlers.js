@@ -3,6 +3,8 @@ const skillName = "T Rowe Price";
 //This is the welcome message for when a user starts the skill without a specific intent.
 const WELCOME_MESSAGE = "Hello, I am Trusty Alexa from " + skillName + ". \n I go by Trusty for short. \n\nYou can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
 
+const description = 'What would you like to know about today?';
+
 //This is the message a user will hear when they ask Alexa for help in your skill.
 const HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";
 
@@ -20,8 +22,9 @@ const newSessionHandlers = {
         const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
         const template = builder.setTitle(WELCOME_MESSAGE)
             .setImage(makeImage(imageURL))
-            .setTextContent(makeRichText('' + description + ''), null, null)
-            .build();
+            .setTextContent(makeRichText('' + description + ''), null, null);
+
+        template.build();
 
         this.response.renderTemplate(template);
         this.emit(':responseReady');
