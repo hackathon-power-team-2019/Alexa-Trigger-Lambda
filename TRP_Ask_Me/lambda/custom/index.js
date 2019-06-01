@@ -102,6 +102,10 @@ const newSessionHandlers = {
         this.handler.state = states.SEARCHMODE;
         this.emitWithState("SearchByInfoTypeIntent");
     },
+    "getSubscribedFunds": function() {
+        this.handler.state = states.ACTION;
+        this.emitWithState("getSubscribedFunds");
+    },
     "AMAZON.YesIntent": function () {
         this.response.speak(getGenericHelpMessage(data)).listen(getGenericHelpMessage(data));
         this.emit(':responseReady');
@@ -193,6 +197,10 @@ let startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
         this.response.speak(output).listen(output);
         this.emit(':responseReady');
     },
+    "getSubscribedFunds": function() {
+        this.handler.state = states.ACTION;
+        this.emitWithState("getSubscribedFunds");
+    },
     "SessionEndedRequest": function () {
         this.emit("AMAZON.StopIntent");
     },
@@ -238,6 +246,10 @@ let multipleSearchResultsHandlers = Alexa.CreateStateHandler(states.MULTIPLE_RES
     "AMAZON.CancelIntent": function () {
         this.response.speak(EXIT_SKILL_MESSAGE);
         this.emit(':responseReady');
+    },
+    "getSubscribedFunds": function() {
+        this.handler.state = states.ACTION;
+        this.emitWithState("getSubscribedFunds");
     },
     "SessionEndedRequest": function () {
         this.emit("AMAZON.StopIntent");
@@ -339,6 +351,10 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
         this.response.speak(output).listen(output);
         this.emit(':responseReady');
     },
+    "getSubscribedFunds": function() {
+        this.handler.state = states.ACTION;
+        this.emitWithState("getSubscribedFunds");
+    },
     "SessionEndedRequest": function () {
         this.emit("AMAZON.StopIntent");
     },
@@ -358,6 +374,11 @@ let actionHandlers = Alexa.CreateStateHandler(states.ACTION, {
         this.subscribeToFund(product);
         this.response.speak("You are subscribed to the fund.");
         this.emit(':responseReady');
+    },
+    "getSubscribedFunds": function() {
+        getSubscribedFunds.call();
+        this.response.speak("You are subscribed to the fund.");
+        this.emit(':responseReady')
     },
     "AMAZON.StopIntent": function () {
         this.response.speak(EXIT_SKILL_MESSAGE);
@@ -810,6 +831,26 @@ async function subscribeToFund(product) {
             body: response
         };
     }
+}
+
+function getSubscribedFunds() {
+
+    const https = require('https');
+
+    https.get('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscriptions?email=jeff_beninghove@troweprice.com', (res) => {
+        console.log('statusCode:', res.statusCode);
+        console.log('headers:', res.headers);
+
+        res.on('data', (d) => {
+            process.stdout.write(d);
+            console.log('dd:', d);
+        });
+
+    }).on('error', (e) => {
+        console.error(e);
+    });
+
+
 }
 
 function doRequest(url){

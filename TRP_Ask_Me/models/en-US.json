@@ -174,6 +174,13 @@
                         "Subscribe me to {fundCode}",
                         "Subscribe me to fund"
                     ]
+                },
+                {
+                    "name": "GetSubscribedFundsIntent",
+                    "slots": [],
+                    "samples": [
+                        "get subscribed funds"
+                    ]
                 }
             ],
             "types": [
