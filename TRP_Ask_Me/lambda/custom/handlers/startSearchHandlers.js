@@ -6,14 +6,9 @@ const states = require('./ConstStates');
 // const makeRichText = Alexa.utils.TextUtils.makeRichText;
 // const makeImage = Alexa.utils.ImageUtils.makeImage;
 
-//This is the message a user will hear when they ask Alexa for help while in the SEARCH state
-const SEARCH_STATE_HELP_MESSAGE = SPEECH.getGenericHelpMessage([{productName: "Global Allocation Fund"}]);
-//This is the message a user will hear when they begin a new search
-const NEW_SEARCH_MESSAGE = SPEECH.getGenericHelpMessage();
-
 module.exports = Alexa.CreateStateHandler(states.SEARCHMODE, {
     "AMAZON.YesIntent": function () {
-        this.response.speak(NEW_SEARCH_MESSAGE).listen(NEW_SEARCH_MESSAGE);
+        this.response.speak(SPEECH.NEW_SEARCH_MESSAGE).listen(SPEECH.NEW_SEARCH_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.NoIntent": function () {
@@ -51,11 +46,11 @@ module.exports = Alexa.CreateStateHandler(states.SEARCHMODE, {
         this.emit(':responseReady');
     },
     "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.response.speak(SPEECH.EXIT_SKILL_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.response.speak(SPEECH.EXIT_SKILL_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.StartOverIntent": function () {
@@ -73,7 +68,7 @@ module.exports = Alexa.CreateStateHandler(states.SEARCHMODE, {
     },
     "Unhandled": function () {
         console.log("Unhandled intent in startSearchHandlers");
-        this.response.speak(SEARCH_STATE_HELP_MESSAGE).listen(SEARCH_STATE_HELP_MESSAGE);
+        this.response.speak(SPEECH.SEARCH_STATE_HELP_MESSAGE).listen(SPEECH.SEARCH_STATE_HELP_MESSAGE);
         this.emit(':responseReady');
     }
 });
