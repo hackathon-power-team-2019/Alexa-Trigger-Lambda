@@ -1,13 +1,3 @@
-const skillName = "T Rowe Price";
-
-//This is the welcome message for when a user starts the skill without a specific intent.
-const WELCOME_MESSAGE = "Hello, I am Trusty Alexa from " + skillName + ". \n I go by Trusty for short. \n\nYou can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
-
-const description = 'What would you like to know about today?';
-
-//This is the message a user will hear when they ask Alexa for help in your skill.
-const HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";
-
 const Alexa = require("alexa-sdk"); // import the library
 const SPEECH = require('./speechUtil');
 const states = require('./ConstStates');
@@ -23,6 +13,7 @@ const newSessionHandlers = {
 
         const hasDisplay = supportsDisplay.call(this);
         if (hasDisplay) {
+            const description = 'What would you like to know about today?';
             let builder = new Alexa.templateBuilders.BodyTemplate1Builder();
             const template = builder.setTitle("Hello from Trusty Alexa, T. Rowe Price")
                 .setBackgroundImage(makeImage(backgroundURL))
@@ -41,7 +32,7 @@ const newSessionHandlers = {
             this.attributes['savedFunds'] = [];
         }
         this.handler.state = states.SEARCHMODE;
-        this.response.speak(WELCOME_MESSAGE);
+        this.response.speak(SPEECH.WELCOME_MESSAGE);
 
         this.emit(':responseReady');
     },
@@ -59,7 +50,7 @@ const newSessionHandlers = {
     },
     "TellMeMoreIntent": function () {
         this.handler.state = states.SEARCHMODE;
-        this.response.speak(WELCOME_MESSAGE).listen(SPEECH.getGenericHelpMessage(data));
+        this.response.speak(SPEECH.WELCOME_MESSAGE).listen(SPEECH.getGenericHelpMessage(data));
         this.emit(':responseReady');
     },
     "TellMeThisIntent": function () {
@@ -79,29 +70,29 @@ const newSessionHandlers = {
         this.emit(':responseReady');
     },
     "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
+        this.response.speak(SPEECH.SHUTDOWN_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.RepeatIntent": function () {
-        this.response.speak(HELP_MESSAGE).listen(getGenericHelpMessage(data));
+        this.response.speak(SPEECH.HELP_MESSAGE).listen(SPEECH.getGenericHelpMessage(data));
         this.emit(':responseReady');
     },
     "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.response.speak(SPEECH.EXIT_SKILL_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.response.speak(SPEECH.EXIT_SKILL_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.StartOverIntent": function () {
         this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + getGenericHelpMessage(data);
+        var output = "Ok, starting over. " + SPEECH.getGenericHelpMessage(data);
         this.response.speak(output).listen(output);
         this.emit(':responseReady');
     },
     "AMAZON.HelpIntent": function () {
-        this.response.speak(HELP_MESSAGE + getGenericHelpMessage(data)).listen(getGenericHelpMessage(data));
+        this.response.speak(SPEECH.HELP_MESSAGE + SPEECH.getGenericHelpMessage(data)).listen(SPEECH.getGenericHelpMessage(data));
         this.emit(':responseReady');
     },
     "Unhandled": function () {
