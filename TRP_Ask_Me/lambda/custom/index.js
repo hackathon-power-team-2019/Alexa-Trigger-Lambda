@@ -4,7 +4,9 @@ const https = require('https');
 
 const SPEECH = require('./handlers/speechUtil');
 const startSearchHandlers = require('./handlers/startSearchHandlers');
-
+const newSessionHandlers = require('./handlers/newSessionHandlers');
+//const newSessionHandlers = require('./handlers/newSessionHandlers');
+//const PERMISSIONS = ['alexa::profile:name:read', 'alexa::profile:email:read'];
 
 const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 
@@ -20,8 +22,6 @@ const data = require('./datasource');
 
 //This is the message a user will hear when they try to cancel or stop the skill.
 const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
-
-
 
 
 // =====================================================================================================
@@ -269,10 +269,26 @@ function generateSpecificInfoMessage(slots, product) {
 }
 
 
+const alexaNewSession = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'NewSession';
+    },
+    handle(handlerInput) {
+
+        let response = axios.get("https://fund-service-bucket.s3.amazonaws.com/dynamic-slot-type-funddata.json");
+        return handlerInput.responseBuilder
+            .addDirective(response.data)
+            .getResponse();
+    }
+};
+
 exports.handler = function (event, context, callback) {
-    let alexa = Alexa.handler(event, context);
+    const alexa = Alexa.handler(event, context, callback);
     alexa.appId = APP_ID;
-    alexa.registerHandlers(newSessionHandlers, startSearchHandlers, descriptionHandlers, multipleSearchResultsHandlers);
+    alexa.registerHandlers(alexaNewSession, newSessionHandlers, startSearchHandlers /*descriptionHandlers, multipleSearchResultsHandlers */);
+    alexa.dynamoDBTableName = 'TRPAskMe';
     alexa.execute();
 };
 
@@ -395,30 +411,7 @@ function getSubscribedFunds() {
 
 }
 
-function doRequest(url){
-    return new Promise((resolve, reject)=>{
-        console.log('URL', url);
-        https.get(url, (resp) => {
-            let data = '';
-            console.log('LOGGING');
-
-            // A chunk of data has been recieved.
-            resp.on('data', (chunk) => {
-                data += chunk;
-            });
-
-            // The whole response has been received. Print out the result.
-            resp.on('end', () => {
-                console.log(JSON.parse(data));
-                resolve(JSON.parse(data));
-            });
-
-        }).on("error", (err) => {
-            reject(err);
-        });
-    });
-}
-
+/*
 async function searchAemFundDatabase(answer) {
     if(answer) {
 
@@ -450,3 +443,4 @@ async function searchAemFundDatabase(answer) {
     }
 }
 
+*/

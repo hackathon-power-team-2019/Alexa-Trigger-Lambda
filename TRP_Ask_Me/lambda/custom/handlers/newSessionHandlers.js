@@ -9,25 +9,48 @@ const description = 'What would you like to know about today?';
 const HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";
 
 const Alexa = require("alexa-sdk"); // import the library
-const SPEECH = require('./handlers/speechUtil');
-const states = require('./handlers/ConstStates');
+const SPEECH = require('./speechUtil');
+const states = require('./ConstStates');
 const makeRichText = Alexa.utils.TextUtils.makeRichText;
 const makeImage = Alexa.utils.ImageUtils.makeImage;
 const imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410397885898802_origin.png';
 
+const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9WAX6_TPD_Homepage%20Background%20Image_1987px%20x%201200px_180905.jpg';
+const backgroundURL2 = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9WAX6_IDE_Looking%20beyond%20the%20numbers%20image%20631x242pxGRAY%20SCALE_v2.jpg';
+
 const newSessionHandlers = {
     "LaunchRequest": function() {
+
+        const hasDisplay = supportsDisplay.call(this);
+        if (hasDisplay) {
+            let builder = new Alexa.templateBuilders.BodyTemplate1Builder();
+            const template = builder.setTitle("Hello from Trusty Alexa, T. Rowe Price")
+                .setBackgroundImage(makeImage(backgroundURL))
+                .setTextContent(makeRichText('' + description + ''), null, null)
+                .build();
+
+            this.response.renderTemplate(template);
+        }
         this.handler.state = states.SEARCHMODE;
-        this.response.speak(WELCOME_MESSAGE).listen(SPEECH.getGenericHelpMessage(data));
-        const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
-        const template = builder.setTitle(WELCOME_MESSAGE)
-            .setImage(makeImage(imageURL))
-            .setTextContent(makeRichText('' + description + ''), null, null);
-
-        template.build();
-
-        this.response.renderTemplate(template);
+        this.response.listen(SPEECH.getGenericHelpMessage(data));
         this.emit(':responseReady');
+    },
+    'NewSession': function () {
+        if(Object.keys(this.attributes).length === 0) { // Check if it's the first time the skill has been invoked
+            this.attributes['endedSessionCount'] = 0;
+            this.attributes['savedFunds'] = [];
+        }
+        this.handler.state = states.SEARCHMODE;
+        this.response.speak(WELCOME_MESSAGE);
+
+        this.emit(':responseReady');
+    },
+    'SessionEndedRequest': function () {
+        console.log('session ended!');
+        this.attributes['endedSessionCount'] += 1;
+        this.emit(':saveState', true); // Be sure to call :saveState to persist your session attributes into local DynamoDB
+
+        this.emit("AMAZON.StopIntent");
     },
     "SearchByFundIntent": function () {
         console.log("SEARCH INTENT");
@@ -52,7 +75,7 @@ const newSessionHandlers = {
         this.emitWithState("getSubscribedFunds");
     },
     "AMAZON.YesIntent": function () {
-        this.response.speak(getGenericHelpMessage(data)).listen(getGenericHelpMessage(data));
+        this.response.speak(SPEECH.getGenericHelpMessage(data)).listen(SPEECH.getGenericHelpMessage(data));
         this.emit(':responseReady');
     },
     "AMAZON.NoIntent": function () {
@@ -81,13 +104,21 @@ const newSessionHandlers = {
         this.response.speak(HELP_MESSAGE + getGenericHelpMessage(data)).listen(getGenericHelpMessage(data));
         this.emit(':responseReady');
     },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
     "Unhandled": function () {
         this.handler.state = states.SEARCHMODE;
         this.emitWithState("SearchByFundIntent");
     }
 };
+
+function supportsDisplay() {
+
+    return this.event.context &&
+        this.event.context.System &&
+        this.event.context.System.device &&
+        this.event.context.System.device.supportedInterfaces &&
+        this.event.context.System.device.supportedInterfaces.Display;
+
+}
+
 
 module.exports = newSessionHandlers;

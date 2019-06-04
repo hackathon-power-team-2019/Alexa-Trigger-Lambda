@@ -1,5 +1,7 @@
 
-module.exports = function() {
+data = [{productName: "Global Allocation Fund"}];
+
+module.exports = (function() {
 
     let exports = {};
 
@@ -32,8 +34,11 @@ module.exports = function() {
     };
     exports.generateNextPromptMessage = generateNextPromptMessage;
 
-    function getGenericHelpMessage(data) {
-        let sentences = ["ask - what is " + getRandomName(data), "say - find an mutual fundFinder " + getRandomFund(data)];
+    function getGenericHelpMessage(inputData) {
+        if (arguments.length === 0) {
+            inputData = data;
+        }
+        let sentences = ["ask - what is " + getRandomName(inputData), "say - find an mutual fund " + getRandomFund(inputData)];
         return "You can " + sentences[getRandom(0, sentences.length - 1)];
     }
     exports.getGenericHelpMessage = getGenericHelpMessage;
@@ -42,4 +47,4 @@ module.exports = function() {
     exports.EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
 
     return exports;
-};
+})();

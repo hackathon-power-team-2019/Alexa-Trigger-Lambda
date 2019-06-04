@@ -1,13 +1,15 @@
-const SPEECH = require('./handlers/speechUtil');
+const SPEECH = require('./speechUtil');
+const Alexa = require("alexa-sdk"); // import the library
+const states = require('./ConstStates');
 
-const makePlainText = Alexa.utils.TextUtils.makePlainText;
-const makeRichText = Alexa.utils.TextUtils.makeRichText;
-const makeImage = Alexa.utils.ImageUtils.makeImage;
+// const makePlainText = Alexa.utils.TextUtils.makePlainText;
+// const makeRichText = Alexa.utils.TextUtils.makeRichText;
+// const makeImage = Alexa.utils.ImageUtils.makeImage;
 
 //This is the message a user will hear when they ask Alexa for help while in the SEARCH state
-const SEARCH_STATE_HELP_MESSAGE = SPEECH.getGenericHelpMessage(data);
+const SEARCH_STATE_HELP_MESSAGE = SPEECH.getGenericHelpMessage([{productName: "Global Allocation Fund"}]);
 //This is the message a user will hear when they begin a new search
-const NEW_SEARCH_MESSAGE = SPEECH.getGenericHelpMessage(data);
+const NEW_SEARCH_MESSAGE = SPEECH.getGenericHelpMessage();
 
 module.exports = Alexa.CreateStateHandler(states.SEARCHMODE, {
     "AMAZON.YesIntent": function () {
