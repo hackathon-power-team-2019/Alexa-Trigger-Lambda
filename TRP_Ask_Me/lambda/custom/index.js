@@ -15,15 +15,6 @@ const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 
 const data = require('./datasource');
 
-//======================================================================================================
-//TODO: Replace these text strings to edit the welcome and help messages
-//======================================================================================================
-
-
-//This is the message a user will hear when they try to cancel or stop the skill.
-const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
-
-
 // =====================================================================================================
 // ------------------------------ Section 2. Skill Code - Intent Handlers  -----------------------------
 // =====================================================================================================
@@ -47,15 +38,15 @@ let actionHandlers = Alexa.CreateStateHandler(states.ACTION, {
         this.emit(':responseReady')
     },
     "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.response.speak(SPEECH.EXIT_SKILL_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
+        this.response.speak(SPEECH.EXIT_SKILL_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
+        this.response.speak(SPEECH.SHUTDOWN_MESSAGE);
         this.emit(':responseReady');
     },
     "AMAZON.YesIntent": function () {
