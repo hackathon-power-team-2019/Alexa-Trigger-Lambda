@@ -10,7 +10,9 @@
                 {
                     "name": "AMAZON.HelpIntent",
                     "samples": [
-                        "how do I search"
+                        "how do I search",
+                        "help",
+                        "help me"
                     ]
                 },
                 {
@@ -46,10 +48,6 @@
                     "name": "SearchByFundIntent",
                     "slots": [
                         {
-                            "name": "cityName",
-                            "type": "AMAZON.US_CITY"
-                        },
-                        {
                             "name": "fundType",
                             "type": "TRP_FUND_CODE"
                         },
@@ -58,17 +56,17 @@
                             "type": "WHAT_PHRASE"
                         },
                         {
-                            "name": "fundSynonyms",
-                            "type": "FUND_SYNOYNMS"
+                            "name": "fundAttributes",
+                            "type": "FUND_ATTRIBUTES"
                         }
                     ],
                     "samples": [
-                        "I want {fundSynonyms}",
+                        "I want {fundAttributes}",
                         "I want {fundType}",
-                        "Search {fundSynonyms}",
-                        "I want to lookup {fundSynonyms}",
-                        "Lookup {fundSynonyms}",
-                        "I want to lookup a {fundSynonyms}",
+                        "Search {fundAttributes}",
+                        "I want to lookup {fundAttributes}",
+                        "Lookup {fundAttributes}",
+                        "I want to lookup a {fundAttributes}",
                         "find a mutual fund {fundType}",
                         "for the fund {fundType}"
                     ]
@@ -392,7 +390,7 @@
                     ]
                 },
                 {
-                    "name": "FUND_SYNOYNMS",
+                    "name": "FUND_ATTRIBUTES",
                     "values": [
                         {
                             "name": {
