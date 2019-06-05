@@ -75,7 +75,8 @@ exports.handler = function(event, context, callback) {
                         Bucket: dstBucket,
                         Key: dstKey,
                         Body: JSON.stringify(data),
-                        ContentType: 'application/json'
+                        ContentType: 'application/json',
+                        ACL: 'public-read'
                     },
                     next);
             }
