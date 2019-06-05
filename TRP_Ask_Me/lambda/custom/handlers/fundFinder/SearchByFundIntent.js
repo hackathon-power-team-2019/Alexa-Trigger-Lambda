@@ -1,3 +1,24 @@
+const searchByFundIntent = {
+    canHandle(handlerInput) {
+
+    },
+    handle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        const fundTerms = request.intent.slots.fundTerms.value;
+
+        const slotValid = SPEECH.isSlotValid(request, 'fundTerms');
+        if (!slotValid) {
+            console.log("Fund Terms slot is not valid");
+            return ;
+        }
+
+        //const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    }
+
+};
+
+//  lhuangbyrd@gmail.com
+
 function searchByFundIntentHandler() {
     const slots = this.event.request.intent.slots;
     const fundTerms = isSlotValid(this.event.request, "fundTerms");

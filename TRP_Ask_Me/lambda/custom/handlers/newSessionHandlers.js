@@ -18,6 +18,9 @@ const imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410
 const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9WAX6_TPD_Homepage%20Background%20Image_1987px%20x%201200px_180905.jpg';
 const backgroundURL2 = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9WAX6_IDE_Looking%20beyond%20the%20numbers%20image%20631x242pxGRAY%20SCALE_v2.jpg';
 
+//This is the message a user will hear when they try to cancel or stop the skill.
+const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
+
 const newSessionHandlers = {
     "LaunchRequest": function() {
 
@@ -35,19 +38,10 @@ const newSessionHandlers = {
         this.response.listen(SPEECH.getGenericHelpMessage(data));
         this.emit(':responseReady');
     },
-    'NewSession': function () {
-        if(Object.keys(this.attributes).length === 0) { // Check if it's the first time the skill has been invoked
-            this.attributes['endedSessionCount'] = 0;
-            this.attributes['savedFunds'] = [];
-        }
-        this.handler.state = states.SEARCHMODE;
-        this.response.speak(WELCOME_MESSAGE);
 
-        this.emit(':responseReady');
-    },
     'SessionEndedRequest': function () {
         console.log('session ended!');
-        this.attributes['endedSessionCount'] += 1;
+        //this.attributes['endedSessionCount'] = this.attributes['endedSessionCount'] ? (this.attributes['endedSessionCount']+1) : 0;
         this.emit(':saveState', true); // Be sure to call :saveState to persist your session attributes into local DynamoDB
 
         this.emit("AMAZON.StopIntent");

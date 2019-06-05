@@ -1,10 +1,9 @@
 "use strict";
-const Alexa = require("alexa-sdk"); // import the library
+const Alexa = require("ask-sdk-core"); // import the library
 const https = require('https');
 
 const SPEECH = require('./handlers/speechUtil');
-const startSearchHandlers = require('./handlers/startSearchHandlers');
-const newSessionHandlers = require('./handlers/newSessionHandlers');
+
 //const newSessionHandlers = require('./handlers/newSessionHandlers');
 //const PERMISSIONS = ['alexa::profile:name:read', 'alexa::profile:email:read'];
 
@@ -13,7 +12,9 @@ const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
 // =====================================================================================================
 // --------------------------------- Section 1. Data and Text strings  ---------------------------------
 
-const data = require('./datasource');
+const dsRequire = require('./datasource');
+const data = dsRequire[0];
+const persistenceAdapter = dsRequire[1];
 
 //======================================================================================================
 //TODO: Replace these text strings to edit the welcome and help messages
@@ -33,83 +34,9 @@ const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
 
 const states = require('./handlers/ConstStates');
 
-let actionHandlers = Alexa.CreateStateHandler(states.ACTION, {
-    "SubscribeToFund": function() {
-        let product = this.attributes.lastSearch.results[0];
-
-        this.subscribeToFund(product);
-        this.response.speak("You are subscribed to the fundFinder.");
-        this.emit(':responseReady');
-    },
-    "getSubscribedFunds": function() {
-        getSubscribedFunds.call();
-        this.response.speak("You are subscribed to the fundFinder.");
-        this.emit(':responseReady')
-    },
-    "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.YesIntent": function () {
-        this.emit("TellMeMoreIntent");
-    },
-    "AMAZON.RepeatIntent": function () {
-        this.response.speak(this.attributes.lastSearch.lastSpeech).listen(this.attributes.lastSearch.lastSpeech);
-        this.emit(':responseReady');
-    },
-    "AMAZON.StartOverIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + SPEECH.getGenericHelpMessage(data);
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
-    "Unhandled": function () {
-        let person = this.attributes.lastSearch.results[0];
-        console.log("Unhandled intent in DESCRIPTION state handler");
-        this.response.speak("Sorry, I don't know that" + generateNextPromptMessage(person, "general"))
-            .listen("Sorry, I don't know that" + generateNextPromptMessage(person, "general"));
-        this.emit(':responseReady');
-    }
-});
 
 // ------------------------- END of Intent Handlers  ---------------------------------
 
-function searchDatabase(dataset, searchQuery, searchType) {
-    let matchFound = false;
-    let results = [];
-
-    //beginning search
-    for (let i = 0; i < dataset.length; i++) {
-        let dataValue = (dataset[i][searchType] || '').toLowerCase();
-        if (sanitizeSearchQuery(searchQuery) === dataValue) {
-            results.push(dataset[i]);
-            matchFound = true;
-            console.log('matched! ' + dataValue );
-        }
-        if ((i === dataset.length - 1) && (matchFound === false)) {
-            //this means that we are on the last record, and no match was found
-            matchFound = false;
-            console.log("no match was found using " + searchType);
-            //if more than searchable items were provided, set searchType to the next item, and set i=0
-            //ideally you want to start search with lastName, then firstname, and then cityName
-        }
-    }
-    return {
-        count: results.length,
-        results: results
-    };
-}
 
 function figureOutWhichSlotToSearchBy(productName, productCode, ticker, assetClass) {
     if (productName && productName.length > 0) {
@@ -251,6 +178,7 @@ function generateTellMeMoreMessage(product) {
     let sentence = product.productName + " current price " + (Math.random() * 101).toFixed(2) + " US dollars. " + generateSendingCardToAlexaAppMessage(product, "general");
     return sentence;
 }
+
 function generateSpecificInfoMessage(slots, product) {
     let infoTypeValue;
     let sentence;
@@ -276,21 +204,62 @@ const alexaNewSession = {
         return request.type === 'NewSession';
     },
     handle(handlerInput) {
+        // if(Object.keys(this.attributes).length === 0) { // Check if it's the first time the skill has been invoked
+        //     this.attributes['endedSessionCount'] = 0;
+        //     this.attributes['savedFunds'] = [];
+        // }
+        this.handler.state = states.SEARCHMODE;
+        this.response.speak("Hello ");
+
+        this.emit(':responseReady');
 
         let response = axios.get("https://fund-service-bucket.s3.amazonaws.com/dynamic-slot-type-funddata.json");
+        console.log("Got a response." + response.data);
+
         return handlerInput.responseBuilder
             .addDirective(response.data)
             .getResponse();
     }
 };
 
-exports.handler = function (event, context, callback) {
-    const alexa = Alexa.handler(event, context, callback);
-    alexa.appId = APP_ID;
-    alexa.registerHandlers(alexaNewSession, newSessionHandlers, startSearchHandlers /*descriptionHandlers, multipleSearchResultsHandlers */);
-    alexa.dynamoDBTableName = 'TRPAskMe';
-    alexa.execute();
+// core functionality for fact skill
+const GetNewFactHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        // checks request type
+        return request.type === 'LaunchRequest'
+            || (request.type === 'IntentRequest'
+                && request.intent.name === 'GetNewFactIntent');
+    },
+    handle(handlerInput) {
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+        // gets a random fact by assigning an array to the variable
+        // the random item from the array will be selected by the i18next library
+        // the i18next library is set up in the Request Interceptor
+        const randomFact = requestAttributes.t('FACTS');
+        // concatenates a standard message with the random fact
+        const speakOutput = requestAttributes.t('GET_FACT_MESSAGE') + randomFact;
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            // Uncomment the next line if you want to keep the session open so you can
+            // ask for another fact without first re-opening the skill
+            // .reprompt(requestAttributes.t('HELP_REPROMPT'))
+            .withSimpleCard(requestAttributes.t('SKILL_NAME'), randomFact)
+            .getResponse();
+    },
 };
+
+exports.handler = Alexa.SkillBuilders.custom()
+    .addRequestHandlers(alexaNewSession,
+        //require('./handlers/newSessionHandlers'),
+        //require('./handlers/startSearchHandlers'),
+        require('./handlers/subscriber/SubscribeToFund')
+        /*descriptionHandlers, multipleSearchResultsHandlers */
+    )//.addErrorHandlers(ErrorHandler)
+    .withPersistenceAdapter(persistenceAdapter('TRPAskMeAttributes'))
+    .lambda();
+
 
 // =====================================================================================================
 // ------------------------------------ Section 4. Helper Functions  -----------------------------------

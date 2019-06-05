@@ -10,7 +10,7 @@
         },
         "interactionModel": {
           "en-US": {
-            "eTag": "24ff71782a86174b9832e1cbe536f845"
+            "eTag": "6c1d0e9b94eddc89d71d10b7734c90c1"
           }
         },
         "lambda": [
@@ -23,7 +23,7 @@
             "codeUri": "lambda/custom",
             "functionName": "ask-custom-TRP_Ask_Me_Funds-default",
             "handler": "index.handler",
-            "revisionId": "e1618d55-abb3-4f91-9844-be37ddc07db0",
+            "revisionId": "2a3cdf9b-ca89-4c2e-af39-72342add44c4",
             "runtime": "nodejs8.10"
           }
         ]

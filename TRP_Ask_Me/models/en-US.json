@@ -50,15 +50,17 @@
                             "type": "AMAZON.US_CITY"
                         },
                         {
-                            "name": "fundTerms",
-                            "type": "AMAZON.SearchQuery"
+                            "name": "fundType",
+                            "type": "TRP_FUND_CODE"
+                        },
+                        {
+                            "name": "whatPhrase",
+                            "type": "WHAT_PHRASE"
                         }
                     ],
                     "samples": [
-                        "find a mutual fund {fundTerms}",
-                        "for the fund {fundTerms}",
-                        "what is {fundTerms}",
-                        "what is the  {fundTerms}"
+                        "find a mutual fund {fundType}",
+                        "for the fund {fundType}"
                     ]
                 },
                 {
@@ -66,7 +68,7 @@
                     "slots": [
                         {
                             "name": "fund",
-                            "type": "FUND_NAMES"
+                            "type": "TRP_FUND_CODE"
                         },
                         {
                             "name": "infoTypes",
@@ -189,6 +191,11 @@
                     "values": [
                         {
                             "name": {
+                                "value": "so what is"
+                            }
+                        },
+                        {
+                            "name": {
                                 "value": "what is"
                             }
                         },
@@ -271,7 +278,7 @@
                     ]
                 },
                 {
-                    "name": "FUND_NAMES",
+                    "name": "TRP_FUND_CODE",
                     "values": [
                         {
                             "name": {
@@ -393,6 +400,43 @@
                             "prompts": {}
                         }
                     ]
+                },
+                {
+                    "name": "SearchByInfoTypeIntent",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "fund",
+                            "type": "TRP_FUND_CODE",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        },
+                        {
+                            "name": "infoTypes",
+                            "type": "LIST_OF_FUND_INFO_TYPES",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.50594219179.573027835040"
+                            }
+                        },
+                        {
+                            "name": "whatPhrase",
+                            "type": "WHAT_PHRASE",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        },
+                        {
+                            "name": "whoPhrase",
+                            "type": "WHO_PHRASE",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        }
+                    ]
                 }
             ],
             "delegationStrategy": "ALWAYS"
@@ -404,6 +448,15 @@
                     {
                         "type": "PlainText",
                         "value": "You are subscribed to the fund."
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.50594219179.573027835040",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "which do you want to know the money manager, the price, ticker symbol?"
                     }
                 ]
             }

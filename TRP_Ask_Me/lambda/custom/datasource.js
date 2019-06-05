@@ -1,6 +1,24 @@
-const axios = require('axios');
+const getPersistenceAdapter = function(tableName) {
+    // Determines persistence adapter to be used based on environment
+    // Note: tableName is only used for DynamoDB Persistence Adapter
+    //if (process.env.S3_PERSISTENCE_BUCKET) {
+        // in Alexa Hosted Environment
+        // eslint-disable-next-line global-require
+        const s3Adapter = require('ask-sdk-s3-persistence-adapter');
+        return new s3Adapter.S3PersistenceAdapter({
+            bucketName: process.env.S3_PERSISTENCE_BUCKET,
+        });
+    //}
 
-module.exports = (async function() {
+    // Not in Alexa Hosted Environment
+    //return new ddbAdapter.DynamoDbPersistenceAdapter({
+    //    tableName: tableName,
+    //    createTable: true,
+    //});
+};
+
+const axios = require('axios');
+const productData = (async function() {
 // =====================================================================================================
 // --------------------------------- Section 1. Data and Text strings  ---------------------------------
 
@@ -34,4 +52,33 @@ module.exports = (async function() {
     return data;
 
 })();
+
+
+const searchDatabase = function(dataset, searchQuery, searchType) {
+    let matchFound = false;
+    let results = [];
+
+    //beginning search
+    for (let i = 0; i < dataset.length; i++) {
+        let dataValue = (dataset[i][searchType] || '').toLowerCase();
+        if (sanitizeSearchQuery(searchQuery) === dataValue) {
+            results.push(dataset[i]);
+            matchFound = true;
+            console.log('matched! ' + dataValue );
+        }
+        if ((i === dataset.length - 1) && (matchFound === false)) {
+            //this means that we are on the last record, and no match was found
+            matchFound = false;
+            console.log("no match was found using " + searchType);
+            //if more than searchable items were provided, set searchType to the next item, and set i=0
+            //ideally you want to start search with lastName, then firstname, and then cityName
+        }
+    }
+    return {
+        count: results.length,
+        results: results
+    };
+};
+
+module.exports = [ productData, getPersistenceAdapter ] ;
 
