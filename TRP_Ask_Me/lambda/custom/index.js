@@ -61,11 +61,12 @@ const SearchByFundIntent = {
         const responseBuilder = handlerInput.responseBuilder;
 
         const requestAttributes = attributesManager.getRequestAttributes();
-        
-        //request.intent.slots.
+
+        //request.intent.slots.fundType.value
+        //request.intent.slots.fundAttributes
 
         return responseBuilder
-            .speak(requestAttributes.t('ABOUT'))
+            .speak("fundType = " + handlerInput.requestEnvelope.request.intent.slots.fundType.value)
             .getResponse();
     },
 };
