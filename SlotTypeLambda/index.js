@@ -63,7 +63,7 @@ exports.handler = function(event, context, callback) {
                     type: 'Dialog.UpdateDynamicEntities',
                     updateBehavior: 'REPLACE',
                     types: [{
-                            name: "TRP-FUND_CODE",
+                            name: "TRP_FUND_CODE",
                             values: dynamicFundSlotType
                     }]
                 };
