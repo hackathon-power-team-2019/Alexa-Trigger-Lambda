@@ -2,14 +2,6 @@
 /* eslint-disable  no-console */
 /* eslint-disable  no-use-before-define */
 
-
-// City Guide: A sample Alexa Skill Lambda function
-//  This function shows how you can manage data in objects and arrays,
-//   choose a random recommendation,
-//   call an external API and speak the result,
-//   handle YES/NO intents with session attributes,
-//   and return text data on a card.
-
 const Alexa = require('ask-sdk-core');
 const https = require('https');
 
