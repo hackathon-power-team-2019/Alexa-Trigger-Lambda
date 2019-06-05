@@ -56,9 +56,19 @@
                         {
                             "name": "whatPhrase",
                             "type": "WHAT_PHRASE"
+                        },
+                        {
+                            "name": "fundSynonyms",
+                            "type": "FUND_SYNOYNMS"
                         }
                     ],
                     "samples": [
+                        "I want {fundSynonyms}",
+                        "I want {fundType}",
+                        "Search {fundSynonyms}",
+                        "I want to lookup {fundSynonyms}",
+                        "Lookup {fundSynonyms}",
+                        "I want to lookup a {fundSynonyms}",
                         "find a mutual fund {fundType}",
                         "for the fund {fundType}"
                     ]
@@ -376,6 +386,45 @@
                                 "synonyms": [
                                     "TRBCX",
                                     "BCG"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "FUND_SYNOYNMS",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "etf",
+                                "synonyms": [
+                                    "exchange traded funds",
+                                    "etfs"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "investments",
+                                "synonyms": [
+                                    "investment funds"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "fixed income"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "mutual funds",
+                                "synonyms": [
+                                    "products",
+                                    "small cap",
+                                    "large cap",
+                                    "fixed income",
+                                    "mutual fund"
                                 ]
                             }
                         }
