@@ -13,6 +13,7 @@
 const Alexa = require('ask-sdk-core');
 const https = require('https');
 
+const SKILL_NAME = 'Trusty Alexa';
 // 1. Handlers ===================================================================================
 
 const LaunchHandler = {
@@ -399,7 +400,8 @@ const MessagesInterceptor = {
     process(handlerInput) {
         const attributes = handlerInput.attributesManager.getRequestAttributes();
         attributes.t = function (...args) {
-            return messages[arguments[0]];
+            console.log('Message name' + arguments[0]);
+            return messages[arguments[0] + '_MESSAGE'];
         };
     },
 };
@@ -410,7 +412,7 @@ const skillBuilder = Alexa.SkillBuilders.custom();
 exports.handler = skillBuilder
     .addRequestHandlers(
         LaunchHandler,
-        AboutHandler,
+       /* AboutHandler,
         CoffeeHandler,
         BreakfastHandler,
         LunchHandler,
@@ -420,7 +422,7 @@ exports.handler = skillBuilder
         GoOutHandler,
         HelpHandler,
         StopHandler,
-        FallbackHandler,
+        FallbackHandler, */
         SessionEndedHandler
     )
     .addRequestInterceptors(MessagesInterceptor)
