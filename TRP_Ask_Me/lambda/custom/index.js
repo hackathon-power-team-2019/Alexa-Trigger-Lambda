@@ -29,12 +29,12 @@ let actionHandlers = Alexa.CreateStateHandler(states.ACTION, {
         let product = this.attributes.lastSearch.results[0];
 
         this.subscribeToFund(product);
-        this.response.speak("You are subscribed to the fundFinder.");
+        this.response.speak("You are subscribed to the fund.");
         this.emit(':responseReady');
     },
     "getSubscribedFunds": function() {
         getSubscribedFunds.call();
-        this.response.speak("You are subscribed to the fundFinder.");
+        this.response.speak("You are subscribed to the fund.");
         this.emit(':responseReady')
     },
     "AMAZON.StopIntent": function () {
@@ -111,7 +111,7 @@ function figureOutWhichSlotToSearchBy(productName, productCode, ticker, assetCla
         console.log("search by productCode");
         return "productCode";
     }
-    else if (!ticker && productCode) {
+    else if (!productCode && ticker) {
         console.log("search by ticker");
         return "ticker";
     }
@@ -128,20 +128,13 @@ function figureOutWhichSlotToSearchBy(productName, productCode, ticker, assetCla
 
 function searchByInfoTypeIntentHandler() {
     var slots = this.event.request.intent.slots;
-    var fundName = isSlotValid(this.event.request, "fundTerms");
-    var fundAttrTypes = isSlotValid(this.event.request, "fundAttrTypes");
+    var fundName = isSlotValid(this.event.request, "fund");
+    var infoType = isSlotValid(this.event.request, "infoTypes");
 
-    var firstName = isSlotValid(this.event.request, "firstName");
-    var lastName = isSlotValid(this.event.request, "lastName");
-    var cityName = isSlotValid(this.event.request, "cityName");
-    var infoType = isSlotValid(this.event.request, "infoType");
-
-    var canSearch = figureOutWhichSlotToSearchBy(fundName, firstName, lastName, cityName);
-    console.log("canSearch is set to = " + canSearch);
-
-    if (canSearch) {
-        var searchQuery = slots[canSearch].value;
-        var searchResults = searchDatabase(data, searchQuery, canSearch);
+    if (isInfoTypeValid(infoType)) {
+        var fundName = slots[fundName].value;
+        var infoQuery = slots[infoType].value;
+        var searchResults = searchDatabase(data, fundName, infoQuery);
 
         //saving lastSearch results to the current session
         var lastSearch = this.attributes.lastSearch = searchResults;
@@ -152,8 +145,8 @@ function searchByInfoTypeIntentHandler() {
 
         if (searchResults.count > 1) { //multiple results found
             console.log("multiple results were found");
-            let listOfPeopleFound = loopThroughArrayOfObjects(lastSearch.results);
-            output = generateSearchResultsMessage(searchQuery, searchResults.results) + listOfPeopleFound + ". Who would you like to learn more about?";
+            let listOfProductsFound = loopThroughArrayOfObjects(lastSearch.results);
+            output = generateSearchResultsMessage(searchQuery, searchResults.results) + listOfProductsFound + ". What would you like to learn more about?";
             this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
             this.attributes.lastSearch.lastSpeech = output;
             this.response.speak(output).listen(output);
@@ -163,10 +156,10 @@ function searchByInfoTypeIntentHandler() {
             if (infoType) {
                 //if a specific infoType was requested, redirect to specificInfoIntent
                 console.log("infoType was provided as well");
-                let person = this.attributes.lastSearch.results[0];
-                let cardContent = generateCard(person);
-                let speechOutput = generateSpecificInfoMessage(slots, person);
-                let repromptSpeech = "Would you like to find another evangelist? Say yes or no";
+                let product = this.attributes.lastSearch.results[0];
+                let cardContent = generateCard(product);
+                let speechOutput = generateSpecificInfoMessage(infoQuery, product);
+                let repromptSpeech = "Would you like to find another mutual fund? Say yes or no";
                 this.attributes.lastSearch.lastSpeech = speechOutput;
                 this.handler.state = states.SEARCHMODE;
                 this.response.cardRenderer(cardContent.title, cardContent.body, cardContent.image);
@@ -198,11 +191,6 @@ function searchByInfoTypeIntentHandler() {
 // =====================================================================================================
 // ------------------------------- Section 3. Generating Speech Messages -------------------------------
 // =====================================================================================================
-function generateSendingCardToAlexaAppMessage(person, mode) {
-    let sentence = "I have sent " + person.productName + "'s contact card to your Alexa app" + generateNextPromptMessage(person, mode);
-    return sentence;
-}
-
 function generateSearchResultsMessage(searchQuery, results) {
     let sentence;
     let details;
@@ -233,30 +221,17 @@ function generateSearchResultsMessage(searchQuery, results) {
 
 
 
-function generateSearchHelpMessage(gender) {
-    let sentence = "Sorry, I don't know that. You can ask me - what's BCG fundFinder's price" ;
+function generateSearchHelpMessage() {
+    let sentence = "Sorry, I don't know that. You can ask me - what's BCG's price" ;
     return sentence;
 }
 
 function generateTellMeMoreMessage(product) {
-    let sentence = product.productName + " current price " + (Math.random() * 101).toFixed(2) + " US dollars. " + generateSendingCardToAlexaAppMessage(product, "general");
+    let sentence = product.productName + " current price " + (Math.random() * 101).toFixed(2) + " US dollars. ";
     return sentence;
 }
 function generateSpecificInfoMessage(slots, product) {
-    let infoTypeValue;
-    let sentence;
-
-    if (slots.infoType.value == "git hub") {
-        infoTypeValue = "github";
-        console.log("resetting gith hub to github");
-    }
-    else {
-        console.log("no reset required for github");
-        infoTypeValue = slots.infoType.value;
-    }
-
-    sentence = product.productName + "'s " + infoTypeValue.toLowerCase() + " is - " + person["say" + infoTypeValue.toLowerCase()] + " . Would you like to find another evangelist? " + SPEECH.getGenericHelpMessage(data);
-    return optimizeForSpeech(sentence);
+    return product.productName + "'s " + infoQuery.toLowerCase() + " is - " + product[infoQuery.toLowerCase()] + " . Would you like to know anything else about this fund? " + getGenericHelpMessage(data); ;
 }
 
 
@@ -304,11 +279,6 @@ function sanitizeSearchQuery(searchQuery) {
     searchQuery = searchQuery.replace(/’s/g, "").toLowerCase();
     searchQuery = searchQuery.replace(/'s/g, "").toLowerCase();
     return searchQuery;
-}
-
-function optimizeForSpeech(str) {
-    let optimizedString = str.replace("github", "git-hub");
-    return optimizedString;
 }
 
 function isSlotValid(request, slotName) {
