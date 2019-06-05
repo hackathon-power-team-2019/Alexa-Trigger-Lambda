@@ -19,7 +19,7 @@ const LaunchHandler = {
         const responseBuilder = handlerInput.responseBuilder;
 
         const requestAttributes = attributesManager.getRequestAttributes();
-        const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')}`;
+        const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')}  <audio src='soundbank://soundlibrary/human/amzn_sfx_sneeze_01'/>`;
         return responseBuilder
             .speak(speechOutput)
             .reprompt(speechOutput)

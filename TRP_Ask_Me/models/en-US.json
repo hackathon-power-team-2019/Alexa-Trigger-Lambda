@@ -61,12 +61,9 @@
                         }
                     ],
                     "samples": [
-                        "I want {fundAttributes}",
-                        "I want {fundType}",
+                        "{whatPhrase} {fundAttributes}",
+                        "{whatPhrase} {fundType}",
                         "Search {fundAttributes}",
-                        "I want to lookup {fundAttributes}",
-                        "Lookup {fundAttributes}",
-                        "I want to lookup a {fundAttributes}",
                         "find a mutual fund {fundType}",
                         "for the fund {fundType}"
                     ]
@@ -220,6 +217,20 @@
                         {
                             "name": {
                                 "value": "tell me"
+                            }
+                        },
+                            "name": {
+                                "value": "I want to lookup"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "lookup"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "I want"
                             }
                         }
                     ]
