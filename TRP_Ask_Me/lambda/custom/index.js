@@ -35,6 +35,26 @@ const LaunchHandler = {
     },
 };
 
+const { productData, fundDynamicSlot } = require('./datasource');
+
+const AlexaNewSessionHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'NewSession';
+    },
+    handle(handlerInput) {
+        const attributesManager = handlerInput.attributesManager;
+        const responseBuilder = handlerInput.responseBuilder;
+
+        const sessionAttributes = attributesManager.getSessionAttributes();
+        sessionAttributes.products = productData();
+
+        return responseBuilder.addDirective(replaceEntityDirective).getResponse();
+
+    }
+};
+
 const AboutHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
@@ -317,7 +337,7 @@ const languageStrings = {
     // , 'de-DE': { 'translation' : { 'TITLE'   : "Local Helfer etc." } }
 };
 
-const data = require('./datasource');
+
 
 const FALLBACK_MESSAGE = `The ${SKILL_NAME} skill can\'t help you with that.  It can help you learn about Gloucester if you say tell me about this place. What can I help you with?`;
 const FALLBACK_REPROMPT = 'What can I help you with?';
@@ -395,12 +415,13 @@ function randomArrayElement(array) {
     return (array[i]);
 }
 
-const messages = require('./speechUtil');
+const messages = require('./handlers/speechUtil');
 const MessagesInterceptor = {
     process(handlerInput) {
         const attributes = handlerInput.attributesManager.getRequestAttributes();
         attributes.t = function (...args) {
             console.log('Message name' + arguments[0]);
+
             return messages[arguments[0] + '_MESSAGE'];
         };
     },
