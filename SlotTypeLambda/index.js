@@ -48,7 +48,7 @@ exports.handler = function(event, context, callback) {
                 products.forEach( (fund) => {
                     console.log(JSON.stringify(fund));
                     let productName = fund.productName.replace(/[^a-zA-Z ]+/g, '').replace(/\s\s+/g, ' ').toLowerCase();
-                    let productName2 = productName.replace(' fundFinder', '').replace(' class', '').trim();
+                    let productName2 = productName.replace(' fund', '').replace(' class', '').trim();
                     dynamicFundSlotType.push({
                             id: fund.ticker,
                             name: {
