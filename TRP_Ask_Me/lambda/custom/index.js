@@ -35,7 +35,8 @@ const LaunchHandler = {
     },
 };
 
-const { productData, fundDynamicSlot } = require('./datasource');
+const { productData, fetchFundDynamicSlot } = require('./datasource');
+const data = productData();
 
 const AlexaNewSessionHandler = {
     canHandle(handlerInput) {
@@ -48,24 +49,28 @@ const AlexaNewSessionHandler = {
         const responseBuilder = handlerInput.responseBuilder;
 
         const sessionAttributes = attributesManager.getSessionAttributes();
-        sessionAttributes.products = productData();
+        //sessionAttributes.products = productData();
 
-        return responseBuilder.addDirective(replaceEntityDirective).getResponse();
+        const replaceEntityDirective = fetchFundDynamicSlot();
+        console.log(replaceEntityDirective);
 
+        return responseBuilder.addDirective(JSON.parse(replaceEntityDirective)).getResponse();
     }
 };
 
-const AboutHandler = {
+const SearchByFundIntent = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
 
-        return request.type === 'IntentRequest' && request.intent.name === 'AboutIntent';
+        return request.type === 'IntentRequest' && request.intent.name === 'SearchByFundIntent';
     },
     handle(handlerInput) {
         const attributesManager = handlerInput.attributesManager;
         const responseBuilder = handlerInput.responseBuilder;
 
         const requestAttributes = attributesManager.getRequestAttributes();
+        
+        //request.intent.slots.
 
         return responseBuilder
             .speak(requestAttributes.t('ABOUT'))
@@ -433,6 +438,8 @@ const skillBuilder = Alexa.SkillBuilders.custom();
 exports.handler = skillBuilder
     .addRequestHandlers(
         LaunchHandler,
+        AlexaNewSessionHandler,
+        SearchByFundIntent,
        /* AboutHandler,
         CoffeeHandler,
         BreakfastHandler,
