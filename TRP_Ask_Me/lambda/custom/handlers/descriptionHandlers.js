@@ -35,7 +35,7 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
             product = this.attributes.lastSearch.results[0];
             cardContent = generateCard(product); //calling the helper function to generate the card content that will be sent to the Alexa app.
             speechOutput = generateTellMeMoreMessage(product);
-            repromptSpeech = "Would you like to find another evangelist? Say yes or no";
+            repromptSpeech = "Would you like to find another fund? Say yes or no";
 
             console.log("the contact you're trying to find more info about is " + product.productName);
             this.handler.state = states.SEARCHMODE;
@@ -60,13 +60,12 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
         let repromptSpeech;
         let cardContent;
 
-        console.log(isInfoTypeValid("github"));
-
         if (this.attributes.lastSearch && isInfoTypeValid(infoType)) {
             product = this.attributes.lastSearch.results[0];
+            let infoQuery = slot[infoType].value;
             cardContent = generateCard(product);
-            speechOutput = generateSpecificInfoMessage(slots, product);
-            repromptSpeech = "Would you like to find another evangelist? Say yes or no";
+            speechOutput = generateSpecificInfoMessage(infoQuery, product);
+            repromptSpeech = "Would you like to find another mutual fund? Say yes or no";
             this.handler.state = states.SEARCHMODE;
             this.attributes.lastSearch.lastSpeech = speechOutput;
             this.response.cardRenderer(cardContent.title, cardContent.body, cardContent.image);
@@ -75,7 +74,6 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
             //not a valid slot. no card needs to be set up. respond with simply a voice response.
             speechOutput = generateSearchHelpMessage(product.productCode);
             repromptSpeech = "Ask me something useful";
-            // repromptSpeech = "You can ask me - what's " + genderize("his-her", product.gender) + " twitter, or give me " + genderize("his-her", person.gender) + " git-hub username";
             this.attributes.lastSearch.lastSpeech = speechOutput;
             this.handler.state = states.SEARCHMODE;
             this.response.speak(speechOutput).listen(repromptSpeech);
@@ -86,8 +84,8 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
         searchByFundIntentHandler.call(this);
     },
     "AMAZON.HelpIntent": function () {
-        var person = this.attributes.lastSearch.results[0];
-        this.response.speak(generateNextPromptMessage(person, "current")).listen(generateNextPromptMessage(person, "current"));
+        var product = this.attributes.lastSearch.results[0];
+        this.response.speak(generateNextPromptMessage(product, "current")).listen(generateNextPromptMessage(product, "current"));
         this.emit(':responseReady');
     },
     "AMAZON.StopIntent": function () {
@@ -123,10 +121,10 @@ let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
         this.emit("AMAZON.StopIntent");
     },
     "Unhandled": function () {
-        let person = this.attributes.lastSearch.results[0];
+        let product = this.attributes.lastSearch.results[0];
         console.log("Unhandled intent in DESCRIPTION state handler");
-        this.response.speak("Sorry, I don't know that" + generateNextPromptMessage(person, "general"))
-            .listen("Sorry, I don't know that" + generateNextPromptMessage(person, "general"));
+        this.response.speak("Sorry, I don't know that" + generateNextPromptMessage(product, "general"))
+            .listen("Sorry, I don't know that" + generateNextPromptMessage(product, "general"));
         this.emit(':responseReady');
     }
 });

@@ -16,15 +16,6 @@ const dsRequire = require('./datasource');
 const data = dsRequire[0];
 const persistenceAdapter = dsRequire[1];
 
-//======================================================================================================
-//TODO: Replace these text strings to edit the welcome and help messages
-//======================================================================================================
-
-
-//This is the message a user will hear when they try to cancel or stop the skill.
-const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
-
-
 // =====================================================================================================
 // ------------------------------ Section 2. Skill Code - Intent Handlers  -----------------------------
 // =====================================================================================================
@@ -33,7 +24,6 @@ const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
 
 
 const states = require('./handlers/ConstStates');
-
 
 // ------------------------- END of Intent Handlers  ---------------------------------
 
@@ -167,10 +157,8 @@ function generateSearchResultsMessage(searchQuery, results) {
     return sentence;
 }
 
-
-
-function generateSearchHelpMessage(gender) {
-    let sentence = "Sorry, I don't know that. You can ask me - what's BCG fundFinder's price" ;
+function generateSearchHelpMessage() {
+    let sentence = "Sorry, I don't know that. You can ask me - what's BCG's price" ;
     return sentence;
 }
 
@@ -179,23 +167,10 @@ function generateTellMeMoreMessage(product) {
     return sentence;
 }
 
+
 function generateSpecificInfoMessage(slots, product) {
-    let infoTypeValue;
-    let sentence;
-
-    if (slots.infoType.value == "git hub") {
-        infoTypeValue = "github";
-        console.log("resetting gith hub to github");
-    }
-    else {
-        console.log("no reset required for github");
-        infoTypeValue = slots.infoType.value;
-    }
-
-    sentence = product.productName + "'s " + infoTypeValue.toLowerCase() + " is - " + person["say" + infoTypeValue.toLowerCase()] + " . Would you like to find another evangelist? " + SPEECH.getGenericHelpMessage(data);
-    return optimizeForSpeech(sentence);
+    return product.productName + "'s " + infoQuery.toLowerCase() + " is - " + product[infoQuery.toLowerCase()] + " . Would you like to know anything else about this fund? " + getGenericHelpMessage(data); ;
 }
-
 
 const alexaNewSession = {
     canHandle(handlerInput) {
@@ -214,8 +189,6 @@ const alexaNewSession = {
         this.emit(':responseReady');
 
         let response = axios.get("https://fund-service-bucket.s3.amazonaws.com/dynamic-slot-type-funddata.json");
-        console.log("Got a response." + response.data);
-
         return handlerInput.responseBuilder
             .addDirective(response.data)
             .getResponse();
@@ -282,11 +255,6 @@ function sanitizeSearchQuery(searchQuery) {
     searchQuery = searchQuery.replace(/’s/g, "").toLowerCase();
     searchQuery = searchQuery.replace(/'s/g, "").toLowerCase();
     return searchQuery;
-}
-
-function optimizeForSpeech(str) {
-    let optimizedString = str.replace("github", "git-hub");
-    return optimizedString;
 }
 
 function isSlotValid(request, slotName) {

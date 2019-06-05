@@ -12,7 +12,9 @@ const searchByFundIntent = {
             return ;
         }
 
-        //const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+
+
     }
 
 };
