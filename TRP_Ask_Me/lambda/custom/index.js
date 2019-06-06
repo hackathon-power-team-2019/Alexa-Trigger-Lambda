@@ -20,20 +20,16 @@ const LaunchHandler = {
 
         return request.type === 'LaunchRequest';
     },
-    async handle(handlerInput) {
+    handle(handlerInput) {
         const attributesManager = handlerInput.attributesManager;
         const responseBuilder = handlerInput.responseBuilder;
 
         const requestAttributes = attributesManager.getRequestAttributes();
 
-        const replaceEntityDirective = await fetchFundDynamicSlot();
-        console.log(`LAUNCH HANDLER REPLACE ENTITY CALL.  ${JSON.stringify(replaceEntityDirective)}`);
-
         const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')} `;
         return responseBuilder
             .speak(speechOutput)
             .reprompt(speechOutput)
-            .addDirective(replaceEntityDirective)
             .getResponse();
     },
 };
@@ -67,8 +63,7 @@ const AlexaNewSessionHandler = {
 
         const replaceEntityDirective = await fetchFundDynamicSlot();
         console.log("NEW SESSION REPLACE ENTITY CALL. " + replaceEntityDirective);
-
-        return responseBuilder.addDirective(JSON.parse(replaceEntityDirective)).getResponse();
+        return responseBuilder.getResponse();
     }
 };
 
@@ -81,7 +76,7 @@ const SearchByFundIntent = {
     },
     async handle(handlerInput) {
         const attributesManager = handlerInput.attributesManager;
-        const responseBuilder = handlerInput.responseBuilder;
+        let responseBuilder = handlerInput.responseBuilder;
         const request = handlerInput.requestEnvelope.request;
 
         const requestAttributes = attributesManager.getRequestAttributes();
@@ -93,25 +88,22 @@ const SearchByFundIntent = {
         const hasFundAttribute = request.intent.slots.fundAttributes.hasOwnProperty('resolutions');
 
         const data = await lookupProductCode(productCode);
-
-        let response = '';
         //<prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody>
         const speakProductCode = `<voice name="Kimberly"><prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody></voice><p/>`;
         if (hasFundAttribute) {
             const fundAttributes = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
             const attributeId = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
-            response = responseBuilder
-                .speak(`${speakProductCode}'s  ${fundAttributes} is ${data[attributeId]}` )
-                .getResponse();
+            responseBuilder = responseBuilder
+                .speak(`the ${fundAttributes} is ${data[attributeId]}` )
+                .addElicitSlotDirective('fundAttributes');
         } else {
-            response = responseBuilder
+            responseBuilder = responseBuilder
                 .speak(`${speakProductCode}  current price is ${data.price}. `  )
                 .reprompt("What would would like to know about this mutual fund.  You can ask who is the fund manager, what is the ticker ? ")
-                .addElicitSlotDirective('fundAttributes')
-                .getResponse();
+                .addElicitSlotDirective('fundAttributes');
         }
 
-        return response;
+        return responseBuilder.getResponse();
     },
 };
 
@@ -263,7 +255,7 @@ const YesHandler = {
 
         const sessionAttributes = attributesManager.getSessionAttributes();
         const restaurantName = sessionAttributes.restaurant;
-        const restaurantDetails = getRestaurantByName(restaurantName);
+        const restaurantDetails = getFundByName(restaurantName);
         const speechOutput = `${restaurantDetails.name
             } is located at ${restaurantDetails.address
             }, the phone number is ${restaurantDetails.phone
@@ -495,6 +487,22 @@ const MessagesInterceptor = {
     },
 };
 
+const InitDataLoaderInterceptor = {
+    async process(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        console.log("DATA INTERCEPTOR");
+        if (!sessionAttributes.hasOwnProperty('fetchedFunds')) {
+            console.log('setting directive')
+            const attributes = handlerInput.attributesManager.getRequestAttributes();
+            const replaceEntityDirective = await fetchFundDynamicSlot();
+            attributes.fundDirective = replaceEntityDirective;
+            handlerInput.responseBuilder.addDirective(replaceEntityDirective);
+            sessionAttributes.fetchedFunds = true;
+        }
+
+    },
+};
+
 // 4. Export =====================================================================================
 
 const skillBuilder = Alexa.SkillBuilders.custom();
@@ -517,6 +525,7 @@ exports.handler = skillBuilder
         FallbackHandler,
         SessionEndedHandler
     )
-    .addRequestInterceptors(MessagesInterceptor)
+    .addRequestInterceptors(MessagesInterceptor, InitDataLoaderInterceptor)
+    //.addResponseInterceptors( )
     .addErrorHandlers(ErrorHandler)
     .lambda();
