@@ -90,26 +90,28 @@ const SearchByFundIntent = {
         //request.intent.slots.fundAttributes
         const productCode = request.intent.slots.fundType.resolutions.resolutionsPerAuthority[1].values[0].value.name;
 
-        const hasFundAttribute = request.intent.slots.fundAttribute.hasOwnProperty('resolutions');
+        const hasFundAttribute = request.intent.slots.fundAttributes.hasOwnProperty('resolutions');
 
+        const data = await lookupProductCode(productCode);
+
+        let response = '';
+        //<prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody>
+        const speakProductCode = `<voice name="Kimberly"><prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody></voice><p/>`;
         if (hasFundAttribute) {
-            const fundAttribute = request.intent.slots.fundAttribute.resolutions.resolutionsPerAuthority[0].values[0].value.name;
-            responseBuilder
-                .speak(`<voice name="Kimberly"><prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody></voice><p/> `  )
-                .addElicitSlotDirective('fundAttribute')
+            const fundAttributes = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
+            const attributeId = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+            response = responseBuilder
+                .speak(`${speakProductCode}'s  ${fundAttributes} is ${data[attributeId]}` )
                 .getResponse();
         } else {
-            responseBuilder
-                .speak(`<voice name="Kimberly"><prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody></voice><p/> current price is ${data.price}.  Is there something else you'd like to know? `  )
+            response = responseBuilder
+                .speak(`${speakProductCode}  current price is ${data.price}. `  )
                 .reprompt("What would would like to know about this mutual fund.  You can ask who is the fund manager, what is the ticker ? ")
-                .addElicitSlotDirective('fundAttribute')
+                .addElicitSlotDirective('fundAttributes')
                 .getResponse();
         }
 
-        const data = await lookupProductCode(productCode);
-        //<prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody>
-
-        return
+        return response;
     },
 };
 

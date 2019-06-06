@@ -35,67 +35,23 @@ const productData = (async function() {
         { productCode: "EMF", productName: "Emerging Markets Stock Fund", ticker: "PRMSX", cusip: "77956H864", shareClass: "Investor Class", assetClass: "Asset Allocation", coreCategory: "/Asset Allocation/Multi-Asset", "price": "$40.20", morningStarRating: "5", portfolioManager: "Gonzalo Pangaro", totalNetOfAssets: "$13.2b", investmentObjective: "The fundFinder seeks long-term growth of capital through investments primarily in the common stocks of companies located (or with primary operations) in emerging markets." },
         { productCode: "GCF", productName: "Global Consumer Fund", ticker: "PGLOX", cusip: "77956H344", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "/International Equity/Sector", "price": "$12.21", morningStarRating: "3", portfolioManager: "Jason Nogueira", totalNetOfAssets: "$19.9m", investmentObjective: "The fundFinder seeks to provide long-term capital growth." }
     ];
-    let data = fallbackdata;
-    try {
-        const response = await axios.get('https://fund-service-bucket.s3.amazonaws.com/funddata.json');
-        console.log(`Fund data call - statusCode: ${response.status}`);
 
-        if (response.status >= 200 && response.status < 203) {
-            console.log ('Setting the data');
-            data = response.data; // or return a custom object using properties from response
-        }
-    } catch (error) {
-        // If the promise rejects, an error will be thrown and caught here
-        console.error('Going to fallback data, major error and fund data cannot be fetched.' + JSON.stringify(error));
-    }
+    let data = await makeHttpCall.get('https://fund-service-bucket.s3.amazonaws.com/funddata.json', fallbackdata);
 
     return data;
-
 });
 
 const getFundsDynamicSlot = (async function() {
-// =====================================================================================================
-// --------------------------------- Section 1. Data and Text strings  ---------------------------------
-
-    let data = '';
-
-    try {
-        const response = await axios.get('https://fund-service-bucket.s3.amazonaws.com/dynamic-slot-type-funddata.json');
-        console.log(`Dynamic slot call - statusCode: ${response.status} `);
-
-        if (response.status >= 200 && response.status < 203) {
-            data = response.data; // or return a custom object using properties from response
-        }
-    } catch (error) {
-        // If the promise rejects, an error will be thrown and caught here
-        console.error('Going to fallback data, major error and fund data cannot be fetched.' + JSON.stringify(error));
-    }
-
-    return data;
-
+// =====================================================================================================================
+// --------------------------------- Grab a pre-generated slot-file in S3, tokenized with all of the funds  ------------
+    return await makeHttpCall.get('https://fund-service-bucket.s3.amazonaws.com/dynamic-slot-type-funddata.json', '');
 });
 
 const lookupProductCode = (async function(productCode) {
-// =====================================================================================================
-// --------------------------------- Section 1. Data and Text strings  ---------------------------------
 
-    let data = '';
-
-    try {
-        const response = await axios.get(`https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=${productCode}`);
-
-        if (response.status >= 200 && response.status < 203) {
-            data = response.data; // or return a custom object using properties from response
-        }
-    } catch (error) {
-        // If the promise rejects, an error will be thrown and caught here
-        console.error('Going to fallback data, major error and fund data cannot be fetched.' + JSON.stringify(error));
-    }
-
-    return data;
+    return await makeHttpCall.get(`https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=${productCode}`, {});
 
 });
-
 
 const searchDatabase = function(dataset, searchQuery, searchType) {
     let matchFound = false;
@@ -121,6 +77,24 @@ const searchDatabase = function(dataset, searchQuery, searchType) {
         count: results.length,
         results: results
     };
+};
+
+const makeHttpCall = {
+    get : (async function(url, fallback_data) {
+
+        let data = fallback_data;
+        try {
+            const response = await axios.get(url);
+
+            if (response.status >= 200 && response.status < 203) {
+                data = response.data; // or return a custom object using properties from response
+            }
+        } catch (error) {
+            console.error('cannot fetch. ' + JSON.stringify(error));
+        }
+
+        return data;
+    })
 };
 
 module.exports = {
