@@ -49,10 +49,7 @@
           "slots": [
             {
               "name": "fundType",
-              "type": "TRP_FUND_CODE",
-              "samples": [
-                "{fundType}"
-              ]
+              "type": "TRP_FUND_CODE"
             },
             {
               "name": "whatPhrase",
@@ -64,8 +61,6 @@
             }
           ],
           "samples": [
-            "tell me about {fundType}",
-            "find a fund {fundType}",
             "{whatPhrase} {fundAttributes}",
             "{whatPhrase} {fundType}",
             "Search {fundAttributes}",
@@ -280,27 +275,6 @@
           "name": "FUND_ATTRIBUTES",
           "values": [
             {
-              "id": "totalNetOfAssets",
-              "name": {
-                "value": "netAssets",
-                "synonyms": [
-                  "N.A.V.",
-                  "NAV",
-                  "net asset value",
-                  "asset value"
-                ]
-              }
-            },
-            {
-              "id": "ticker",
-              "name": {
-                "value": "ticker",
-                "synonyms": [
-                  "ticker symbol"
-                ]
-              }
-            },
-            {
               "name": {
                 "value": "etf",
                 "synonyms": [
@@ -335,7 +309,6 @@
               }
             },
             {
-              "id": "portfolioManager",
               "name": {
                 "value": "manager",
                 "synonyms": [
@@ -346,7 +319,6 @@
               }
             },
             {
-              "id": "morningstarRating",
               "name": {
                 "value": "morningstar",
                 "synonyms": [
@@ -355,7 +327,6 @@
               }
             },
             {
-              "id": "investmentObjective",
               "name": {
                 "value": "investment objective",
                 "synonyms": [
@@ -364,9 +335,18 @@
               }
             },
             {
-              "id": "price",
               "name": {
                 "value": "price"
+              }
+            },
+            {
+              "name": {
+                "value": "net asset",
+                "synonyms": [
+                  "net asset value",
+                  "N.A.V.",
+                  "NAV"
+                ]
               }
             }
           ]

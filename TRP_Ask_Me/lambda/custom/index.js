@@ -503,6 +503,16 @@ function randomArrayElement(array) {
     return (array[i]);
 }
 
+function supportsDisplay() {
+
+    return this.event.context &&
+        this.event.context.System &&
+        this.event.context.System.device &&
+        this.event.context.System.device.supportedInterfaces &&
+        this.event.context.System.device.supportedInterfaces.Display;
+
+}
+
 const messages = require('./handlers/speechUtil');
 const MessagesInterceptor = {
     process(handlerInput) {
