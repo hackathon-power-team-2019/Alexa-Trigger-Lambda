@@ -89,7 +89,10 @@
                         }
                     ],
                     "samples": [
-                        
+                        "{whoPhrase} {fund} {infoTypes}",
+                        "{whatPhrase} {fund} {infoTypes}",
+                        "{whatPhrase} the {infoTypes} of {fund}",
+                        "{whoPhrase} the {infoTypes} of {fund}"
                     ]
                 },
                 {
