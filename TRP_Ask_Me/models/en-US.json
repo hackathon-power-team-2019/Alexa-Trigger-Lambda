@@ -89,10 +89,7 @@
                         }
                     ],
                     "samples": [
-                        "{whoPhrase} {fund} {infoTypes}",
-                        "{whatPhrase} {fund} {infoTypes}",
-                        "{whatPhrase} the {infoTypes} of {fund}",
-                        "{whoPhrase} the {infoTypes} of {fund}"
+                        
                     ]
                 },
                 {
@@ -102,27 +99,6 @@
                         "contact info",
                         "tell me more",
                         "more details"
-                    ]
-                },
-                {
-                    "name": "TellMeThisIntent",
-                    "slots": [
-                        {
-                            "name": "infoTypes",
-                            "type": "LIST_OF_FUND_INFO_TYPES"
-                        },
-                        {
-                            "name": "whatPhrase",
-                            "type": "WHAT_PHRASE"
-                        }
-                    ],
-                    "samples": [
-                        "{whatPhrase} is {infoTypes}",
-                        "{whatPhrase} is its {infoTypes} ",
-                        "{whatPhrase} the {infoTypes} ",
-                        "{whatPhrase} {infoTypes} articles",
-                        "tell me its {infoTypes} ",
-                        "tell me her {infoTypes} handle"
                     ]
                 },
                 {
@@ -219,6 +195,7 @@
                                 "value": "tell me"
                             }
                         },
+                        {
                             "name": {
                                 "value": "I want to lookup"
                             }
@@ -246,52 +223,6 @@
                         {
                             "name": {
                                 "value": "who is"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "LIST_OF_FUND_INFO_TYPES",
-                    "values": [
-                        {
-                            "name": {
-                                "value": "manager",
-                                "synonyms": [
-                                    "fund manager",
-                                    "portfolio manager",
-                                    "money manager"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "morningstar",
-                                "synonyms": [
-                                    "rating"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "investment objective",
-                                "synonyms": [
-                                    "objective"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "price"
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "net asset",
-                                "synonyms": [
-                                    "net asset value",
-                                    "N.A.V.",
-                                    "NAV"
-                                ]
                             }
                         }
                     ]
@@ -436,6 +367,47 @@
                                     "mutual fund"
                                 ]
                             }
+                        },
+                        {
+                            "name": {
+                                "value": "manager",
+                                "synonyms": [
+                                    "fund manager",
+                                    "portfolio manager",
+                                    "money manager"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "morningstar",
+                                "synonyms": [
+                                    "rating"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "investment objective",
+                                "synonyms": [
+                                    "objective"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "price"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "net asset",
+                                "synonyms": [
+                                    "net asset value",
+                                    "N.A.V.",
+                                    "NAV"
+                                ]
+                            }
                         }
                     ]
                 }
@@ -470,15 +442,6 @@
                             "confirmationRequired": false,
                             "elicitationRequired": false,
                             "prompts": {}
-                        },
-                        {
-                            "name": "infoTypes",
-                            "type": "LIST_OF_FUND_INFO_TYPES",
-                            "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.50594219179.573027835040"
-                            }
                         },
                         {
                             "name": "whatPhrase",

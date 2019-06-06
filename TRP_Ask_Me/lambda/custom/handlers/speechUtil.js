@@ -26,7 +26,7 @@ module.exports = (function() {
 
     //This is the message a user will hear when they try to cancel or stop the skill.
     exports.EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
-    
+
 
 
     function getRandom(min, max) {

@@ -26,7 +26,7 @@ const LaunchHandler = {
         const replaceEntityDirective = await fetchFundDynamicSlot();
         console.log(`LAUNCH HANDLER REPLACE ENTITY CALL.  ${JSON.stringify(replaceEntityDirective)}`);
 
-        const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')}  <audio src='soundbank://soundlibrary/human/amzn_sfx_sneeze_01'/>`;
+        const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')} `;
         return responseBuilder
             .speak(speechOutput)
             .reprompt(speechOutput)
