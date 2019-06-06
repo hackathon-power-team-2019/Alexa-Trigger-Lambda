@@ -53,14 +53,16 @@ const AlexaNewSessionHandler = {
                 .setTextContent(makeRichText('' + description + ''), null, null)
                 .build();
 
-            this.response.renderTemplate(template);
+            responseBuilder.addRenderTemplateDirective({
+                    type: 'BodyTemplate1',
+                    backButton: 'visible',
+                    image,
+                    backgroundImage : backgroundURL,
+                    title : 'Trusty Alexa',
+                    textContent: 'The most awesome and trusted skill.',
+                });
         }
 
-        const sessionAttributes = attributesManager.getSessionAttributes();
-        //sessionAttributes.products = productData();
-
-        const replaceEntityDirective = await fetchFundDynamicSlot();
-        console.log("NEW SESSION REPLACE ENTITY CALL. " + replaceEntityDirective);
         return responseBuilder.getResponse();
     }
 };
