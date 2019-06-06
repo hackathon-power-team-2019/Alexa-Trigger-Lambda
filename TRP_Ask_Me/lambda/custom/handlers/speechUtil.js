@@ -8,7 +8,7 @@ module.exports = (function() {
     const skillName = "T Rowe Price";
 
     //This is the welcome message for when a user starts the skill without a specific intent.
-    exports.WELCOME_MESSAGE = "Hello, I am Trusty Alexa from " + skillName + ".  I go by Trusty for short.  You can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
+    exports.WELCOME_MESSAGE = "<audio src='soundbank://soundlibrary/magic/amzn_sfx_fairy_sparkle_chimes_01'/><voice name='Giorgio'>Hello, I am Trusty Alexa from " + skillName + ".  I go by Trusty for short.</voice>"; //+ getGenericHelpMessage(data);
 
     //This is the message a user will hear when they ask Alexa for help in your skill.
     exports.HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";

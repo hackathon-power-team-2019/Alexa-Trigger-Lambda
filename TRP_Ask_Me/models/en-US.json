@@ -58,30 +58,6 @@
                         {
                             "name": "fundAttributes",
                             "type": "FUND_ATTRIBUTES"
-                        }
-                    ],
-                    "samples": [
-                        "{whatPhrase} {fundAttributes}",
-                        "{whatPhrase} {fundType}",
-                        "Search {fundAttributes}",
-                        "find a mutual fund {fundType}",
-                        "for the fund {fundType}"
-                    ]
-                },
-                {
-                    "name": "SearchByInfoTypeIntent",
-                    "slots": [
-                        {
-                            "name": "fund",
-                            "type": "TRP_FUND_CODE"
-                        },
-                        {
-                            "name": "infoTypes",
-                            "type": "LIST_OF_FUND_INFO_TYPES"
-                        },
-                        {
-                            "name": "whatPhrase",
-                            "type": "WHAT_PHRASE"
                         },
                         {
                             "name": "whoPhrase",
@@ -89,7 +65,15 @@
                         }
                     ],
                     "samples": [
-                        
+                        "{whatPhrase} {fundAttributes}",
+                        "{whatPhrase} {fundType}",
+                        "Search {fundAttributes}",
+                        "find a mutual fund {fundType}",
+                        "for the fund {fundType}",
+                        "{whoPhrase} {fund} {infoTypes}",
+                        "{whatPhrase} {fund} {infoTypes}",
+                        "{whatPhrase} the {infoTypes} of {fund}",
+                        "{whoPhrase} the {infoTypes} of {fund}"
                     ]
                 },
                 {
@@ -432,16 +416,18 @@
                     ]
                 },
                 {
-                    "name": "SearchByInfoTypeIntent",
+                    "name": "SearchByFundIntent",
                     "confirmationRequired": false,
                     "prompts": {},
                     "slots": [
                         {
-                            "name": "fund",
+                            "name": "fundType",
                             "type": "TRP_FUND_CODE",
                             "confirmationRequired": false,
-                            "elicitationRequired": false,
-                            "prompts": {}
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.496720031643.1387260354406"
+                            }
                         },
                         {
                             "name": "whatPhrase",
@@ -451,8 +437,8 @@
                             "prompts": {}
                         },
                         {
-                            "name": "whoPhrase",
-                            "type": "WHO_PHRASE",
+                            "name": "fundAttributes",
+                            "type": "FUND_ATTRIBUTES",
                             "confirmationRequired": false,
                             "elicitationRequired": false,
                             "prompts": {}
@@ -478,6 +464,15 @@
                     {
                         "type": "PlainText",
                         "value": "which do you want to know the money manager, the price, ticker symbol?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.496720031643.1387260354406",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What is the mutual fund"
                     }
                 ]
             }
