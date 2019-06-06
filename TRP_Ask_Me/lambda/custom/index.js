@@ -6,6 +6,9 @@ const Alexa = require('ask-sdk-core');
 const https = require('https');
 
 const SKILL_NAME = 'Trusty Alexa';
+
+const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9WAX6_TPD_Homepage%20Background%20Image_1987px%20x%201200px_180905.jpg';
+
 // 1. Handlers ===================================================================================
 
 const { productData, fetchFundDynamicSlot } = require('./datasource');
@@ -46,6 +49,19 @@ const AlexaNewSessionHandler = {
         const attributesManager = handlerInput.attributesManager;
         const responseBuilder = handlerInput.responseBuilder;
 
+
+        const hasDisplay = supportsDisplay.call(this);
+        if (hasDisplay) {
+            const description = 'What would you like to know about today?';
+            let builder = new Alexa.templateBuilders.BodyTemplate1Builder();
+            const template = builder.setTitle("Hello from Trusty Alexa, T. Rowe Price")
+                .setBackgroundImage(makeImage(backgroundURL))
+                .setTextContent(makeRichText('' + description + ''), null, null)
+                .build();
+
+            this.response.renderTemplate(template);
+        }
+
         const sessionAttributes = attributesManager.getSessionAttributes();
         //sessionAttributes.products = productData();
 
@@ -63,20 +79,30 @@ const SearchByFundIntent = {
         return request.type === 'IntentRequest' && request.intent.name === 'SearchByFundIntent'
             && request.dialogState === 'COMPLETED';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         const attributesManager = handlerInput.attributesManager;
         const responseBuilder = handlerInput.responseBuilder;
+        const request = handlerInput.requestEnvelope.request;
 
         const requestAttributes = attributesManager.getRequestAttributes();
 
         //request.intent.slots.fundType.value
         //request.intent.slots.fundAttributes
+        const productCode = request.intent.slots.fundType.resolutions.resolutionsPerAuthority[1].values[0].value.name;
+
+
 
         return responseBuilder
-            .speak("fundType = " + handlerInput.requestEnvelope.request.intent.slots.fundType.value)
+            .speak(`${JSON.stringify(} , yup.`  )
             .getResponse();
     },
 };
+
+function generateTellMeMoreMessage(product) {
+    let sentence = product.productName + " current price " + (Math.random() * 101).toFixed(2) + " US dollars. " + generateSendingCardToAlexaAppMessage(product, "general");
+    return sentence;
+}
+
 
 const WhatsMyFundIntentHandler = {
     canHandle(handlerInput) {
