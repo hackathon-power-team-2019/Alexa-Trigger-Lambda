@@ -307,24 +307,24 @@ const AttractionHandler = {
     },
 };
 
-const GoOutHandler = {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-
-        return request.type === 'IntentRequest' && request.intent.name === 'GoOutIntent';
-    },
-    handle(handlerInput) {
-        return new Promise((resolve) => {
-            getWeather((localTime, currentTemp, currentCondition) => {
-                const speechOutput = `It is ${localTime
-                    } and the weather in ${data.city
-                    } is ${
-                    currentTemp} and ${currentCondition}`;
-                resolve(handlerInput.responseBuilder.speak(speechOutput).getResponse());
-            });
-        });
-    },
-};
+// const GoOutHandler = {
+//     canHandle(handlerInput) {
+//         const request = handlerInput.requestEnvelope.request;
+//
+//         return request.type === 'IntentRequest' && request.intent.name === 'GoOutIntent';
+//     },
+//     handle(handlerInput) {
+//         return new Promise((resolve) => {
+//             getWeather((localTime, currentTemp, currentCondition) => {
+//                 const speechOutput = `It is ${localTime
+//                     } and the weather in ${data.city
+//                     } is ${
+//                     currentTemp} and ${currentCondition}`;
+//                 resolve(handlerInput.responseBuilder.speak(speechOutput).getResponse());
+//             });
+//         });
+//     },
+// };
 
 const HelpHandler = {
     canHandle(handlerInput) {
@@ -435,13 +435,6 @@ const FALLBACK_REPROMPT = 'What can I help you with?';
 // 3. Helper Functions ==========================================================================
 
 
-const myAPI = {
-    host: 'query.yahooapis.com',
-    port: 443,
-    path: `/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${encodeURIComponent(data.city)}%2C%20${data.state}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys`,
-    method: 'GET',
-};
-
 function getRestaurantsByMeal(mealType) {
     const list = [];
     for (let i = 0; i < data.restaurants.length; i += 1) {
@@ -452,14 +445,14 @@ function getRestaurantsByMeal(mealType) {
     return list;
 }
 
-function getRestaurantByName(restaurantName) {
-    let restaurant = {};
-    for (let i = 0; i < data.restaurants.length; i += 1) {
-        if (data.restaurants[i].name === restaurantName) {
-            restaurant = data.restaurants[i];
+function getFundByName(restaurantName) {
+    let fund = {};
+    for (let i = 0; i < data.length; i += 1) {
+        if (data.productName === restaurantName) {
+            restaurant = data[i];
         }
     }
-    return restaurant;
+    return fund;
 }
 
 function getAttractionsByDistance(maxDistance) {
@@ -473,29 +466,6 @@ function getAttractionsByDistance(maxDistance) {
     return list;
 }
 
-function getWeather(callback) {
-    const req = https.request(myAPI, (res) => {
-        res.setEncoding('utf8');
-        let returnData = '';
-
-        res.on('data', (chunk) => {
-            returnData += chunk;
-        });
-        res.on('end', () => {
-            const channelObj = JSON.parse(returnData).query.results.channel;
-
-            let localTime = channelObj.lastBuildDate.toString();
-            localTime = localTime.substring(17, 25).trim();
-
-            const currentTemp = channelObj.item.condition.temp;
-
-            const currentCondition = channelObj.item.condition.text;
-
-            callback(localTime, currentTemp, currentCondition);
-        });
-    });
-    req.end();
-}
 
 function randomArrayElement(array) {
     let i = 0;
@@ -541,10 +511,10 @@ exports.handler = skillBuilder
         DinnerHandler,
         YesHandler,
         AttractionHandler,
-        GoOutHandler,
+        GoOutHandler, */
         HelpHandler,
         StopHandler,
-        FallbackHandler, */
+        FallbackHandler,
         SessionEndedHandler
     )
     .addRequestInterceptors(MessagesInterceptor)
