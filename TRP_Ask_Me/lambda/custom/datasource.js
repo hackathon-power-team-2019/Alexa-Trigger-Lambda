@@ -75,6 +75,26 @@ const getFundsDynamicSlot = (async function() {
 
 });
 
+const lookupProductCode = (async function(productCode) {
+// =====================================================================================================
+// --------------------------------- Section 1. Data and Text strings  ---------------------------------
+
+    let data = '';
+
+    try {
+        const response = await axios.get(`https://io9jvz0wni.execute-api.us-east-1.amazonaws.com/demo-stage?productCode=${productCode}`);
+
+        if (response.status >= 200 && response.status < 203) {
+            data = response.data; // or return a custom object using properties from response
+        }
+    } catch (error) {
+        // If the promise rejects, an error will be thrown and caught here
+        console.error('Going to fallback data, major error and fund data cannot be fetched.' + JSON.stringify(error));
+    }
+
+    return data;
+
+});
 
 
 const searchDatabase = function(dataset, searchQuery, searchType) {
@@ -106,6 +126,7 @@ const searchDatabase = function(dataset, searchQuery, searchType) {
 module.exports = {
     productData : productData,
     fetchFundDynamicSlot : getFundsDynamicSlot,
-    persistenceAdapter : getPersistenceAdapter
+    persistenceAdapter : getPersistenceAdapter,
+    lookupProductCode : lookupProductCode
 } ;
 

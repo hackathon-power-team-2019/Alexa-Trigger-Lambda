@@ -11,7 +11,7 @@ const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9W
 
 // 1. Handlers ===================================================================================
 
-const { productData, fetchFundDynamicSlot } = require('./datasource');
+const { productData, fetchFundDynamicSlot, lookupProductCode } = require('./datasource');
 const data = productData();
 
 const LaunchHandler = {
@@ -90,10 +90,10 @@ const SearchByFundIntent = {
         //request.intent.slots.fundAttributes
         const productCode = request.intent.slots.fundType.resolutions.resolutionsPerAuthority[1].values[0].value.name;
 
-
+        const data = await lookupProductCode(productCode);
 
         return responseBuilder
-            .speak(`${JSON.stringify(} , yup.`  )
+            .speak(`${productCode} current price is ${data.price} , yep.`  )
             .getResponse();
     },
 };
