@@ -186,63 +186,6 @@ const CoffeeHandler = {
     },
 };
 
-const BreakfastHandler = {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-
-        return request.type === 'IntentRequest' && request.intent.name === 'BreakfastIntent';
-    },
-    handle(handlerInput) {
-        const attributesManager = handlerInput.attributesManager;
-        const responseBuilder = handlerInput.responseBuilder;
-
-        const sessionAttributes = attributesManager.getSessionAttributes();
-        const restaurant = randomArrayElement(getRestaurantsByMeal('breakfast'));
-        sessionAttributes.restaurant = restaurant.name;
-        const speechOutput = `For breakfast, try this, ${restaurant.name}. Would you like to hear more?`;
-
-        return responseBuilder.speak(speechOutput).reprompt(speechOutput).getResponse();
-    },
-};
-
-const LunchHandler = {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-
-        return request.type === 'IntentRequest' && request.intent.name === 'LunchIntent';
-    },
-    handle(handlerInput) {
-        const attributesManager = handlerInput.attributesManager;
-        const responseBuilder = handlerInput.responseBuilder;
-
-        const sessionAttributes = attributesManager.getSessionAttributes();
-        const restaurant = randomArrayElement(getRestaurantsByMeal('lunch'));
-        sessionAttributes.restaurant = restaurant.name;
-        const speechOutput = `Lunch time! Here is a good spot. ${restaurant.name}. Would you like to hear more?`;
-
-        return responseBuilder.speak(speechOutput).reprompt(speechOutput).getResponse();
-    },
-};
-
-const DinnerHandler = {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-
-        return request.type === 'IntentRequest' && request.intent.name === 'DinnerIntent';
-    },
-    handle(handlerInput) {
-        const attributesManager = handlerInput.attributesManager;
-        const responseBuilder = handlerInput.responseBuilder;
-
-        const sessionAttributes = attributesManager.getSessionAttributes();
-        const restaurant = randomArrayElement(getRestaurantsByMeal('dinner'));
-        sessionAttributes.restaurant = restaurant.name;
-        const speechOutput = `Enjoy dinner at, ${restaurant.name}. Would you like to hear more?`;
-
-        return responseBuilder.speak(speechOutput).reprompt(speechOutput).getResponse();
-    },
-};
-
 const YesHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
@@ -272,51 +215,6 @@ const YesHandler = {
             .getResponse();
     },
 };
-
-const AttractionHandler = {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-
-        return request.type === 'IntentRequest' && request.intent.name === 'AttractionIntent';
-    },
-    handle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        const responseBuilder = handlerInput.responseBuilder;
-
-        let distance = 200;
-        if (request.intent.slots.distance.value && request.intent.slots.distance.value !== "?") {
-            distance = request.intent.slots.distance.value;
-        }
-
-        const attraction = randomArrayElement(getAttractionsByDistance(distance));
-
-        const speechOutput = `Try ${
-            attraction.name}, which is ${
-            attraction.distance === '0' ? 'right downtown. ' : `${attraction.distance} miles away. Have fun! `
-            }${attraction.description}`;
-
-        return responseBuilder.speak(speechOutput).getResponse();
-    },
-};
-
-// const GoOutHandler = {
-//     canHandle(handlerInput) {
-//         const request = handlerInput.requestEnvelope.request;
-//
-//         return request.type === 'IntentRequest' && request.intent.name === 'GoOutIntent';
-//     },
-//     handle(handlerInput) {
-//         return new Promise((resolve) => {
-//             getWeather((localTime, currentTemp, currentCondition) => {
-//                 const speechOutput = `It is ${localTime
-//                     } and the weather in ${data.city
-//                     } is ${
-//                     currentTemp} and ${currentCondition}`;
-//                 resolve(handlerInput.responseBuilder.speak(speechOutput).getResponse());
-//             });
-//         });
-//     },
-// };
 
 const HelpHandler = {
     canHandle(handlerInput) {
@@ -388,28 +286,20 @@ const ErrorHandler = {
 
 const FallbackHandler = {
 
-    // 2018-May-01: AMAZON.FallackIntent is only currently available in en-US locale.
-
-    //              This handler will not be triggered except in that locale, so it can be
-
-    //              safely deployed for any locale.
-
+    // AMAZON.FallackIntent is only currently available in en-US locale.
+    // This handler will not be triggered except in that locale, so it can be
+    // safely deployed for any locale.
     canHandle(handlerInput) {
 
         const request = handlerInput.requestEnvelope.request;
-
         return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.FallbackIntent';
 
     },
-
     handle(handlerInput) {
 
         return handlerInput.responseBuilder
-
             .speak(FALLBACK_MESSAGE)
-
             .reprompt(FALLBACK_REPROMPT)
-
             .getResponse();
 
     },
@@ -427,37 +317,16 @@ const FALLBACK_REPROMPT = 'What can I help you with?';
 // 3. Helper Functions ==========================================================================
 
 
-function getRestaurantsByMeal(mealType) {
-    const list = [];
-    for (let i = 0; i < data.restaurants.length; i += 1) {
-        if (data.restaurants[i].meals.search(mealType) > -1) {
-            list.push(data.restaurants[i]);
-        }
-    }
-    return list;
-}
 
-function getFundByName(restaurantName) {
+function getFundByName(fundName) {
     let fund = {};
     for (let i = 0; i < data.length; i += 1) {
-        if (data.productName === restaurantName) {
+        if (data.productName === fundName) {
             restaurant = data[i];
         }
     }
     return fund;
 }
-
-function getAttractionsByDistance(maxDistance) {
-    const list = [];
-
-    for (let i = 0; i < data.attractions.length; i += 1) {
-        if (parseInt(data.attractions[i].distance, 10) <= maxDistance) {
-            list.push(data.attractions[i]);
-        }
-    }
-    return list;
-}
-
 
 function randomArrayElement(array) {
     let i = 0;
@@ -490,9 +359,7 @@ const MessagesInterceptor = {
 const InitDataLoaderInterceptor = {
     async process(handlerInput) {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        console.log("DATA INTERCEPTOR");
         if (!sessionAttributes.hasOwnProperty('fetchedFunds')) {
-            console.log('setting directive')
             const attributes = handlerInput.attributesManager.getRequestAttributes();
             const replaceEntityDirective = await fetchFundDynamicSlot();
             attributes.fundDirective = replaceEntityDirective;
@@ -512,20 +379,12 @@ exports.handler = skillBuilder
         AlexaNewSessionHandler,
         SearchByFundIntent,
         WhatsMyFundIntentHandler,
-       /* AboutHandler,
-        CoffeeHandler,
-        BreakfastHandler,
-        LunchHandler,
-        DinnerHandler,
         YesHandler,
-        AttractionHandler,
-        GoOutHandler, */
         HelpHandler,
         StopHandler,
         FallbackHandler,
         SessionEndedHandler
     )
     .addRequestInterceptors(MessagesInterceptor, InitDataLoaderInterceptor)
-    //.addResponseInterceptors( )
     .addErrorHandlers(ErrorHandler)
     .lambda();
