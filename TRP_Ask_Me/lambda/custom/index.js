@@ -25,46 +25,30 @@ const LaunchHandler = {
         const requestAttributes = attributesManager.getRequestAttributes();
 
         const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')} `;
+
+        const hasDisplay = false; //supportsDisplay(handlerInput);
+        if (hasDisplay) {
+            // let builder = new Alexa.templateBuilders.BodyTemplate1Builder();
+            // const template = builder.setTitle("Hello from Trusty Alexa, T. Rowe Price")
+            //     .setBackgroundImage(makeImage(backgroundURL))
+            //     .setTextContent(makeRichText('' + description + ''), null, null)
+            //     .build();
+
+            responseBuilder.addRenderTemplateDirective({
+                type: 'BodyTemplate1',
+                backButton: 'visible',
+                image,
+                backgroundImage : backgroundURL,
+                title : 'Trusty Alexa',
+                textContent: 'The most awesome and trusted skill.',
+            });
+        }
+
         return responseBuilder
             .speak(speechOutput)
             .reprompt(speechOutput)
             .getResponse();
     },
-};
-
-
-const AlexaNewSessionHandler = {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-
-        return request.type === 'NewSession';
-    },
-    async handle(handlerInput) {
-        const attributesManager = handlerInput.attributesManager;
-        const responseBuilder = handlerInput.responseBuilder;
-
-
-        const hasDisplay = supportsDisplay.call(this);
-        if (hasDisplay) {
-            const description = 'What would you like to know about today?';
-            let builder = new Alexa.templateBuilders.BodyTemplate1Builder();
-            const template = builder.setTitle("Hello from Trusty Alexa, T. Rowe Price")
-                .setBackgroundImage(makeImage(backgroundURL))
-                .setTextContent(makeRichText('' + description + ''), null, null)
-                .build();
-
-            responseBuilder.addRenderTemplateDirective({
-                    type: 'BodyTemplate1',
-                    backButton: 'visible',
-                    image,
-                    backgroundImage : backgroundURL,
-                    title : 'Trusty Alexa',
-                    textContent: 'The most awesome and trusted skill.',
-                });
-        }
-
-        return responseBuilder.getResponse();
-    }
 };
 
 const SearchByFundIntent = {
@@ -164,26 +148,6 @@ const SubscribeToFund = {
             .reprompt(repromptText)
             .getResponse();
     }
-};
-
-
-const CoffeeHandler = {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-
-        return request.type === 'IntentRequest' && request.intent.name === 'CoffeeIntent';
-    },
-    handle(handlerInput) {
-        const attributesManager = handlerInput.attributesManager;
-        const responseBuilder = handlerInput.responseBuilder;
-
-        const sessionAttributes = attributesManager.getSessionAttributes();
-        const restaurant = randomArrayElement(getRestaurantsByMeal('coffee'));
-        sessionAttributes.restaurant = restaurant.name;
-        const speechOutput = `For a great coffee shop, I recommend, ${restaurant.name}. Would you like to hear more?`;
-
-        return responseBuilder.speak(speechOutput).reprompt(speechOutput).getResponse();
-    },
 };
 
 const YesHandler = {
@@ -334,13 +298,24 @@ function randomArrayElement(array) {
     return (array[i]);
 }
 
-function supportsDisplay() {
+function imageMaker(pDesc, pSource) {
+    const myImage = new Alexa.ImageHelper()
+        .withDescription(pDesc)
+        .addImageInstance(pSource)
+        .getImage();
 
-    return this.event.context &&
-        this.event.context.System &&
-        this.event.context.System.device &&
-        this.event.context.System.device.supportedInterfaces &&
-        this.event.context.System.device.supportedInterfaces.Display;
+    return myImage;
+}
+
+
+function supportsDisplay(handlerInput) {
+
+    return hasDisplay =
+        handlerInput.requestEnvelope.context &&
+        handlerInput.requestEnvelope.context.System &&
+        handlerInput.requestEnvelope.context.System.device &&
+        handlerInput.requestEnvelope.context.System.device.supportedInterfaces &&
+        handlerInput.requestEnvelope.context.System.device.supportedInterfaces.Display;
 
 }
 
