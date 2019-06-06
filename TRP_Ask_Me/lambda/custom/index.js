@@ -3,6 +3,8 @@
 /* eslint-disable  no-use-before-define */
 
 const Alexa = require('ask-sdk-core');
+const https = require('https');
+const messages = require('./handlers/speechUtil');
 
 const SKILL_NAME = 'Trusty Alexa';
 const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9WAX6_TPD_Homepage%20Background%20Image_1987px%20x%201200px_180905.jpg';
@@ -73,29 +75,30 @@ const SearchByFundIntent = {
 
         const data = await lookupProductCode(productCode);
         //<prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody>
-        const speakProductCode = `<voice name="Kimberly"><prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody></voice><p/>`;
+        const speakProductCode = `<voice name="Kimberly"><say-as interpret-as="spell-out">${productCode}</say-as></voice><p/>`;
         if (hasFundAttribute) {
             const fundAttributes = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
             const attributeId = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+            
+            const responsePhrase = `the ${fundAttributes} is ${data[attributeId]}`;
+            const starVar = '';
+            if(fundAttributes === "morningstarRating"){
+                data[attributeId] === "1" ?  starVar = ` star` : starVar = ` stars`;
+                responsePhrase = responsePhrase +  starVar;
+            }
             responseBuilder = responseBuilder
-                .speak(`the ${fundAttributes} is ${data[attributeId]}` )
+                .speak(responsePhrase)
                 .addElicitSlotDirective('fundAttributes');
         } else {
             responseBuilder = responseBuilder
-                .speak(`${speakProductCode}  current price is ${data.price}. `  )
-                .reprompt("What would would like to know about this mutual fund.  You can ask who is the fund manager, what is the ticker ? ")
+                .speak(`The current price for ${speakProductCode} is ${data.price}. `)
+                .reprompt(`What would would like to know about this mutual fund? ${messages.generateNextPromptMessage('current')}`)
                 .addElicitSlotDirective('fundAttributes');
         }
 
         return responseBuilder.getResponse();
     },
 };
-
-function generateTellMeMoreMessage(product) {
-    let sentence = product.productName + " current price " + (Math.random() * 101).toFixed(2) + " US dollars. " + generateSendingCardToAlexaAppMessage(product, "general");
-    return sentence;
-}
-
 
 const WhatsMyFundIntentHandler = {
     canHandle(handlerInput) {
@@ -243,7 +246,7 @@ const ErrorHandler = {
 
         return handlerInput.responseBuilder
             .speak('Sorry, I can\'t understand the command. Please say again.')
-            .reprompt('Sorry, I can\'t understand the command. Please say again.')
+            .reprompt('Please try another command.')
             .getResponse();
     },
 };
@@ -319,7 +322,6 @@ function supportsDisplay(handlerInput) {
 
 }
 
-const messages = require('./handlers/speechUtil');
 const MessagesInterceptor = {
     process(handlerInput) {
         const attributes = handlerInput.attributesManager.getRequestAttributes();
