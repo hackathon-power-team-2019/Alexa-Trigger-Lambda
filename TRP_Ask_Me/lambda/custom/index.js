@@ -8,27 +8,33 @@ const https = require('https');
 const SKILL_NAME = 'Trusty Alexa';
 // 1. Handlers ===================================================================================
 
+const { productData, fetchFundDynamicSlot } = require('./datasource');
+const data = productData();
+
 const LaunchHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
 
         return request.type === 'LaunchRequest';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         const attributesManager = handlerInput.attributesManager;
         const responseBuilder = handlerInput.responseBuilder;
 
         const requestAttributes = attributesManager.getRequestAttributes();
+
+        const replaceEntityDirective = await fetchFundDynamicSlot();
+        console.log(`LAUNCH HANDLER REPLACE ENTITY CALL.  ${JSON.stringify(replaceEntityDirective)}`);
+
         const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')}  <audio src='soundbank://soundlibrary/human/amzn_sfx_sneeze_01'/>`;
         return responseBuilder
             .speak(speechOutput)
             .reprompt(speechOutput)
+            .addDirective(replaceEntityDirective)
             .getResponse();
     },
 };
 
-const { productData, fetchFundDynamicSlot } = require('./datasource');
-const data = productData();
 
 const AlexaNewSessionHandler = {
     canHandle(handlerInput) {
@@ -36,15 +42,15 @@ const AlexaNewSessionHandler = {
 
         return request.type === 'NewSession';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         const attributesManager = handlerInput.attributesManager;
         const responseBuilder = handlerInput.responseBuilder;
 
         const sessionAttributes = attributesManager.getSessionAttributes();
         //sessionAttributes.products = productData();
 
-        const replaceEntityDirective = fetchFundDynamicSlot();
-        console.log(replaceEntityDirective);
+        const replaceEntityDirective = await fetchFundDynamicSlot();
+        console.log("NEW SESSION REPLACE ENTITY CALL. " + replaceEntityDirective);
 
         return responseBuilder.addDirective(JSON.parse(replaceEntityDirective)).getResponse();
     }
@@ -54,7 +60,8 @@ const SearchByFundIntent = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
 
-        return request.type === 'IntentRequest' && request.intent.name === 'SearchByFundIntent';
+        return request.type === 'IntentRequest' && request.intent.name === 'SearchByFundIntent'
+            && request.dialogState === 'COMPLETED';
     },
     handle(handlerInput) {
         const attributesManager = handlerInput.attributesManager;
@@ -70,6 +77,60 @@ const SearchByFundIntent = {
             .getResponse();
     },
 };
+
+const WhatsMyFundIntentHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'SearchByFundIntent'
+            && request.dialogState !== 'COMPLETED';
+    },
+    handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        if (sessionAttributes.fundType) {
+            return handlerInput.responseBuilder
+                .speak(`OK$, {sessionAttributes.fundType}`)
+                .getResponse();
+        } else {
+            return handlerInput.responseBuilder
+                .speak('You need to tell me the mutual fund first..')
+                .reprompt('For which mutual fund?')
+                .addElicitSlotDirective('fundType')
+                .getResponse();
+        }
+    }
+};
+
+const SubscribeToFund = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'SubscribeToFundIntent';
+        //&& request.dialogState === 'COMPLETED';
+    },
+    handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const newFavorite = getSlotValue(handlerInput.requestEnvelope, 'fundName');
+        const hasFavoriteFunds = sessionAttributes.hasOwnProperty("favoriteFunds") && Array.isArray(sessionAttributes.favoriteFunds);
+        if (hasFavoriteFunds) {
+            sessionAttributes.favoriteFunds.push(newFavorite);
+        } else {
+            sessionAttributes.favoriteFunds = [newFavorite];
+        }
+
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+        const speechText = `I saved the fund ${newFavorite} in the session attributes. 
+           Ask me for your subscribed funds to demonstrate retrieving your favorites.`;
+        const repromptText = `You can ask me, what's my subscribed funds?`;
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            .reprompt(repromptText)
+            .getResponse();
+    }
+};
+
 
 const CoffeeHandler = {
     canHandle(handlerInput) {
@@ -323,21 +384,7 @@ const FallbackHandler = {
 
 // 2. Constants ==================================================================================
 
-const languageStrings = {
-    en: {
-        translation: {
-            WELCOME: 'Welcome to Gloucester Guide!',
-            HELP: 'Say about, to hear more about the city, or say coffee, breakfast, lunch, or dinner, to hear local restaurant suggestions, or say recommend an attraction, or say, go outside. ',
-            ABOUT: 'Gloucester Massachusetts is a city on the Atlantic Ocean.  A popular summer beach destination, Gloucester has a rich history of fishing and ship building.',
-            STOP: 'Okay, see you next time!',
-        },
-    },
-    // , 'de-DE': { 'translation' : { 'TITLE'   : "Local Helfer etc." } }
-};
-
-
-
-const FALLBACK_MESSAGE = `The ${SKILL_NAME} skill can\'t help you with that.  It can help you learn about Gloucester if you say tell me about this place. What can I help you with?`;
+const FALLBACK_MESSAGE = `The ${SKILL_NAME} skill can\'t help you with that.  `;
 const FALLBACK_REPROMPT = 'What can I help you with?';
 
 
@@ -433,6 +480,7 @@ exports.handler = skillBuilder
         LaunchHandler,
         AlexaNewSessionHandler,
         SearchByFundIntent,
+        WhatsMyFundIntentHandler,
        /* AboutHandler,
         CoffeeHandler,
         BreakfastHandler,

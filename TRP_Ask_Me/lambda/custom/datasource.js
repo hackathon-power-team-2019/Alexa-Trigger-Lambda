@@ -38,9 +38,9 @@ const productData = (async function() {
     let data = fallbackdata;
     try {
         const response = await axios.get('https://fund-service-bucket.s3.amazonaws.com/funddata.json');
-        console.log(`Fund data call - statusCode: ${response.statusCode}`);
+        console.log(`Fund data call - statusCode: ${response.status}`);
 
-        if (response.statusCode > 200 && response.statusCode < 203) {
+        if (response.status >= 200 && response.status < 203) {
             console.log ('Setting the data');
             data = response.data; // or return a custom object using properties from response
         }
@@ -51,7 +51,30 @@ const productData = (async function() {
 
     return data;
 
-})();
+});
+
+const getFundsDynamicSlot = (async function() {
+// =====================================================================================================
+// --------------------------------- Section 1. Data and Text strings  ---------------------------------
+
+    let data = '';
+
+    try {
+        const response = await axios.get('https://fund-service-bucket.s3.amazonaws.com/dynamic-slot-type-funddata.json');
+        console.log(`Dynamic slot call - statusCode: ${response.status} `);
+
+        if (response.status >= 200 && response.status < 203) {
+            data = response.data; // or return a custom object using properties from response
+        }
+    } catch (error) {
+        // If the promise rejects, an error will be thrown and caught here
+        console.error('Going to fallback data, major error and fund data cannot be fetched.' + JSON.stringify(error));
+    }
+
+    return data;
+
+});
+
 
 
 const searchDatabase = function(dataset, searchQuery, searchType) {
@@ -80,5 +103,9 @@ const searchDatabase = function(dataset, searchQuery, searchType) {
     };
 };
 
-module.exports = [ productData, getPersistenceAdapter ] ;
+module.exports = {
+    productData : productData,
+    fetchFundDynamicSlot : getFundsDynamicSlot,
+    persistenceAdapter : getPersistenceAdapter
+} ;
 

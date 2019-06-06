@@ -8,12 +8,12 @@ const searchByFundIntent = {
 
         const slotValid = SPEECH.isSlotValid(request, 'fundTerms');
         if (!slotValid) {
-            console.log("Fund Terms slot is not valid");
+            console.log("Fund Terms input is not valid");
             return ;
         }
 
 
-
+        //return handlerInput.responseBuilder
 
     }
 
