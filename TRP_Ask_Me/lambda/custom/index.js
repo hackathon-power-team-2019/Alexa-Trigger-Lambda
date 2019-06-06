@@ -90,11 +90,26 @@ const SearchByFundIntent = {
         //request.intent.slots.fundAttributes
         const productCode = request.intent.slots.fundType.resolutions.resolutionsPerAuthority[1].values[0].value.name;
 
-        const data = await lookupProductCode(productCode);
+        const hasFundAttribute = request.intent.slots.fundAttribute.hasOwnProperty('resolutions');
 
-        return responseBuilder
-            .speak(`${productCode} current price is ${data.price} , yep.`  )
-            .getResponse();
+        if (hasFundAttribute) {
+            const fundAttribute = request.intent.slots.fundAttribute.resolutions.resolutionsPerAuthority[0].values[0].value.name;
+            responseBuilder
+                .speak(`<voice name="Kimberly"><prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody></voice><p/> `  )
+                .addElicitSlotDirective('fundAttribute')
+                .getResponse();
+        } else {
+            responseBuilder
+                .speak(`<voice name="Kimberly"><prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody></voice><p/> current price is ${data.price}.  Is there something else you'd like to know? `  )
+                .reprompt("What would would like to know about this mutual fund.  You can ask who is the fund manager, what is the ticker ? ")
+                .addElicitSlotDirective('fundAttribute')
+                .getResponse();
+        }
+
+        const data = await lookupProductCode(productCode);
+        //<prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody>
+
+        return
     },
 };
 
