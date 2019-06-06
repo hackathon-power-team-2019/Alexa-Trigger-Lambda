@@ -23,7 +23,7 @@
             "codeUri": "lambda/custom",
             "functionName": "ask-custom-TRP_Ask_Me_Funds-default",
             "handler": "index.handler",
-            "revisionId": "82ecef7c-9ebe-47ec-ab39-4956dbb76a7e",
+            "revisionId": "4f6f099a-0866-4599-9443-77f4a40c967b",
             "runtime": "nodejs8.10"
           }
         ]
