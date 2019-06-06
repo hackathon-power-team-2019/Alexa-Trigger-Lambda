@@ -8,10 +8,10 @@ module.exports = (function() {
     const skillName = "T Rowe Price";
 
     //This is the welcome message for when a user starts the skill without a specific intent.
-    exports.WELCOME_MESSAGE = "<audio src='soundbank://soundlibrary/magic/amzn_sfx_fairy_sparkle_chimes_01'/><voice name='Giorgio'>Hello, I am Trusty Alexa from " + skillName + ".  I go by Trusty for short.</voice>"; //+ getGenericHelpMessage(data);
+    exports.WELCOME_MESSAGE = "Hello, I am Trusty Alexa from " + skillName + "."; //+ getGenericHelpMessage(data);
 
     //This is the message a user will hear when they ask Alexa for help in your skill.
-    exports.HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";
+    exports.HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds and Articles.";
 
     //This is the message a user will hear when they begin a new search
     exports.NEW_SEARCH_MESSAGE = getGenericHelpMessage(data);
@@ -19,7 +19,7 @@ module.exports = (function() {
     //This is the message a user will hear when they ask Alexa for help while in the SEARCH state
     exports.SEARCH_STATE_HELP_MESSAGE = getGenericHelpMessage(data);
 
-    exports.MULTIPLE_RESULTS_STATE_HELP_MESSAGE = "Sorry, please say the full name, CUSIP, or ticker of the fund you'd like to learn more about";
+    exports.MULTIPLE_RESULTS_STATE_HELP_MESSAGE = "Sorry, please say the full name or ticker of the fund you'd like to learn more about";
 
     // This is the message use when the decides to end the search
     exports.SHUTDOWN_MESSAGE = "Goodbye from Trusty. ";
@@ -83,9 +83,6 @@ module.exports = (function() {
         return "You can " + sentences[getRandom(0, sentences.length - 1)];
     }
     exports.getGenericHelpMessage = getGenericHelpMessage;
-    exports.SHUTDOWN_MESSAGE = "Goodbye from Trusty.";
-    //This is the message a user will hear when they try to cancel or stop the skill.
-    exports.EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
 
     return exports;
 })();
