@@ -11,7 +11,7 @@ const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9W
 
 // 1. Handlers ===================================================================================
 
-const { productData, fetchFundDynamicSlot } = require('./datasource');
+const { productData, fetchFundDynamicSlot, lookupProductCode } = require('./datasource');
 const data = productData();
 
 const LaunchHandler = {
@@ -90,11 +90,28 @@ const SearchByFundIntent = {
         //request.intent.slots.fundAttributes
         const productCode = request.intent.slots.fundType.resolutions.resolutionsPerAuthority[1].values[0].value.name;
 
+        const hasFundAttribute = request.intent.slots.fundAttributes.hasOwnProperty('resolutions');
 
+        const data = await lookupProductCode(productCode);
 
-        return responseBuilder
-            .speak(`${JSON.stringify(} , yup.`  )
-            .getResponse();
+        let response = '';
+        //<prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody>
+        const speakProductCode = `<voice name="Kimberly"><prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody></voice><p/>`;
+        if (hasFundAttribute) {
+            const fundAttributes = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
+            const attributeId = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+            response = responseBuilder
+                .speak(`${speakProductCode}'s  ${fundAttributes} is ${data[attributeId]}` )
+                .getResponse();
+        } else {
+            response = responseBuilder
+                .speak(`${speakProductCode}  current price is ${data.price}. `  )
+                .reprompt("What would would like to know about this mutual fund.  You can ask who is the fund manager, what is the ticker ? ")
+                .addElicitSlotDirective('fundAttributes')
+                .getResponse();
+        }
+
+        return response;
     },
 };
 
@@ -290,24 +307,24 @@ const AttractionHandler = {
     },
 };
 
-const GoOutHandler = {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-
-        return request.type === 'IntentRequest' && request.intent.name === 'GoOutIntent';
-    },
-    handle(handlerInput) {
-        return new Promise((resolve) => {
-            getWeather((localTime, currentTemp, currentCondition) => {
-                const speechOutput = `It is ${localTime
-                    } and the weather in ${data.city
-                    } is ${
-                    currentTemp} and ${currentCondition}`;
-                resolve(handlerInput.responseBuilder.speak(speechOutput).getResponse());
-            });
-        });
-    },
-};
+// const GoOutHandler = {
+//     canHandle(handlerInput) {
+//         const request = handlerInput.requestEnvelope.request;
+//
+//         return request.type === 'IntentRequest' && request.intent.name === 'GoOutIntent';
+//     },
+//     handle(handlerInput) {
+//         return new Promise((resolve) => {
+//             getWeather((localTime, currentTemp, currentCondition) => {
+//                 const speechOutput = `It is ${localTime
+//                     } and the weather in ${data.city
+//                     } is ${
+//                     currentTemp} and ${currentCondition}`;
+//                 resolve(handlerInput.responseBuilder.speak(speechOutput).getResponse());
+//             });
+//         });
+//     },
+// };
 
 const HelpHandler = {
     canHandle(handlerInput) {
@@ -418,13 +435,6 @@ const FALLBACK_REPROMPT = 'What can I help you with?';
 // 3. Helper Functions ==========================================================================
 
 
-const myAPI = {
-    host: 'query.yahooapis.com',
-    port: 443,
-    path: `/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${encodeURIComponent(data.city)}%2C%20${data.state}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys`,
-    method: 'GET',
-};
-
 function getRestaurantsByMeal(mealType) {
     const list = [];
     for (let i = 0; i < data.restaurants.length; i += 1) {
@@ -435,14 +445,14 @@ function getRestaurantsByMeal(mealType) {
     return list;
 }
 
-function getRestaurantByName(restaurantName) {
-    let restaurant = {};
-    for (let i = 0; i < data.restaurants.length; i += 1) {
-        if (data.restaurants[i].name === restaurantName) {
-            restaurant = data.restaurants[i];
+function getFundByName(restaurantName) {
+    let fund = {};
+    for (let i = 0; i < data.length; i += 1) {
+        if (data.productName === restaurantName) {
+            restaurant = data[i];
         }
     }
-    return restaurant;
+    return fund;
 }
 
 function getAttractionsByDistance(maxDistance) {
@@ -456,29 +466,6 @@ function getAttractionsByDistance(maxDistance) {
     return list;
 }
 
-function getWeather(callback) {
-    const req = https.request(myAPI, (res) => {
-        res.setEncoding('utf8');
-        let returnData = '';
-
-        res.on('data', (chunk) => {
-            returnData += chunk;
-        });
-        res.on('end', () => {
-            const channelObj = JSON.parse(returnData).query.results.channel;
-
-            let localTime = channelObj.lastBuildDate.toString();
-            localTime = localTime.substring(17, 25).trim();
-
-            const currentTemp = channelObj.item.condition.temp;
-
-            const currentCondition = channelObj.item.condition.text;
-
-            callback(localTime, currentTemp, currentCondition);
-        });
-    });
-    req.end();
-}
 
 function randomArrayElement(array) {
     let i = 0;
@@ -524,10 +511,10 @@ exports.handler = skillBuilder
         DinnerHandler,
         YesHandler,
         AttractionHandler,
-        GoOutHandler,
+        GoOutHandler, */
         HelpHandler,
         StopHandler,
-        FallbackHandler, */
+        FallbackHandler,
         SessionEndedHandler
     )
     .addRequestInterceptors(MessagesInterceptor)
