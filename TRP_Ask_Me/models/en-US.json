@@ -58,10 +58,6 @@
                         {
                             "name": "fundAttributes",
                             "type": "FUND_ATTRIBUTES"
-                        },
-                        {
-                            "name": "whoPhrase",
-                            "type": "WHO_PHRASE"
                         }
                     ],
                     "samples": [
@@ -69,11 +65,7 @@
                         "{whatPhrase} {fundType}",
                         "Search {fundAttributes}",
                         "find a mutual fund {fundType}",
-                        "for the fund {fundType}",
-                        "{whoPhrase} {fund} {infoTypes}",
-                        "{whatPhrase} {fund} {infoTypes}",
-                        "{whatPhrase} the {infoTypes} of {fund}",
-                        "{whoPhrase} the {infoTypes} of {fund}"
+                        "for the fund {fundType}"
                     ]
                 },
                 {
@@ -270,46 +262,10 @@
                         },
                         {
                             "name": {
-                                "value": "Blue Chip Growth - Advisor Class",
-                                "synonyms": [
-                                    "PABGX",
-                                    "BCA"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "Blue Chip Growth Fund - R Class",
-                                "synonyms": [
-                                    "RRBGX",
-                                    "BCR"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "Blue Chip Growth - I Class",
-                                "synonyms": [
-                                    "TBCIX",
-                                    "BCI"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
                                 "value": "Africa and Middle East Fund",
                                 "synonyms": [
                                     "TRAMX",
                                     "AME"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "Blue Chip Growth Fund",
-                                "synonyms": [
-                                    "TRBCX",
-                                    "BCG"
                                 ]
                             }
                         }
