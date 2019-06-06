@@ -3,10 +3,8 @@
 /* eslint-disable  no-use-before-define */
 
 const Alexa = require('ask-sdk-core');
-const https = require('https');
 
 const SKILL_NAME = 'Trusty Alexa';
-
 const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9WAX6_TPD_Homepage%20Background%20Image_1987px%20x%201200px_180905.jpg';
 
 // 1. Handlers ===================================================================================
