@@ -245,6 +245,7 @@
           "name": "TRP_FUND_CODE",
           "values": [
             {
+              "id": "GCF",
               "name": {
                 "value": "Global Consumer Fund",
                 "synonyms": [
@@ -254,6 +255,7 @@
               }
             },
             {
+              "id": "EMF",
               "name": {
                 "value": "Emerging Markets Stock Fund",
                 "synonyms": [
@@ -263,6 +265,7 @@
               }
             },
             {
+              "id": "SPF",
               "name": {
                 "value": "Spectrum International Fund",
                 "synonyms": [
@@ -272,6 +275,7 @@
               }
             },
             {
+              "id": "GUA",
               "name": {
                 "value": "Dynamic Global Bond Fund - Advisor Class",
                 "synonyms": [
@@ -281,6 +285,7 @@
               }
             },
             {
+              "id": "R3A",
               "name": {
                 "value": "Retirement 2010 Fund - R Class",
                 "synonyms": [
@@ -290,6 +295,7 @@
               }
             },
             {
+              "id": "GFA",
               "name": {
                 "value": "Global Allocation Fund - Advisor Class",
                 "synonyms": [
@@ -299,6 +305,7 @@
               }
             },
             {
+              "id": "AME",
               "name": {
                 "value": "Africa and Middle East Fund",
                 "synonyms": [
