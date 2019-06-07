@@ -63,7 +63,7 @@ function getFundsFromRequest(fundType) {
     }).map( (authority) => { return authority.values; });
 
     return concat(fundSlotDetails)
-        .map( (arr) => { return arr[0]; })
+        .map( (arr) => { return Array.isArray(arr) ? arr[0] : arr; })
         .filter( (o) => { return o.hasOwnProperty("value");} )
         .map( (o) => { return o.value; } );
 }
