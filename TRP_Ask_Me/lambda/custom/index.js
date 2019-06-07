@@ -345,6 +345,25 @@ const YesHandler = {
     },
 };
 
+
+const NoHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.NoIntent';
+    },
+    handle(handlerInput) {
+
+        let speechText = 'OK.';
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            .reprompt(speechText)
+            .withSimpleCard('TRP Article Subscriptions', speechText)
+            .getResponse();
+    },
+};
+
 const HelpHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
@@ -521,6 +540,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         UnsubscribeFundHandler,
         WhatIsNewHandler,
         YesHandler,
+        NoHandler,
         HelpHandler,
         StopHandler,
         FallbackHandler,
