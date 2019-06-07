@@ -50,9 +50,9 @@ exports.handler = function(event, context, callback) {
                     let productName = fund.productName.replace(/[^a-zA-Z ]+/g, '').replace(/\s\s+/g, ' ').toLowerCase();
                     let productName2 = productName.replace(' fund', '').replace(' class', '').trim();
                     dynamicFundSlotType.push({
-                            id: fund.ticker,
+                            id: fund.productCode,
                             name: {
-                                value: fund.productCode,
+                                value: fund.productName,
                                 synonyms: [ fund.cusip, fund.ticker, productName, productName2 ]
                             }
                         }
