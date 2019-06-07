@@ -231,8 +231,8 @@ const HelpHandler = {
 
         const requestAttributes = attributesManager.getRequestAttributes();
         return responseBuilder
-            .speak(requestAttributes.t('HELP'))
-            .reprompt(requestAttributes.t('HELP'))
+            .speak(requestAttributes.t('ASSIST'))
+            .reprompt(requestAttributes.t('ASSIST'))
             .getResponse();
     },
 };
