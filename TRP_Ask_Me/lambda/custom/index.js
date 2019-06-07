@@ -11,7 +11,7 @@ const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9W
 
 // 1. Handlers ===================================================================================
 
-const { productData, fetchFundDynamicSlot, lookupProductCode, subscribeUserToFund, doRequest } = require('./datasource');
+const { productData, fetchFundDynamicSlot, lookupProductCode, subscribeUserToFund, unsubscribeUserToFund, doRequest } = require('./datasource');
 const data = productData();
 
 const LaunchHandler = {
@@ -175,7 +175,7 @@ const GetSubscribedFundsHandler = {
         return handlerInput.responseBuilder
             .speak(speechOutput)
             .reprompt(speechOutput)
-            .withSimpleCard(SKILL_NAME, numberProducts)
+            .withSimpleCard(SKILL_NAME, `Subscribed to ${numberProducts} products.`)
             .getResponse();
     },
 };
@@ -200,6 +200,33 @@ const SubscribeToFundHandler = {
             .speak(speechOutput)
             .reprompt(`You can ask me, what's my subscribed funds?`)
             .withSimpleCard(SKILL_NAME, 2)
+            .getResponse();
+    },
+};
+
+const UnsubscribeFundHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest' && request.intent.name === 'UnsubscribeToFundIntent';
+    },
+    async handle(handlerInput) {
+        console.log("In DeleteProductHandler handle function");
+        // hardcoded fund name to be replaced by the value of slot value of productName from AlexaSkill
+
+        // getting user's input for slot fundName from AlexSkill from the request
+        const request = handlerInput.requestEnvelope.request;
+        var fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
+        console.log("unsubscribe fundName: " + fundName);
+
+        //remove the fund name from the fund subscriptions
+        const response = await unsubscribeUserToFund('alexaskills2019@gmail.com', fundName);
+        const speechOutput = fundName + " has been removed from your subscriptions" + ' <break time="2s"/>Is there anything else I can help with?';
+        const videoOutput = fundName + " has been removed from your subscriptions";
+
+        return handlerInput.responseBuilder
+            .speak(speechOutput)
+            .reprompt(speechOutput)
+            .withSimpleCard(SKILL_NAME, videoOutput)
             .getResponse();
     },
 };
@@ -438,6 +465,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         WhatsMyFundIntentHandler,
         GetSubscribedFundsHandler,
         SubscribeToFundHandler,
+        UnsubscribeFundHandler,
         YesHandler,
         HelpHandler,
         StopHandler,

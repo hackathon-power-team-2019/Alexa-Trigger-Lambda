@@ -115,12 +115,30 @@ async function subscribeUserToFund(emailAddress, fundName) {
     return result;
 }
 
+async function unsubscribeUserToFund(emailAddress, fundName) {
+    let result = '';
+    try {
+        const response = await axios.delete('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/delete-subscription',
+            {
+                'email': emailAddress,
+                'productCode': fundName
+            });
+        if (response.status >= 200 && response.status < 203) {
+            result = response.data; // or return a custom object using properties from response
+        }
+    } catch (error) {
+        console.error(`cannot delete ${fundName} subscription for ${emailAddress} ${JSON.stringify(error)}`);
+    }
+
+    return result;
+}
 module.exports = {
     productData : productData,
     fetchFundDynamicSlot : getFundsDynamicSlot,
     persistenceAdapter : getPersistenceAdapter,
     lookupProductCode : lookupProductCode,
     subscribeUserToFund : subscribeUserToFund,
+    unsubscribeUserToFund : unsubscribeUserToFund,
     doRequest : makeHttpCall
 } ;
 
