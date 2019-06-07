@@ -231,6 +231,57 @@ const UnsubscribeFundHandler = {
     },
 };
 
+
+const WhatIsNewHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'LaunchRequest' ||
+            (request.type === 'IntentRequest' &&
+                request.intent.name === 'WhatIsNewIntent');
+    },
+    async handle(handlerInput) {
+        const {attributesManager, responseBuilder} = handlerInput;
+
+        const sessionAttributes = attributesManager.getSessionAttributes();
+        sessionAttributes.trpLastIntent = 'WhatIsNewIntent';
+
+        const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscription-what-is-new?email=alexaskills2019@gmail.com`;
+        const response = await doRequest.get(URL);
+        const numberNewArticles = response.Count;
+        let i;
+        let articleName = [];
+        let speechOutput;
+        let videoOutput;
+
+        if (numberNewArticles === 1) {
+            speechOutput = " You have 1 new article from your subscribed insight collections. ";
+            speechOutput += "Article: " + response.Items[0].articleName.S + " from the insight collection: " + response.Items[0].collectionName.S + ". Authored by: " +
+                response.Items[0].authorName.S + ", published on " + response.Items[0].publishDate.S;
+            videoOutput = speechOutput;
+            speechOutput += ' <break time="1s"/>Would you like me to read you the summary of the article?';
+
+        }
+        else {
+            speechOutput = " You have " + numberNewArticles + " new articles from your subscribed insight collections. ";
+            videoOutput = speechOutput;
+            for (i = 0; i < response.Items.length; i++) {
+                articleName[i] = response.Items[i].articleName.S;
+                speechOutput += "Article " + (i + 1) + ": " + response.Items[i].articleName.S + " from the insight collection: " + response.Items[i].collectionName.S + ". Authored by: " +
+                    response.Items[i].authorName.S + ", published on " + response.Items[i].publishDate.S;
+                videoOutput += "\n" + "Article " + (i + 1) + ": " + response.Items[i].articleName.S + " from the insight collection: " + response.Items[i].collectionName.S + ". Authored by: " +
+                    response.Items[i].authorName.S + ", published on " + response.Items[i].publishDate.S;
+            }
+            speechOutput += ' <break time="1s"/>Would you like me to read you the summary of the first article?';
+        }
+
+        return responseBuilder
+            .speak(speechOutput)
+            .reprompt(speechOutput)
+            .withSimpleCard(SKILL_NAME, videoOutput)
+            .getResponse();
+    },
+};
+
 //
 // const SubscribeToFund = {
 //     canHandle(handlerInput) {
@@ -268,26 +319,28 @@ const YesHandler = {
 
         return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.YesIntent';
     },
-    handle(handlerInput) {
-        const attributesManager = handlerInput.attributesManager;
-        const responseBuilder = handlerInput.responseBuilder;
+    async handle(handlerInput) {
+        const { attributesManager, responseBuilder}  = handlerInput;
 
         const sessionAttributes = attributesManager.getSessionAttributes();
-        const restaurantName = sessionAttributes.restaurant;
-        const restaurantDetails = getFundByName(restaurantName);
-        const speechOutput = `${restaurantDetails.name
-            } is located at ${restaurantDetails.address
-            }, the phone number is ${restaurantDetails.phone
-            }, and the description is, ${restaurantDetails.description
-            }  I have sent these details to the Alexa App on your phone.  Enjoy your meal!
-        <say-as interpret-as="interjection">bon appetit</say-as>`;
+        let speechText = 'OK';
+        if (sessionAttributes.hasOwnProperty('trpLastIntent')) {
+            console.log("in WhatIsNewAnswerHandler handle().");
 
-        const card = `${restaurantDetails.name}\n${restaurantDetails.address}\n$
-        {data.city}, ${data.state} ${data.postcode}\nphone: ${restaurantDetails.phone}\n`;
+            const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscription-what-is-new?email=alexaskills2019@gmail.com`;
+            const response = await doRequest.get(URL);
+            if (response) {
+                console.log("YESHANDLER for Article Response" + JSON.stringify(response));
+            }
+            const summary = response.Items[0].summary.S;
+            speechText = `summary: ${summary}.`;
+            speechText += '<break time="2s"/>Is there anything else I can help with?';
+        }
 
         return responseBuilder
-            .speak(speechOutput)
-            .withSimpleCard(SKILL_NAME, card)
+            .speak(speechText)
+            .reprompt(speechText)
+            .withSimpleCard('TRP Article Subscriptions', speechText)
             .getResponse();
     },
 };
@@ -466,6 +519,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         GetSubscribedFundsHandler,
         SubscribeToFundHandler,
         UnsubscribeFundHandler,
+        WhatIsNewHandler,
         YesHandler,
         HelpHandler,
         StopHandler,
