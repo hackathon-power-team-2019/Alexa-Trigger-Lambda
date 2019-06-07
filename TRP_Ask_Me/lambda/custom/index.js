@@ -146,10 +146,10 @@ const GetSubscribedFundsHandler = {
             }
             else { productNames[i] = response.Items[i].productCode; }
             if (i !== response.Items.length - 1) {
-                speechOutput += productNames[i] + " and ";
+                speechOutput += productNames[i] + ", ";
             }
             else {
-                speechOutput += productNames[i] + "."
+                speechOutput += ', and ' + productNames[i] + "."
             }
         }
 
@@ -174,9 +174,19 @@ const SubscribeToFundHandler = {
 
         // getting user's input for slot fundName from AlexSkill from the request
         const request = handlerInput.requestEnvelope.request;
-        let fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
+        const fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
 
-        const response = await subscribeUserToFund('alexaskills2019@gmail.com', fundName);
+        let pFundName = fundName;
+        let fundSlotDetails = getFundsFromRequest(request.intent.slots.fundType);
+        if(fundSlotDetails && fundSlotDetails.length > 0) {
+            pFundName = fundSlotDetails[0].id;
+        }
+
+
+
+        const response = await subscribeUserToFund('alexaskills2019@gmail.com', pFundName, fundName);
+
+        console.log("subscribe fundName: " + fundName + " fundCode=" + pFundName + " " + JSON.stringify(response));
         let speechOutput = ' You are subscribed to the ' + fundName + '.<break time="1s"/> ';
 
         return handlerInput.responseBuilder
@@ -198,17 +208,25 @@ const UnsubscribeFundHandler = {
 
         // getting user's input for slot fundName from AlexSkill from the request
         const request = handlerInput.requestEnvelope.request;
-        var fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
-        console.log("unsubscribe fundName: " + fundName);
+        let fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
+
+        let pFundName = fundName;
+        let fundSlotDetails = getFundsFromRequest(request.intent.slots.fundType);
+        if(fundSlotDetails && fundSlotDetails.length > 0) {
+            pFundName = fundSlotDetails[0].id;
+        }
+
+        console.log("unsubscribe fundName: " + fundName + " fundCode=" + pFundName);
 
         //remove the fund name from the fund subscriptions
-        const response = await unsubscribeUserToFund('alexaskills2019@gmail.com', fundName);
-        const speechOutput = fundName + " has been removed from your subscriptions" + ' <break time="2s"/>Is there anything else I can help with?';
+        const response = await unsubscribeUserToFund('alexaskills2019@gmail.com', pFundName, fundName);
+        console.log("RESPONSE FROM UNSUBSCRIBE = " + JSON.stringify(response));
+        const speechOutput = fundName + " has been removed from your subscriptions";
         const videoOutput = fundName + " has been removed from your subscriptions";
 
         return handlerInput.responseBuilder
             .speak(speechOutput)
-            .reprompt("You can say, give me subscribed products.")
+            .reprompt("You can say, give me my subscribed products.")
             .withSimpleCard(SKILL_NAME, videoOutput)
             .getResponse();
     },
@@ -257,11 +275,11 @@ const UpdateNotificationFrequencyHandler = {
         console.log("frequency: " + frequency);
 
         const response = await updateFrequency('alexaskills2019@gmail.com', frequency);
-        let speechOutput = ' Your notification frequency has been updated to ' + frequency + '. ' + '<break time="1s"/>Is there anything else I can help with?';
+        let speechOutput = ' Your notification frequency has been updated to ' + frequency + '. ';
 
         return handlerInput.responseBuilder
             .speak(speechOutput)
-            .reprompt(speechOutput)
+            .reprompt('Is there anything else I can help with?')
             .withSimpleCard(SKILL_NAME,  'Updated')
             .getResponse();
     },
@@ -339,12 +357,11 @@ const YesHandler = {
             }
             const summary = response.Items[0].summary.S;
             speechText = `summary: ${summary}.`;
-            speechText += '<break time="2s"/>Is there anything else I can help with?';
         }
 
         return responseBuilder
             .speak(speechText)
-            .reprompt(speechText)
+            .reprompt("Is there anything else I can help with?")
             .withSimpleCard('TRP Article Subscriptions', speechText)
             .getResponse();
     },

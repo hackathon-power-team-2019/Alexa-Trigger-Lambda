@@ -1,0 +1,6 @@
+{
+               'email': 'a@a.com',
+               'productCode': 'XYZ',
+               'productName': 'XYZ'
+           }
+

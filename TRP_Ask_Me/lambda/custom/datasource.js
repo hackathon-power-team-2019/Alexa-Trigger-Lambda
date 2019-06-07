@@ -97,13 +97,14 @@ const makeHttpCall = {
     })
 };
 
-async function subscribeUserToFund(emailAddress, fundName) {
+async function subscribeUserToFund(emailAddress, productCode, fundName) {
     let result = '';
     try {
-       const response = await axios.post('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription',
+       const response = await axios.put('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-product-subscription',
            {
                'email': emailAddress,
-               'productCode': fundName
+               'productCode': productCode,
+               'productName': fundName
            });
         if (response.status >= 200 && response.status < 203) {
             result = response.data; // or return a custom object using properties from response
@@ -115,13 +116,15 @@ async function subscribeUserToFund(emailAddress, fundName) {
     return result;
 }
 
-async function unsubscribeUserToFund(emailAddress, fundName) {
+async function unsubscribeUserToFund(emailAddress, productCode, fundName) {
     let result = '';
     try {
         const response = await axios.delete('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/delete-subscription',
             {
+                data: {
                 'email': emailAddress,
-                'productCode': fundName
+                'productCode': productCode
+              }
             });
         if (response.status >= 200 && response.status < 203) {
             result = response.data; // or return a custom object using properties from response
