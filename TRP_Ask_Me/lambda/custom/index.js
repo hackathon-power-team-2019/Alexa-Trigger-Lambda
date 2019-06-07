@@ -150,7 +150,7 @@ const GetSubscribedFundsHandler = {
             request.intent.name === 'GetSubscribedFundsIntent');
     },
     async handle(handlerInput) {
-        const response = await doRequest.get('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscriptions?email=alexaksills2019@gmail.com');
+        const response = await doRequest.get('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscriptions?email=alexaskills2019@gmail.com');
         const numberProducts = response.Count;
 
         let productCodes = [];
@@ -170,7 +170,7 @@ const GetSubscribedFundsHandler = {
             }
         }
 
-        speechOutput += '<break time="2s"/>Is there anything else I can do for you?';
+        speechOutput += '<break time="1s"/>Is there anything else I can do for you?';
 
         return handlerInput.responseBuilder
             .speak(speechOutput)
