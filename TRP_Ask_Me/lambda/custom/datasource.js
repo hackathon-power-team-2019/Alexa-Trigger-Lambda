@@ -132,6 +132,31 @@ async function unsubscribeUserToFund(emailAddress, fundName) {
 
     return result;
 }
+
+async function updateFrequency(emailAddress, frequency) {
+
+    let date = new Date();
+    let todayDate = date.getMonth() + " " + date.getDate() + " " + date.getFullYear();
+
+    let result = '';
+    try {
+        const response = await axios.put('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/update-notification-frequency',
+            {
+                'email': emailAddress,
+                'frequency': frequency,
+                'updated': todayDate
+            });
+        if (response.status >= 200 && response.status < 203) {
+            result = response.data; // or return a custom object using properties from response
+        }
+    } catch (error) {
+        console.error(`cannot update frequency for ${emailAddress} ${JSON.stringify(error)}`);
+    }
+
+    return result;
+
+}
+
 module.exports = {
     productData : productData,
     fetchFundDynamicSlot : getFundsDynamicSlot,
@@ -139,6 +164,7 @@ module.exports = {
     lookupProductCode : lookupProductCode,
     subscribeUserToFund : subscribeUserToFund,
     unsubscribeUserToFund : unsubscribeUserToFund,
+    updateFrequency : updateFrequency,
     doRequest : makeHttpCall
 } ;
 

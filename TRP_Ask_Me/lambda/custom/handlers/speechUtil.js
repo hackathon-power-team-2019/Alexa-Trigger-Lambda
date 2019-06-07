@@ -27,8 +27,8 @@ module.exports = (function() {
     exports.SHUTDOWN_MESSAGE = "Goodbye from Trusty. ";
 
     //This is the message a user will hear when they try to cancel or stop the skill.
-    exports.EXIT_SKILL_MESSAGE = "<amazon:effect name='whispered'><voice name='Justin'>We go beyond the numbers.</voice></amazon:effect> Goodbye.";
-    exports.STOP_MESSAGE = "<amazon:effect name='whispered'><voice name='Justin'>We go beyond the numbers.</voice></amazon:effect> Goodbye.";
+    exports.EXIT_SKILL_MESSAGE = "<voice name='Justin'>We go beyond the numbers.</voice> Goodbye.";
+    exports.STOP_MESSAGE = "<voice name='Justin'>We go beyond the numbers.</voice> Goodbye.";
 
 
 

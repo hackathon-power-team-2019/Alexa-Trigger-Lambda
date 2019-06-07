@@ -11,7 +11,7 @@ const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9W
 
 // 1. Handlers ===================================================================================
 
-const { productData, fetchFundDynamicSlot, lookupProductCode, subscribeUserToFund, unsubscribeUserToFund, doRequest } = require('./datasource');
+const { productData, fetchFundDynamicSlot, lookupProductCode, subscribeUserToFund, unsubscribeUserToFund, updateFrequency, doRequest } = require('./datasource');
 const data = productData();
 
 const LaunchHandler = {
@@ -28,27 +28,10 @@ const LaunchHandler = {
 
         const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')} `;
 
-        const hasDisplay = false; //supportsDisplay(handlerInput);
-        if (hasDisplay) {
-            // let builder = new Alexa.templateBuilders.BodyTemplate1Builder();
-            // const template = builder.setTitle("Hello from Trusty Alexa, T. Rowe Price")
-            //     .setBackgroundImage(makeImage(backgroundURL))
-            //     .setTextContent(makeRichText('' + description + ''), null, null)
-            //     .build();
-
-            responseBuilder.addRenderTemplateDirective({
-                type: 'BodyTemplate1',
-                backButton: 'visible',
-                image,
-                backgroundImage : backgroundURL,
-                title : 'Trusty Alexa',
-                textContent: 'The most awesome and trusted skill.',
-            });
-        }
 
         return responseBuilder
             .speak(speechOutput)
-            .reprompt(speechOutput)
+            .reprompt("Please say a command")
             .getResponse();
     },
 };
@@ -170,11 +153,11 @@ const GetSubscribedFundsHandler = {
             }
         }
 
-        speechOutput += '<break time="1s"/>Is there anything else I can do for you?';
+        //speechOutput += '<break time="1s"/>Is there anything else I can do for you?';
 
         return handlerInput.responseBuilder
             .speak(speechOutput)
-            .reprompt(speechOutput)
+            .reprompt(`<break time="1s"/>Is there anything else I can do for you?`)
             .withSimpleCard(SKILL_NAME, `Subscribed to ${numberProducts} products.`)
             .getResponse();
     },
@@ -184,7 +167,7 @@ const SubscribeToFundHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
         return (request.type === 'IntentRequest' &&
-            request.intent.name === 'SubscribeToFundIntent');
+            request.intent.name === 'SubscribeToFundIntent') && request.dialogState === 'COMPLETED';
     },
     async handle(handlerInput) {
         console.log("In SubscribeToFundHandler handle function");
@@ -194,7 +177,7 @@ const SubscribeToFundHandler = {
         let fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
 
         const response = await subscribeUserToFund('alexaskills2019@gmail.com', fundName);
-        let speechOutput = ' You are subscribed to the ' + fundName + '.<break time="1s"/> Is there anything else I can do for you?';
+        let speechOutput = ' You are subscribed to the ' + fundName + '.<break time="1s"/> ';
 
         return handlerInput.responseBuilder
             .speak(speechOutput)
@@ -225,8 +208,61 @@ const UnsubscribeFundHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechOutput)
-            .reprompt(speechOutput)
+            .reprompt("You can say, give me subscribed products.")
             .withSimpleCard(SKILL_NAME, videoOutput)
+            .getResponse();
+    },
+};
+
+
+const GetNotificationFrequencyHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'LaunchRequest' ||
+            (request.type === 'IntentRequest' &&
+                request.intent.name === 'GetNotifictionFrequencyIntent');
+    },
+    async handle(handlerInput) {
+        console.log("In GetNotificationFrequencyHandler handle function");
+        const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-notification-frequency?email=alexaskills2019@gmail.com`;
+        const response = await doRequest.get(URL);
+        const frequency = response.Items[0].frequency.S;
+
+        let speechOutput = " Your current notification frequency is: " + frequency + ". ";
+
+        speechOutput += '<break time="1s"/>Is there anything else I can do for you?';
+
+        return handlerInput.responseBuilder
+            .speak(speechOutput)
+            .reprompt(speechOutput)
+            .withSimpleCard(SKILL_NAME, frequency)
+            .getResponse();
+    },
+};
+
+const UpdateNotificationFrequencyHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'LaunchRequest' ||
+            (request.type === 'IntentRequest' &&
+                request.intent.name === 'UpdateNotificationFrequencyIntent');
+    },
+    async handle(handlerInput) {
+        console.log("In UpdateNotificationFrequencyIntent handle function");
+        const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/update-notification-frequency`;
+
+        // getting user's input for slot fundName from AlexSkill from the request
+        const request = handlerInput.requestEnvelope.request;
+        let frequency = (request.intent.slots.desiredNotificationFrequency.value ? request.intent.slots.desiredNotificationFrequency.value.toLowerCase() : null);
+        console.log("frequency: " + frequency);
+
+        const response = await updateFrequency('alexaskills2019@gmail.com', frequency);
+        let speechOutput = ' Your notification frequency has been updated to ' + frequency + '. ' + '<break time="1s"/>Is there anything else I can help with?';
+
+        return handlerInput.responseBuilder
+            .speak(speechOutput)
+            .reprompt(speechOutput)
+            .withSimpleCard(SKILL_NAME,  'Updated')
             .getResponse();
     },
 };
@@ -327,8 +363,7 @@ const NoHandler = {
 
         return handlerInput.responseBuilder
             .speak(speechText)
-            .reprompt(speechText)
-            .withSimpleCard('TRP Article Subscriptions', speechText)
+            //.withSimpleCard('TRP Article Subscriptions', speechText)
             .getResponse();
     },
 };
@@ -508,8 +543,10 @@ exports.handler = Alexa.SkillBuilders.custom()
         SubscribeToFundHandler,
         UnsubscribeFundHandler,
         WhatIsNewHandler,
+        GetNotificationFrequencyHandler,
+        UpdateNotificationFrequencyHandler,
         YesHandler,
-        NoHandler,
+        //NoHandler,
         HelpHandler,
         StopHandler,
         FallbackHandler,
