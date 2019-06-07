@@ -11,7 +11,7 @@ const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9W
 
 // 1. Handlers ===================================================================================
 
-const { productData, fetchFundDynamicSlot, lookupProductCode } = require('./datasource');
+const { productData, fetchFundDynamicSlot, lookupProductCode, subscribeUserToFund, doRequest } = require('./datasource');
 const data = productData();
 
 const LaunchHandler = {
@@ -53,6 +53,21 @@ const LaunchHandler = {
     },
 };
 
+function concat(...args) {
+    return args.reduce((acc, val) => [...acc, ...val]);
+}
+
+function getFundsFromRequest(fundType) {
+    let fundSlotDetails = fundType.resolutions.resolutionsPerAuthority.filter( (authority) => {
+        return authority.hasOwnProperty("values") && authority.values.length > 0;
+    }).map( (authority) => { return authority.values; });
+
+    return concat(fundSlotDetails)
+        .map( (arr) => { return arr[0]; })
+        .filter( (o) => { return o.hasOwnProperty("value");} )
+        .map( (o) => { return o.value; } );
+}
+
 const SearchByFundIntent = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
@@ -64,24 +79,28 @@ const SearchByFundIntent = {
         const attributesManager = handlerInput.attributesManager;
         let responseBuilder = handlerInput.responseBuilder;
         const request = handlerInput.requestEnvelope.request;
+        const slots = request.intent.slots;
 
-        const requestAttributes = attributesManager.getRequestAttributes();
+        let fundSlotDetails = getFundsFromRequest(slots.fundType);
 
-        //request.intent.slots.fundType.value
-        //request.intent.slots.fundAttributes
-        const productCode = request.intent.slots.fundType.resolutions.resolutionsPerAuthority[1].values[0].value.name;
+        console.log("SLOT FUND DETAILS " + JSON.stringify(fundSlotDetails));
 
-        const hasFundAttribute = request.intent.slots.fundAttributes.hasOwnProperty('resolutions');
-
+        // there are going to be multiple resulting matches from the the Static Definition and the Dynamic Definitions
+        // we choose the first one always (the result if multiple ideally would be presented in a list view)
+        const productCode = fundSlotDetails[0].id;
         const data = await lookupProductCode(productCode);
-        //<prosody rate="slow"><say-as interpret-as="spell-out">${productCode}</say-as></prosody>
+        console.log("Result Data" + JSON.stringify(data));
+
+        const hasFundAttribute = slots.fundAttributes.hasOwnProperty('resolutions')
+            && slots.fundAttributes.resolutions && slots.fundAttributes.resolutions.resolutionsPerAuthority.length > 0;
+
         const speakProductCode = `<voice name="Kimberly"><say-as interpret-as="spell-out">${productCode}</say-as></voice><p/>`;
         if (hasFundAttribute) {
-            const fundAttributes = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
-            const attributeId = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+            const fundAttributes = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
+            const attributeId = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
             
-            const responsePhrase = `the ${fundAttributes} is ${data[attributeId]}`;
-            const starVar = '';
+            let responsePhrase = `the ${fundAttributes} is ${data[attributeId]}`;
+            let starVar = '';
             if(fundAttributes === "morningstarRating"){
                 data[attributeId] === "1" ?  starVar = ` star` : starVar = ` stars`;
                 responsePhrase = responsePhrase +  starVar;
@@ -123,35 +142,98 @@ const WhatsMyFundIntentHandler = {
     }
 };
 
-const SubscribeToFund = {
+
+const GetSubscribedFundsHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
-        return request.type === 'IntentRequest'
-            && request.intent.name === 'SubscribeToFundIntent';
-        //&& request.dialogState === 'COMPLETED';
+        return (request.type === 'IntentRequest' &&
+                request.intent.name === 'GetSubscribedFundsIntent');
     },
-    handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const newFavorite = getSlotValue(handlerInput.requestEnvelope, 'fundName');
-        const hasFavoriteFunds = sessionAttributes.hasOwnProperty("favoriteFunds") && Array.isArray(sessionAttributes.favoriteFunds);
-        if (hasFavoriteFunds) {
-            sessionAttributes.favoriteFunds.push(newFavorite);
-        } else {
-            sessionAttributes.favoriteFunds = [newFavorite];
+    async handle(handlerInput) {
+        const response = await doRequest.get('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscriptions?email=alexaksills2019@gmail.com');
+        const numberProducts = response.Count;
+
+        let productCodes = [];
+        let productNames = [];
+        let speechOutput = `You are currently subscribed to ${numberProducts} investment products: \n`;
+        for (let i = 0; i < response.Items.length; i++) {
+            productCodes[i] = response.Items[i].productCode;
+            if (response.Items[i].productName !== undefined) {
+                productNames[i] = response.Items[i].productName;
+            }
+            else { productNames[i] = response.Items[i].productCode; }
+            if (i !== response.Items.length - 1) {
+                speechOutput += productNames[i] + " and ";
+            }
+            else {
+                speechOutput += productNames[i] + "."
+            }
         }
 
-        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
-
-        const speechText = `I saved the fund ${newFavorite} in the session attributes. 
-           Ask me for your subscribed funds to demonstrate retrieving your favorites.`;
-        const repromptText = `You can ask me, what's my subscribed funds?`;
+        speechOutput += '<break time="2s"/>Is there anything else I can do for you?';
 
         return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(repromptText)
+            .speak(speechOutput)
+            .reprompt(speechOutput)
+            .withSimpleCard(SKILL_NAME, numberProducts)
             .getResponse();
-    }
+    },
 };
+
+const SubscribeToFundHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return (request.type === 'IntentRequest' &&
+                request.intent.name === 'SubscribeToFundIntent');
+    },
+    async handle(handlerInput) {
+        console.log("In SubscribeToFundHandler handle function");
+
+        // getting user's input for slot fundName from AlexSkill from the request
+        const request = handlerInput.requestEnvelope.request;
+        let fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
+
+        const response = await subscribeUserToFund('alexaskills2019@gmail.com', fundName);
+        let speechOutput = ' You are subscribed to the ' + fundName + '.<break time="1s"/> Is there anything else I can do for you?';
+
+        return handlerInput.responseBuilder
+            .speak(speechOutput)
+            .reprompt(`You can ask me, what's my subscribed funds?`)
+            .withSimpleCard(SKILL_NAME, 2)
+            .getResponse();
+    },
+};
+
+//
+// const SubscribeToFund = {
+//     canHandle(handlerInput) {
+//         const request = handlerInput.requestEnvelope.request;
+//         return request.type === 'IntentRequest'
+//             && request.intent.name === 'SubscribeToFundIntent';
+//         //&& request.dialogState === 'COMPLETED';
+//     },
+//     handle(handlerInput) {
+//         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+//         const newFavorite = getSlotValue(handlerInput.requestEnvelope, 'fundName');
+//         const hasFavoriteFunds = sessionAttributes.hasOwnProperty("favoriteFunds") && Array.isArray(sessionAttributes.favoriteFunds);
+//         if (hasFavoriteFunds) {
+//             sessionAttributes.favoriteFunds.push(newFavorite);
+//         } else {
+//             sessionAttributes.favoriteFunds = [newFavorite];
+//         }
+//
+//         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+//
+//         const speechText = `I saved the fund ${newFavorite} in the session attributes.
+//            Ask me for your subscribed funds to demonstrate retrieving your favorites.`;
+//         const repromptText = `You can ask me, what's my subscribed funds?`;
+//
+//         return handlerInput.responseBuilder
+//             .speak(speechText)
+//             .reprompt(repromptText)
+//             .getResponse();
+//     }
+// };
 
 const YesHandler = {
     canHandle(handlerInput) {
@@ -339,23 +421,23 @@ const InitDataLoaderInterceptor = {
         if (!sessionAttributes.hasOwnProperty('fetchedFunds')) {
             const attributes = handlerInput.attributesManager.getRequestAttributes();
             const replaceEntityDirective = await fetchFundDynamicSlot();
+            console.log("Fetched directive." + JSON.stringify(replaceEntityDirective));
             attributes.fundDirective = replaceEntityDirective;
             handlerInput.responseBuilder.addDirective(replaceEntityDirective);
             sessionAttributes.fetchedFunds = true;
         }
-
     },
 };
 
 // 4. Export =====================================================================================
 
-const skillBuilder = Alexa.SkillBuilders.custom();
-exports.handler = skillBuilder
+exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchHandler,
-        AlexaNewSessionHandler,
         SearchByFundIntent,
         WhatsMyFundIntentHandler,
+        GetSubscribedFundsHandler,
+        SubscribeToFundHandler,
         YesHandler,
         HelpHandler,
         StopHandler,

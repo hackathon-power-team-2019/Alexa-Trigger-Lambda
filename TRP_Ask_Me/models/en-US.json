@@ -68,6 +68,8 @@
                         }
                     ],
                     "samples": [
+                        "{whatPhrase} is {fundAttributes}",
+                        "{whatPhrase} is {fundType} ",
                         "tell me about the {fundType}",
                         "{fundType}",
                         "{whatPhrase} the {fundAttributes} of {fundType}",
@@ -79,17 +81,8 @@
                         "Search {fundAttributes}",
                         "find a mutual fund {fundType}",
                         "for the fund {fundType}",
-                        "{whoPhrase} {fund} {infoTypes}",
-                        "{whatPhrase} {fund} {infoTypes}"
-                    ]
-                },
-                {
-                    "name": "TellMeMoreIntent",
-                    "slots": [],
-                    "samples": [
-                        "contact info",
-                        "tell me more",
-                        "more details"
+                        "{whoPhrase} {fundType} {fundAttributes}",
+                        "{whatPhrase} {fundType} {fundAttributes}"
                     ]
                 },
                 {
@@ -137,23 +130,51 @@
                     "samples": []
                 },
                 {
-                    "name": "SubscribeToFund",
+                    "name": "SubscribeToFundIntent",
                     "slots": [
                         {
-                            "name": "fundCode",
-                            "type": "AMAZON.SearchQuery"
+                            "name": "fundType",
+                            "type": "TRP_FUND_CODE"
                         }
                     ],
                     "samples": [
-                        "Subscribe me to {fundCode}",
-                        "Subscribe me to fund"
+                        "add {fundType} to my subscriptions",
+                        "Subscribe me to {fundType}"
                     ]
                 },
                 {
                     "name": "GetSubscribedFundsIntent",
                     "slots": [],
                     "samples": [
+                        "give me my subscribed products",
+                        "get my subscribed products",
                         "get subscribed funds"
+                    ]
+                },
+                {
+                    "name": "UnsubscribeToFundIntent",
+                    "slots": [
+                        {
+                            "name": "fundType",
+                            "type": "TRP_FUND_CODE"
+                        }
+                    ],
+                    "samples": [
+                        "Unsubscribe from {fundType}",
+                        "Unsubscribe me from the {fundType}",
+                        "Remove my subscription to the {fundType}"
+                    ]
+                },
+                {
+                    "name": "NotificationFrequencyUpdateIntent",
+                    "slots": [
+                        {
+                            "name": "desiredNotificationFrequency",
+                            "type": "AMAZON.DURATION"
+                        }
+                    ],
+                    "samples": [
+                        "change the notification frequency to {desiredNotificationFrequency}"
                     ]
                 }
             ],
@@ -388,15 +409,13 @@
         "dialog": {
             "intents": [
                 {
-                    "name": "SubscribeToFund",
-                    "confirmationRequired": true,
-                    "prompts": {
-                        "confirmation": "Confirm.Intent.829474869552"
-                    },
+                    "name": "SubscribeToFundIntent",
+                    "confirmationRequired": false,
+                    "prompts": {},
                     "slots": [
                         {
-                            "name": "fundCode",
-                            "type": "AMAZON.SearchQuery",
+                            "name": "fundType",
+                            "type": "TRP_FUND_CODE",
                             "confirmationRequired": false,
                             "elicitationRequired": false,
                             "prompts": {}
