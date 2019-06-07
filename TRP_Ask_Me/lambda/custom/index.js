@@ -98,12 +98,12 @@ const SearchByFundIntent = {
         if (hasFundAttribute) {
             const fundAttributes = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
             const attributeId = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
-            
+
             let responsePhrase = `the ${fundAttributes} is ${data[attributeId]}`;
             let starVar = '';
-            if(fundAttributes === "morningstarRating"){
+            if(attributeId === "morningstarRating"){
                 data[attributeId] === "1" ?  starVar = ` star` : starVar = ` stars`;
-                responsePhrase = responsePhrase +  starVar;
+                responsePhrase = `the ${fundAttributes} rating is ${data[attributeId]}` +  starVar;
             }
             responseBuilder = responseBuilder
                 .speak(responsePhrase)
@@ -147,7 +147,7 @@ const GetSubscribedFundsHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
         return (request.type === 'IntentRequest' &&
-                request.intent.name === 'GetSubscribedFundsIntent');
+            request.intent.name === 'GetSubscribedFundsIntent');
     },
     async handle(handlerInput) {
         const response = await doRequest.get('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscriptions?email=alexaksills2019@gmail.com');
@@ -184,7 +184,7 @@ const SubscribeToFundHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
         return (request.type === 'IntentRequest' &&
-                request.intent.name === 'SubscribeToFundIntent');
+            request.intent.name === 'SubscribeToFundIntent');
     },
     async handle(handlerInput) {
         console.log("In SubscribeToFundHandler handle function");
@@ -277,8 +277,8 @@ const HelpHandler = {
 
         const requestAttributes = attributesManager.getRequestAttributes();
         return responseBuilder
-            .speak(requestAttributes.t('HELP'))
-            .reprompt(requestAttributes.t('HELP'))
+            .speak(requestAttributes.t('ASSIST'))
+            .reprompt(requestAttributes.t('ASSIST'))
             .getResponse();
     },
 };

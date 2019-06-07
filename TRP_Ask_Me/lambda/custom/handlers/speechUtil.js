@@ -1,5 +1,5 @@
 
-data = [{productName: "Global Allocation Fund"}];
+data = [{productName: "Dynamic Global Bond Fund - Advisor Class"}];
 
 
 module.exports = (function() {
@@ -12,6 +12,8 @@ module.exports = (function() {
 
     //This is the message a user will hear when they ask Alexa for help in your skill.
     exports.HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds and Articles.";
+
+    exports.ASSIST_MESSAGE = "Great! To start," + getGenericHelpMessage(data);
 
     //This is the message a user will hear when they begin a new search
     exports.NEW_SEARCH_MESSAGE = getGenericHelpMessage(data);
@@ -38,18 +40,13 @@ module.exports = (function() {
         return arrayOfStrings[getRandom(0, data.length - 1)].productName;
     }
 
-    function getRandomName(arrayOfStrings) {
-        let randomNumber = getRandom(0, data.length - 1);
-        return arrayOfStrings[randomNumber].productName;
-    }
-
-    function generateNextPromptMessage(person, mode) {
+    function generateNextPromptMessage(mode) {
         let infoTypes = ["price", "investment strategy", "net asset value", "morningstar rating", "portfolio manager"];
         let prompt;
 
         if (mode === "current") {
             // if the mode is current, we should give more informaiton about the current contact
-            prompt = ". You can say - tell me more, or  tell me its " + infoTypes[getRandom(0, infoTypes.length - 1)];
+            prompt = ". You ask about the " + infoTypes[getRandom(0, infoTypes.length - 1)];
         }
         //if the mode is general, we should provide general help information
         else if (mode === "general") {
@@ -80,7 +77,7 @@ module.exports = (function() {
         if (arguments.length === 0) {
             inputData = data;
         }
-        let sentences = ["ask - what is " + getRandomName(inputData), "say - find an mutual fund " + getRandomFund(inputData)];
+        let sentences = ["say - tell me about " + getRandomFund(inputData)];
         return "You can " + sentences[getRandom(0, sentences.length - 1)];
     }
     exports.getGenericHelpMessage = getGenericHelpMessage;
