@@ -96,11 +96,11 @@ const SearchByFundIntent = {
             const fundAttributes = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
             const attributeId = request.intent.slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
             
-            const responsePhrase = `the ${fundAttributes} is ${data[attributeId]}`;
-            const starVar = '';
-            if(fundAttributes === "morningstarRating"){
+            let responsePhrase = `the ${fundAttributes} is ${data[attributeId]}`;
+            let starVar = '';
+            if(attributeId === "morningstarRating"){
                 data[attributeId] === "1" ?  starVar = ` star` : starVar = ` stars`;
-                responsePhrase = responsePhrase +  starVar;
+                responsePhrase = `the ${fundAttributes} rating is ${data[attributeId]}` +  starVar;
             }
             responseBuilder = responseBuilder
                 .speak(responsePhrase)

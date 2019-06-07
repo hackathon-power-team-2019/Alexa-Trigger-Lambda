@@ -43,13 +43,13 @@ module.exports = (function() {
         return arrayOfStrings[randomNumber].productName;
     }
 
-    function generateNextPromptMessage(person, mode) {
+    function generateNextPromptMessage(mode) {
         let infoTypes = ["price", "investment strategy", "net asset value", "morningstar rating", "portfolio manager"];
         let prompt;
 
         if (mode === "current") {
             // if the mode is current, we should give more informaiton about the current contact
-            prompt = ". You can say - tell me more, or  tell me its " + infoTypes[getRandom(0, infoTypes.length - 1)];
+            prompt = ". You ask about the " + infoTypes[getRandom(0, infoTypes.length - 1)];
         }
         //if the mode is general, we should provide general help information
         else if (mode === "general") {

@@ -68,6 +68,7 @@
                         }
                     ],
                     "samples": [
+                        "show me the {fundAttributes}",
                         "tell me about the {fundType}",
                         "{fundType}",
                         "{whatPhrase} the {fundAttributes} of {fundType}",
@@ -79,8 +80,8 @@
                         "Search {fundAttributes}",
                         "find a mutual fund {fundType}",
                         "for the fund {fundType}",
-                        "{whoPhrase} {fund} {infoTypes}",
-                        "{whatPhrase} {fund} {infoTypes}"
+                        "{whoPhrase} {fundType} {fundAttributes}",
+                        "{whatPhrase} {fundType} {fundAttributes}"
                     ]
                 },
                 {
