@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "us intermediary",
+      "invocationName": "t rowe price",
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
@@ -9,22 +9,84 @@
         },
         {
           "name": "AMAZON.HelpIntent",
+          "samples": [
+            "how do I search",
+            "help",
+            "help me",
+            "I want to learn more about a mutual fund",
+            "I want to invest in a fund"
+          ]
+        },
+        {
+          "name": "AMAZON.NoIntent",
           "samples": []
+        },
+        {
+          "name": "AMAZON.RepeatIntent",
+          "samples": [
+            "repeat that",
+            "say that again",
+            "can you say that again",
+            "please repeat"
+          ]
+        },
+        {
+          "name": "AMAZON.StartOverIntent",
+          "samples": [
+            "startover",
+            "new search",
+            "search again"
+          ]
         },
         {
           "name": "AMAZON.StopIntent",
           "samples": []
         },
         {
-          "name": "AMAZON.FallbackIntent",
+          "name": "AMAZON.YesIntent",
           "samples": []
         },
         {
-          "name": "GetSubscribedProductsIntent",
-          "slots": [],
+          "name": "SearchByFundIntent",
+          "slots": [
+            {
+              "name": "fundType",
+              "type": "TRP_FUND_CODE",
+              "samples": [
+                "{fundType}"
+              ]
+            },
+            {
+              "name": "whatPhrase",
+              "type": "WHAT_PHRASE"
+            },
+            {
+              "name": "fundAttributes",
+              "type": "FUND_ATTRIBUTES"
+            },
+            {
+              "name": "whoPhrase",
+              "type": "WHO_PHRASE"
+            }
+          ],
           "samples": [
-            "get my subscribed products",
-            "give me my subscribed products"
+            "{whatPhrase} is its {fundAttributes}",
+            "{fundAttributes}",
+            "{whatPhrase} is {fundAttributes}",
+            "{whatPhrase} is {fundType} fund",
+            "tell me about the {fundType}",
+            "{fundType}",
+            "{whatPhrase} the {fundAttributes} of {fundType}",
+            "{whoPhrase} the {fundAttributes} of {fundType}",
+            "tell me about {fundType}",
+            "find {fundType}",
+            "{whatPhrase} {fundAttributes}",
+            "{whatPhrase} {fundType}",
+            "Search {fundAttributes}",
+            "find a mutual fund {fundType}",
+            "for the fund {fundType}",
+            "{whoPhrase} {fundType} {fundAttributes}",
+            "{whatPhrase} {fundType} {fundAttributes}"
           ]
         },
         {
@@ -32,64 +94,88 @@
           "samples": []
         },
         {
-          "name": "SubscribeToProductIntent",
+          "name": "AMAZON.MoreIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateSettingsIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NextIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PageUpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PageDownIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.PreviousIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ScrollRightIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ScrollDownIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ScrollLeftIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.ScrollUpIntent",
+          "samples": []
+        },
+        {
+          "name": "SubscribeToFundIntent",
           "slots": [
             {
-              "name": "productName",
-              "type": "AMAZON.Service"
+              "name": "fundType",
+              "type": "TRP_FUND_CODE",
+              "samples": [
+                "{fundType}"
+              ]
             }
           ],
           "samples": [
-            "add {productName} to my subscriptions",
-            "Subscribe to the {productName}",
-            "Subscribe me to the {productName}"
+            "add {fundType} to my subscriptions",
+            "Subscribe me to {fundType}"
           ]
         },
         {
-          "name": "DeleteProductIntent",
+          "name": "GetSubscribedFundsIntent",
           "slots": [
             {
-              "name": "productName",
-              "type": "AMAZON.Service"
+              "name": "whatPhrase",
+              "type": "WHAT_PHRASE"
             }
           ],
           "samples": [
-            "Remove my subscription to the {productName}",
-            "Unsubscribe me from the {productName}",
-            "Unsubscribe from {productName}"
+            "{whatPhrase} subscribed funds",
+            "give me my subscribed products",
+            "get my subscribed products",
+            "get subscribed funds"
           ]
         },
         {
-          "name": "WhatIsNewIntent",
-          "slots": [],
-          "samples": [
-            "whats new with my subscribed funds",
-            "what is new with my subscribed insights",
-            "what is new with my subscriptions"
-          ]
-        },
-        {
-          "name": "WhatIsNewAnswerIntent",
+          "name": "UnsubscribeToFundIntent",
           "slots": [
             {
-              "name": "answer",
-              "type": "AMAZON.Animal"
+              "name": "fundType",
+              "type": "TRP_FUND_CODE"
             }
           ],
           "samples": [
-            "{answer}",
-            "My answer is {answer}",
-            "My answer would be {answer}",
-            "The answer is {answer}"
-          ]
-        },
-        {
-          "name": "GetNotifictionFrequencyIntent",
-          "slots": [],
-          "samples": [
-            "How often do I receive notifications",
-            "give me the frquency of my notifications",
-            "What is my subscriptions notification frequency"
+            "Unsubscribe from {fundType}",
+            "Unsubscribe me from the {fundType}",
+            "Remove my subscription to the {fundType}"
           ]
         },
         {
@@ -97,16 +183,419 @@
           "slots": [
             {
               "name": "desiredNotificationFrequency",
-              "type": "AMAZON.ProfessionalType"
+              "type": "AMAZON.SearchQuery"
             }
           ],
           "samples": [
-            "change the notification frequency to {desiredNotificationFrequency}",
-            "update the notification frequency to {desiredNotificationFrequency}"
+            "update the notification frequency to {desiredNotificationFrequency}",
+            "change the notification frequency to {desiredNotificationFrequency}"
+          ]
+        },
+        {
+          "name": "WhatIsNewIntent",
+          "slots": [
+            {
+              "name": "whatPhrase",
+              "type": "WHAT_PHRASE"
+            }
+          ],
+          "samples": [
+            "{whatPhrase} new with my subscriptions",
+            "{whatPhrase} new with my subscribed insights",
+            "{whatPhrase} new with my subscribed funds"
+          ]
+        },
+        {
+          "name": "GetNotifictionFrequencyIntent",
+          "slots": [],
+          "samples": [
+            "What is my subscriptions notification frequency",
+            "give me the frquency of my notifications",
+            "How often do I receive notifications"
           ]
         }
       ],
-      "types": []
-    }
+      "types": [
+        {
+          "name": "WHAT_PHRASE",
+          "values": [
+            {
+              "name": {
+                "value": "so what is"
+              }
+            },
+            {
+              "name": {
+                "value": "what is"
+              }
+            },
+            {
+              "name": {
+                "value": "what's"
+              }
+            },
+            {
+              "name": {
+                "value": "give me"
+              }
+            },
+            {
+              "name": {
+                "value": "tell me"
+              }
+            },
+            {
+              "name": {
+                "value": "I want to lookup"
+              }
+            },
+            {
+              "name": {
+                "value": "lookup"
+              }
+            },
+            {
+              "name": {
+                "value": "I want"
+              }
+            }
+          ]
+        },
+        {
+          "name": "WHO_PHRASE",
+          "values": [
+            {
+              "name": {
+                "value": "find"
+              }
+            },
+            {
+              "name": {
+                "value": "who is"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TRP_FUND_CODE",
+          "values": [
+            {
+              "id": "BCG",
+              "name": {
+                "value": "Blue Chip Growth Fund",
+                "synonyms": [
+                  "BCG",
+                  "bluechip growth fund"
+                ]
+              }
+            },
+            {
+              "id": "GCF",
+              "name": {
+                "value": "Global Consumer Fund",
+                "synonyms": [
+                  "PGLOX",
+                  "GCF"
+                ]
+              }
+            },
+            {
+              "id": "EMF",
+              "name": {
+                "value": "Emerging Markets Stock Fund",
+                "synonyms": [
+                  "PRMSX",
+                  "EMF"
+                ]
+              }
+            },
+            {
+              "id": "SPF",
+              "name": {
+                "value": "Spectrum International Fund",
+                "synonyms": [
+                  "PSILX",
+                  "SPF"
+                ]
+              }
+            },
+            {
+              "id": "GUA",
+              "name": {
+                "value": "Dynamic Global Bond Fund - Advisor Class",
+                "synonyms": [
+                  "PAIEX",
+                  "GUA"
+                ]
+              }
+            },
+            {
+              "id": "R3A",
+              "name": {
+                "value": "Retirement 2010 Fund - R Class",
+                "synonyms": [
+                  "RRTAX",
+                  "R3A"
+                ]
+              }
+            },
+            {
+              "id": "GFA",
+              "name": {
+                "value": "Global Allocation Fund - Advisor Class",
+                "synonyms": [
+                  "PAFGX",
+                  "GFA"
+                ]
+              }
+            },
+            {
+              "id": "AME",
+              "name": {
+                "value": "Africa and Middle East Fund",
+                "synonyms": [
+                  "TRAMX",
+                  "AME"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "FUND_ATTRIBUTES",
+          "values": [
+            {
+              "id": "productCode",
+              "name": {
+                "value": "product code",
+                "synonyms": [
+                  "code"
+                ]
+              }
+            },
+            {
+              "id": "totalNetOfAssets",
+              "name": {
+                "value": "netAssets",
+                "synonyms": [
+                  "nav",
+                  "N.A.V.",
+                  "NAV",
+                  "net asset value",
+                  "asset value"
+                ]
+              }
+            },
+            {
+              "id": "ticker",
+              "name": {
+                "value": "ticker",
+                "synonyms": [
+                  "ticker symbol"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "etf",
+                "synonyms": [
+                  "exchange traded funds",
+                  "etfs"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "investments",
+                "synonyms": [
+                  "investment funds"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "fixed income"
+              }
+            },
+            {
+              "name": {
+                "value": "mutual funds",
+                "synonyms": [
+                  "products",
+                  "small cap",
+                  "large cap",
+                  "fixed income",
+                  "mutual fund"
+                ]
+              }
+            },
+            {
+              "id": "portfolioManager",
+              "name": {
+                "value": "manager",
+                "synonyms": [
+                  "fund manager",
+                  "portfolio manager",
+                  "money manager"
+                ]
+              }
+            },
+            {
+              "id": "morningstarRating",
+              "name": {
+                "value": "morningstar",
+                "synonyms": [
+                  "morningstar rating",
+                  "rating",
+                  "morning star"
+                ]
+              }
+            },
+            {
+              "id": "investmentObjective",
+              "name": {
+                "value": "investment objective",
+                "synonyms": [
+                  "strategy",
+                  "objective"
+                ]
+              }
+            },
+            {
+              "id": "price",
+              "name": {
+                "value": "price",
+                "synonyms": [
+                  "its price"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "SubscribeToFundIntent",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "fundType",
+              "type": "TRP_FUND_CODE",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.320405668775.1222604005763"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SearchByFundIntent",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "fundType",
+              "type": "TRP_FUND_CODE",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.496720031643.1387260354406"
+              },
+              "validations": [
+                {
+                  "type": "hasEntityResolutionMatch",
+                  "prompt": "Slot.Validation.348533722000.1021880031635.1468272540290"
+                }
+              ]
+            },
+            {
+              "name": "whatPhrase",
+              "type": "WHAT_PHRASE",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {}
+            },
+            {
+              "name": "fundAttributes",
+              "type": "FUND_ATTRIBUTES",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {}
+            },
+            {
+              "name": "whoPhrase",
+              "type": "WHO_PHRASE",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {}
+            }
+          ]
+        }
+      ],
+      "delegationStrategy": "ALWAYS"
+    },
+    "prompts": [
+      {
+        "id": "Confirm.Intent.829474869552",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "You are subscribed to the fund."
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.50594219179.573027835040",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "which do you want to know the money manager, the price, ticker symbol?"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.496720031643.1387260354406",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Which fund would you like to research?"
+          },
+          {
+            "type": "PlainText",
+            "value": "What is the name of the fund?"
+          },
+          {
+            "type": "PlainText",
+            "value": "What is the mutual fund?"
+          }
+        ]
+      },
+      {
+        "id": "Slot.Validation.348533722000.1021880031635.1468272540290",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Sorry, I don't know that fund.  Please ask about another fund."
+          },
+          {
+            "type": "PlainText",
+            "value": "I'm not familiar with that fund.  Ask me about another mutual fund"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.320405668775.1222604005763",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Please state a valid mutual fund?"
+          }
+        ]
+      }
+    ]
   }
 }

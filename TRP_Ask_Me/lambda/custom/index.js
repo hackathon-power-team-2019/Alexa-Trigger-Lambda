@@ -27,7 +27,6 @@ const LaunchHandler = {
 
         const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')} `;
 
-
         return responseBuilder
             .speak(speechOutput)
             .reprompt("You can say, what is Blue Chip Growth fund? Or say, give me subscribed funds.")
@@ -45,9 +44,20 @@ function getFundsFromRequest(fundType) {
     }).map( (authority) => { return authority.values; });
 
     return concat(fundSlotDetails)
-        .map( (arr) => { return Array.isArray(arr) ? arr[0] : arr; })
+        .map( (arr) => {
+            return (Array.isArray(arr) && arr.length > 0) ? arr[0] : arr;
+        })
         .filter( (o) => { return o.hasOwnProperty("value");} )
         .map( (o) => { return o.value; } );
+}
+
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 const SearchByFundIntent = {
@@ -63,21 +73,29 @@ const SearchByFundIntent = {
         const request = handlerInput.requestEnvelope.request;
         const slots = request.intent.slots;
 
-        let fundSlotDetails = getFundsFromRequest(slots.fundType);
 
-        console.log("SLOT FUND DETAILS " + JSON.stringify(fundSlotDetails));
 
         // there are going to be multiple resulting matches from the the Static Definition and the Dynamic Definitions
         // we choose the first one always (the result if multiple ideally would be presented in a list view)
-        const productCode = fundSlotDetails[0].id;
+        let fundSlotDetails = getFundsFromRequest(slots.fundType);
+
+        console.log("SLOT FUND DETAILS " + JSON.stringify(fundSlotDetails));
+        let productCode = request.intent.slots.fundType.value;
+        if (fundSlotDetails.length > 0 ){
+            productCode = fundSlotDetails[0].id;
+        } else {
+            console.log ("FUND SLOT DETAILS IS ZERO!");
+        }
+
         const data = await lookupProductCode(productCode);
         console.log("Result Data" + JSON.stringify(data));
 
         const hasFundAttribute = slots.fundAttributes.hasOwnProperty('resolutions')
             && slots.fundAttributes.resolutions && slots.fundAttributes.resolutions.resolutionsPerAuthority.length > 0;
 
-        const speakProductCode = `<voice name="Kimberly"><say-as interpret-as="spell-out">${productCode}</say-as></voice><p/>`;
+        const speakProductCode = `<voice name="Kimberly"><say-as interpret-as="spell-out">${productCode}</say-as></voice>`;
         if (hasFundAttribute) {
+            console.log('hasFundAttribute');
             const fundAttributes = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
             const attributeId = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
 
@@ -91,14 +109,16 @@ const SearchByFundIntent = {
             }
             responseBuilder = responseBuilder
                 .speak(responsePhrase)
-                .addElicitSlotDirective('fundAttributes');
         } else {
             responseBuilder = responseBuilder
-                .speak(`${data.productName} or ${speakProductCode} is a ${data.coreCategory} mutual fund. You can ask me, what is its price?`)
+                .speak(`${escapeHtml(data.productName)} or ${speakProductCode} is a ${escapeHtml(data.coreCategory)} mutual fund. You can ask me, what is its price?`)
                 .reprompt(`You can ask, what is the ${messages.generateNextPromptMessage('current')}`)
-                .addElicitSlotDirective('fundAttributes');
         }
 
+        const requestAt = attributesManager.getRequestAttributes();
+        if (!requestAt.hasDirective) {
+            responseBuilder.addElicitSlotDirective('fundAttributes');
+        }
         return responseBuilder.getResponse();
     },
 };
@@ -114,7 +134,7 @@ const WhatsMyFundIntentHandler = {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.fundType) {
             return handlerInput.responseBuilder
-                .speak(`OK, ${sessionAttributes.fundType}`)
+                .speak(`OK, ${escapeHtml(sessionAttributes.fundType.value)}`)
                 .getResponse();
         } else {
             return handlerInput.responseBuilder
@@ -223,7 +243,7 @@ const UnsubscribeFundHandler = {
         const videoOutput = fundName + " has been removed from your subscriptions";
 
         return handlerInput.responseBuilder
-            .speak(speechOutput)
+            .speak(escapeHtml(speechOutput))
             .reprompt("You can say, give me my subscribed products.")
             .withSimpleCard(SKILL_NAME, videoOutput)
             .getResponse();
@@ -536,13 +556,18 @@ const MessagesInterceptor = {
 const InitDataLoaderInterceptor = {
     async process(handlerInput) {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        if (!sessionAttributes.hasOwnProperty('fetchedFunds')) {
+        const request = handlerInput.requestEnvelope.request;
+        if (request.type === 'IntentRequest') {
+            console.log('INTERCEPTOR to intent ' + request.intent.name);
+        } else if (!sessionAttributes.hasOwnProperty('fetchedFunds')) {
             const attributes = handlerInput.attributesManager.getRequestAttributes();
             const replaceEntityDirective = await fetchFundDynamicSlot();
             console.log("Fetched directive." + JSON.stringify(replaceEntityDirective));
             attributes.fundDirective = replaceEntityDirective;
             handlerInput.responseBuilder.addDirective(replaceEntityDirective);
             sessionAttributes.fetchedFunds = true;
+            const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+            requestAttributes.hasDirective = true;
         }
     },
 };

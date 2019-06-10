@@ -1,6 +1,2 @@
-{
-               'email': 'a@a.com',
-               'productCode': 'XYZ',
-               'productName': 'XYZ'
-           }
-
+			"message": "Invalid SSML Output Speech for requestId amzn1.echo-api.request.1f678d7f-0d72-4063-9c91-70e23e4e1d9f. Error: Fatal error occurred when processing SSML content. This usually happens when the SSML is not well formed. Error: Unexpected character ' ' (code 32) (missing name?)\n at [row,col {unknown-source}]: [1,16]"
+		}
