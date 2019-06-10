@@ -499,6 +499,31 @@ const FallbackHandler = {
 
 };
 
+const GetAccountLinkingHandler = {
+    canHandle(handlerInput) {
+        const { request } = handlerInput.requestEnvelope;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'GetAccountLinking';
+    },
+    async handle(handlerInput) {
+        const { requestEnvelope, responseBuilder } = handlerInput;
+
+        const accessToken = requestEnvelope.context.System.user.accessToken;
+        console.log("Access token is " , accessToken);
+
+        if (accessToken === undefined) {
+            return responseBuilder
+                .speak("Please perform account linking for using this skill")
+                .withLinkAccountCard()
+                .getResponse();
+        }
+        else {
+            return responseBuilder
+                .speak("You have successfully linked to your skill and now you can use this skill.")
+                .getResponse();
+        }
+    },
+};
 
 // 2. Constants ==================================================================================
 
@@ -593,6 +618,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         UpdateNotificationFrequencyHandler,
         YesHandler,
         //NoHandler,
+        GetAccountLinkingHandler,
         HelpHandler,
         StopHandler,
         FallbackHandler,

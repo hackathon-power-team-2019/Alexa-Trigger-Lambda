@@ -213,6 +213,15 @@
             "give me the frquency of my notifications",
             "How often do I receive notifications"
           ]
+        },
+        {
+          "name": "GetAccountLinking",
+          "slots": [],
+          "samples": [
+            "what is my email",
+            "get email address",
+            "what is my email address"
+          ]
         }
       ],
       "types": [
