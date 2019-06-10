@@ -105,7 +105,7 @@ const SearchByFundIntent = {
             const fundAttributes = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
             const attributeId = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
 
-            let responsePhrase = `the ${fundAttributes} is ${data[attributeId]}`;
+            let responsePhrase = `the ${fundAttributes} is ${escapeHtml(data[attributeId])}`;
             let starVar = '';
             if(attributeId === "morningstarRating"){
                 data[attributeId] === '1' ?  starVar = ` star` : starVar = ` stars`;
@@ -176,7 +176,7 @@ const GetSubscribedFundsHandler = {
                 speechOutput += productNames[i] + ", ";
             }
             else {
-                speechOutput += ', and ' + productNames[i] + "."
+                speechOutput += ' and ' + productNames[i] + "."
             }
         }
 
@@ -212,7 +212,7 @@ const SubscribeToFundHandler = {
         const response = await subscribeUserToFund('alexaskills2019@gmail.com', pFundName, fundName);
 
         console.log("subscribe fundName: " + fundName + " fundCode=" + pFundName + " " + JSON.stringify(response));
-        let speechOutput = ' You are subscribed to the ' + fundName;
+        let speechOutput = ' You are subscribed to the ' + fundName + (fundName.includes('fund') ? '' : ' product.');
         return handlerInput.responseBuilder
             .speak(speechOutput)
             .reprompt(`You can ask me, what's my subscribed funds?`)
@@ -244,9 +244,13 @@ const UnsubscribeFundHandler = {
 
         //remove the fund name from the fund subscriptions
         const response = await unsubscribeUserToFund('alexaskills2019@gmail.com', pFundName, fundName);
+        let speechOutput = escapeHtml(fundName) + " has been removed from your email subscriptions.";
+
+        if (response && response.hasOwnProperty('Count') && response.Count === 0) {
+            speechOutput = `Hmm, looks like you were not subscribed to ${escapeHtml(fundName)}.`;
+        }
         console.log("RESPONSE FROM UNSUBSCRIBE = " + JSON.stringify(response));
-        const speechOutput = fundName + " has been removed from your subscriptions";
-        const videoOutput = fundName + " has been removed from your subscriptions";
+        const videoOutput = speechOutput;
 
         return handlerInput.responseBuilder
             .speak(escapeHtml(speechOutput))
