@@ -27,9 +27,8 @@ module.exports = (function() {
     exports.SHUTDOWN_MESSAGE = "Goodbye from Trusty. ";
 
     //This is the message a user will hear when they try to cancel or stop the skill.
-    exports.EXIT_SKILL_MESSAGE = "<voice name='Justin'>We go beyond the numbers.</voice> Goodbye.";
-    exports.STOP_MESSAGE = "<voice name='Justin'>We go beyond the numbers.</voice> Goodbye.";
-
+    exports.EXIT_SKILL_MESSAGE = "At T Rowe Price, <voice name='Justin'>We go beyond the numbers.</voice> Goodbye.";
+    exports.STOP_MESSAGE = "At T Rowe Price, <voice name='Justin'>We go beyond the numbers.</voice> Goodbye.";
 
 
     function getRandom(min, max) {
@@ -41,12 +40,12 @@ module.exports = (function() {
     }
 
     function generateNextPromptMessage(mode) {
-        let infoTypes = ["price", "investment strategy", "net asset value", "morningstar rating", "portfolio manager"];
+        let infoTypes = ["price", "investment strategy", "net asset value", "morningstar rating"];
         let prompt;
 
         if (mode === "current") {
             // if the mode is current, we should give more informaiton about the current contact
-            prompt = ". You ask about the " + infoTypes[getRandom(0, infoTypes.length - 1)];
+            prompt = " " + infoTypes[getRandom(0, infoTypes.length - 1)];
         }
         //if the mode is general, we should provide general help information
         else if (mode === "general") {
@@ -84,22 +83,3 @@ module.exports = (function() {
 
     return exports;
 })();
-
-
-// const languageStrings = {
-//     'en': {
-//         translation: {
-//             SKILL_NAME: 'Trusty Alexa',
-//             WELCOME_MESSAGE: 'Welcome to %s. You can ask a question like, what\'s blue chip growth fund? ... Now, what can I help you with?',
-//             WELCOME_REPROMPT: 'For instructions on what you can say, please say help me.',
-//             DISPLAY_CARD_TITLE: '%s for %s.',
-//             HELP_MESSAGE: 'You can ask questions such as, what\'s the ticker for %s, or, you can say exit...Now, what can I help you with?',
-//             HELP_REPROMPT: 'You can say things like, what\'s the recipe for a %s, or you can say exit...Now, what can I help you with?',
-//             STOP_MESSAGE: 'We go beyond the numbers. Goodbye!',
-//             RECIPE_REPEAT_MESSAGE: 'Try saying repeat.',
-//             RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'I\'m sorry, I currently do not know the fund information for %s. ',
-//             RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'I\'m sorry, I currently do not know that recipe. ',
-//             RECIPE_NOT_FOUND_REPROMPT: 'What else can I help with?',
-//         }
-//     },
-// };

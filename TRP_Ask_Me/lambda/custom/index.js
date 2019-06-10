@@ -3,7 +3,6 @@
 /* eslint-disable  no-use-before-define */
 
 const Alexa = require('ask-sdk-core');
-const https = require('https');
 const messages = require('./handlers/speechUtil');
 
 const SKILL_NAME = 'Trusty Alexa';
@@ -31,7 +30,7 @@ const LaunchHandler = {
 
         return responseBuilder
             .speak(speechOutput)
-            .reprompt("Please say a command")
+            .reprompt("You can say, what is Blue Chip Growth fund? Or say, give me subscribed funds.")
             .getResponse();
     },
 };
@@ -85,16 +84,18 @@ const SearchByFundIntent = {
             let responsePhrase = `the ${fundAttributes} is ${data[attributeId]}`;
             let starVar = '';
             if(attributeId === "morningstarRating"){
-                data[attributeId] === "1" ?  starVar = ` star` : starVar = ` stars`;
+                data[attributeId] === '1' ?  starVar = ` star` : starVar = ` stars`;
                 responsePhrase = `the ${fundAttributes} rating is ${data[attributeId]}` +  starVar;
+            } else if (attributeId === 'productCode') {
+                responsePhrase = "The product code is " + speakProductCode;
             }
             responseBuilder = responseBuilder
                 .speak(responsePhrase)
                 .addElicitSlotDirective('fundAttributes');
         } else {
             responseBuilder = responseBuilder
-                .speak(`The current price for ${speakProductCode} is ${data.price}. `)
-                .reprompt(`What would would like to know about this mutual fund? ${messages.generateNextPromptMessage('current')}`)
+                .speak(`${data.productName} or ${speakProductCode} is a ${data.coreCategory} mutual fund. You can ask me, what is its price?`)
+                .reprompt(`You can ask, what is the ${messages.generateNextPromptMessage('current')}`)
                 .addElicitSlotDirective('fundAttributes');
         }
 
@@ -113,7 +114,7 @@ const WhatsMyFundIntentHandler = {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.fundType) {
             return handlerInput.responseBuilder
-                .speak(`OK$, {sessionAttributes.fundType}`)
+                .speak(`OK, ${sessionAttributes.fundType}`)
                 .getResponse();
         } else {
             return handlerInput.responseBuilder
@@ -182,13 +183,10 @@ const SubscribeToFundHandler = {
             pFundName = fundSlotDetails[0].id;
         }
 
-
-
         const response = await subscribeUserToFund('alexaskills2019@gmail.com', pFundName, fundName);
 
         console.log("subscribe fundName: " + fundName + " fundCode=" + pFundName + " " + JSON.stringify(response));
-        let speechOutput = ' You are subscribed to the ' + fundName + '.<break time="1s"/> ';
-
+        let speechOutput = ' You are subscribed to the ' + fundName;
         return handlerInput.responseBuilder
             .speak(speechOutput)
             .reprompt(`You can ask me, what's my subscribed funds?`)
@@ -571,4 +569,5 @@ exports.handler = Alexa.SkillBuilders.custom()
     )
     .addRequestInterceptors(MessagesInterceptor, InitDataLoaderInterceptor)
     .addErrorHandlers(ErrorHandler)
+    .withSkillId('amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e')
     .lambda();
