@@ -99,7 +99,7 @@ const SearchByFundIntent = {
         const hasFundAttribute = slots.fundAttributes.hasOwnProperty('resolutions')
             && slots.fundAttributes.resolutions && slots.fundAttributes.resolutions.resolutionsPerAuthority.length > 0;
 
-        const speakProductCode = `<voice name="Kimberly"><say-as interpret-as="spell-out">${productCode}</say-as></voice>`;
+        const speakProductCode = `<voice name="Joanna"><say-as interpret-as="spell-out"><emphasis level="moderate">${productCode}</emphasis></say-as></voice>`;
         if (hasFundAttribute) {
             console.log('hasFundAttribute');
             const fundAttributes = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
@@ -117,7 +117,7 @@ const SearchByFundIntent = {
                 .speak(responsePhrase)
         } else {
             responseBuilder = responseBuilder
-                .speak(`${escapeHtml(data.productName)} or ${speakProductCode} is a ${escapeHtml(data.coreCategory)} mutual fund. You can ask me, what is its price?`)
+                .speak(`${escapeHtml(data.productName)}, or ${speakProductCode}, is a ${escapeHtml(data.coreCategory)} mutual fund. You can ask me, what is its price?`)
                 .reprompt(`You can ask, what is the ${messages.generateNextPromptMessage('current')}`)
         }
 

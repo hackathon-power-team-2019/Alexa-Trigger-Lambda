@@ -53,7 +53,7 @@ exports.handler = function(event, context, callback) {
                             id: fund.productCode,
                             name: {
                                 value: fund.productName,
-                                synonyms: [ fund.cusip, fund.ticker, productName, productName2 ]
+                                synonyms: [ fund.cusip, fund.ticker, productName, productName2, fund.productCode.toLowerCase() ]
                             }
                         }
                     );
