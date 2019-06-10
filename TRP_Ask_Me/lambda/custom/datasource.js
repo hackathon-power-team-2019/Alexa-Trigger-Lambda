@@ -80,11 +80,11 @@ const searchDatabase = function(dataset, searchQuery, searchType) {
 };
 
 const makeHttpCall = {
-    get : (async function(url, fallback_data) {
+    get : (async function(url, fallback_data, config) {
 
         let data = fallback_data;
         try {
-            const response = await axios.get(url);
+            const response = await axios.get(url, config);
 
             if (response.status >= 200 && response.status < 203) {
                 data = response.data; // or return a custom object using properties from response
@@ -160,6 +160,15 @@ async function updateFrequency(emailAddress, frequency) {
 
 }
 
+async function getUserEmailAddress(apiAccessToken) {
+    const url = "https://api.amazonalexa.com/v2/accounts/~current/settings/Profile.email";
+
+    return await makeHttpCall.get(url, '', {headers : {
+            Authorization: "Bearer " + apiAccessToken,
+            "content-type": "application/json"
+        }});
+}
+
 module.exports = {
     productData : productData,
     fetchFundDynamicSlot : getFundsDynamicSlot,
@@ -168,6 +177,7 @@ module.exports = {
     subscribeUserToFund : subscribeUserToFund,
     unsubscribeUserToFund : unsubscribeUserToFund,
     updateFrequency : updateFrequency,
+    askUserEmailAddress : getUserEmailAddress,
     doRequest : makeHttpCall
 } ;
 

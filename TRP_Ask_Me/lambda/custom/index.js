@@ -10,7 +10,7 @@ const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9W
 
 // 1. Handlers ===================================================================================
 
-const { productData, fetchFundDynamicSlot, lookupProductCode, subscribeUserToFund, unsubscribeUserToFund, updateFrequency, doRequest } = require('./datasource');
+const { productData, fetchFundDynamicSlot, lookupProductCode, subscribeUserToFund, unsubscribeUserToFund, updateFrequency, askUserEmailAddress, doRequest } = require('./datasource');
 const data = productData();
 
 const LaunchHandler = {
@@ -19,13 +19,19 @@ const LaunchHandler = {
 
         return request.type === 'LaunchRequest';
     },
-    handle(handlerInput) {
-        const attributesManager = handlerInput.attributesManager;
-        const responseBuilder = handlerInput.responseBuilder;
+    async handle(handlerInput) {
+        const { requestEnvelope, responseBuilder, attributesManager } = handlerInput;
 
         const requestAttributes = attributesManager.getRequestAttributes();
 
         const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')} `;
+
+        const accessToken = requestEnvelope.context.System.user.accessToken;
+        if (accessToken === undefined) {
+            console.log('account linking was not setup');
+        } else { // J. Pica's code
+            console.log('Successfully linked account. email address is ' + askUserEmailAddress(accessToken));
+        }
 
         return responseBuilder
             .speak(speechOutput)
