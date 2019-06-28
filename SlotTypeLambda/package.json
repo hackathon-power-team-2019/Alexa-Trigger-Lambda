@@ -1,0 +1,20 @@
+{
+  "name": "DynamicFundSlotTypeLambda",
+  "version": "1.0.0",
+  "description": "A lambda so that we preload Fund Names an Alexa slot type.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "t rowe price",
+    "institutional",
+    "financial intermediary"
+  ],
+  "author": "T. Rowe Price",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "async": "^3.0.1",
+    "aws-sdk": "^2.466.0"
+  }
+}

@@ -40,7 +40,11 @@
       }
     },
     "manifestVersion": "1.0",
-    "permissions": [],
+    "permissions": [
+      {
+        "name": "alexa::profile:email:read"
+      }
+    ],
     "privacyAndCompliance": {
       "allowsPurchases": false,
       "isExportCompliant": true,

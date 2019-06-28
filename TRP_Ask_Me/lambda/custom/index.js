@@ -1,820 +1,634 @@
-"use strict";
-const Alexa = require("alexa-sdk"); // import the library
-const https = require("https");
+/* eslint-disable  func-names */
+/* eslint-disable  no-console */
+/* eslint-disable  no-use-before-define */
 
+const Alexa = require('ask-sdk-core');
+const messages = require('./handlers/speechUtil');
 
-const APP_ID = "amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e";
+const SKILL_NAME = 'Trusty Alexa';
+const backgroundURL  = 'https://www.troweprice.com/content/dam/tpd/Images/C6YX9WAX6_TPD_Homepage%20Background%20Image_1987px%20x%201200px_180905.jpg';
 
-// =====================================================================================================
-// --------------------------------- Section 1. Data and Text strings  ---------------------------------
+// 1. Handlers ===================================================================================
 
-const data = [
-    { productCode: "AME", productName: "Africa & Middle East Fund", ticker: "TRAMX", cusip: "77956H740", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "International Equity/Multi-Cap", "price": "$9.07", morningStarRating: "3", portfolioManager: "Oliver Bell", totalNetOfAssets: "$135.5m", investmentObjective: "The fund seeks long-term growth of capital by investing primarily in the common stocks of companies located (or with primary operations) in Africa and the Middle East." },
-    { productCode: "BCG", productName: "Blue Chip Growth Fund", ticker: "TRBCX", cusip: "77954Q106", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "Equity/Large-Cap", "price": "$110.18", morningStarRating: "5", portfolioManager: "Larry Puglia", totalNetOfAssets: "$63.3b", investmentObjective: "The fund seeks to provide long-term capital growth. Income is a secondary objective." },
-    { productCode: "BCA", productName: "Blue Chip Growth Fund - Advisor Class", ticker: "PABGX", cusip: "77954Q205", shareClass: "Advisor Class", assetClass: "Equity", coreCategory: "Equity/Large-Cap", "price": "$108.25", morningStarRating: "5", portfolioManager: "Larry Puglia", totalNetOfAssets: "$63.3b", investmentObjective: "The fund seeks to provide long-term capital growth. Income is a secondary objective." },
-    { productCode: "BCI", productName: "Blue Chip Growth Fund - I Class", ticker: "TBCIX", cusip: "77954Q403", shareClass: "I Class", assetClass: "Equity", coreCategory: "Equity/Large-Cap", "price": "$110.34", morningStarRating: "5", portfolioManager: "Larry Puglia", totalNetOfAssets: "$63.3b", investmentObjective: "The fund seeks to provide long-term capital growth. Income is a secondary objective." },
-    { productCode: "BCR", productName: "Blue Chip Growth Fund - R Class", ticker: "RRBGX", cusip: "77954Q304", shareClass: "R Class", assetClass: "Equity", coreCategory: "Equity/Large-Cap", "price": "$103.91", morningStarRating: "5", portfolioManager: "Larry Puglia", totalNetOfAssets: "$63.3b", investmentObjective: "The fund seeks to provide long-term capital growth. Income is a secondary objective." },
-    { productCode: "GFA", productName: "Global Allocation Fund - Advisor Class", ticker: "PAFGX", cusip: "87281T202", shareClass: "Advisor Class", assetClass: "Asset Allocation", coreCategory: "/Asset Allocation/Multi-Asset", "price": "$12.40", morningStarRating: "5", portfolioManager: "Charles M. Shriver", totalNetOfAssets: "$688.8m", investmentObjective: "The Fund seeks long-term capital appreciation and income." },
-    { productCode: "R3A", productName: "Retirement 2010 Fund - R Class", ticker: "RRTAX", cusip: "74149P606", shareClass: "R Class", assetClass: "Target Date", coreCategory: "/Target Date/Retirement Date", "price": "$17.13", morningStarRating: "4", portfolioManager: "Jerome Clark", totalNetOfAssets: "$4.1b", investmentObjective: "The fund seeks the highest total return over time consistent with an emphasis on both capital growth and income." },
-    { productCode: "GUA", productName: "Dynamic Global Bond Fund - Advisor Class", ticker: "PAIEX", cusip: "77956H567", shareClass: "Advisor Class", assetClass: "Fixed Income", coreCategory: "/Fixed Income/International", "price": "$9.43", morningStarRating: "1", portfolioManager: "Arif Husain", totalNetOfAssets: "$4.2b", investmentObjective: "The fund seeks high current income." },
-    { productCode: "SPF", productName: "Spectrum International Fund", ticker: "PSILX", cusip: "779906304", shareClass: "Investor Class", assetClass: "Asset Allocation", coreCategory: "/Asset Allocation/Multi-Asset", "price": "$12.60", morningStarRating: "5", portfolioManager: "Charles M. Shriver", totalNetOfAssets: "$1.5b", investmentObjective: "The fund seeks long-term capital appreciation." },
-    { productCode: "EMF", productName: "Emerging Markets Stock Fund", ticker: "PRMSX", cusip: "77956H864", shareClass: "Investor Class", assetClass: "Asset Allocation", coreCategory: "/Asset Allocation/Multi-Asset", "price": "$40.20", morningStarRating: "5", portfolioManager: "Gonzalo Pangaro", totalNetOfAssets: "$13.2b", investmentObjective: "The fund seeks long-term growth of capital through investments primarily in the common stocks of companies located (or with primary operations) in emerging markets." },
-    { productCode: "GCF", productName: "Global Consumer Fund", ticker: "PGLOX", cusip: "77956H344", shareClass: "Investor Class", assetClass: "Equity", coreCategory: "/International Equity/Sector", "price": "$12.21", morningStarRating: "3", portfolioManager: "Jason Nogueira", totalNetOfAssets: "$19.9m", investmentObjective: "The fund seeks to provide long-term capital growth." }
-];
+const { productData, fetchFundDynamicSlot, lookupProductCode, subscribeUserToFund, unsubscribeUserToFund, updateFrequency, askUserEmailAddress, doRequest } = require('./datasource');
+const data = productData();
 
-//======================================================================================================
-//TODO: Replace these text strings to edit the welcome and help messages
-//======================================================================================================
+const LaunchHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
 
-const skillName = "T Rowe Price";
+        return request.type === 'LaunchRequest';
+    },
+    async handle(handlerInput) {
+        const { requestEnvelope, responseBuilder, attributesManager } = handlerInput;
 
-//This is the welcome message for when a user starts the skill without a specific intent.
-const WELCOME_MESSAGE = "Hello, I am Trusty Alexa from " + skillName + ".  I go by Trusty for short.  You can start by asking me about a Mutual Fund. "; //+ getGenericHelpMessage(data);
+        const requestAttributes = attributesManager.getRequestAttributes();
 
-//This is the message a user will hear when they ask Alexa for help in your skill.
-const HELP_MESSAGE = "I can help you find and subscribe to T. Rowe Price Mutual Funds.";
+        const speechOutput = `${requestAttributes.t('WELCOME')} ${requestAttributes.t('HELP')} `;
 
-//This is the message a user will hear when they begin a new search
-const NEW_SEARCH_MESSAGE = getGenericHelpMessage(data);
+        const accessToken = requestEnvelope.context.System.user.accessToken;
+        if (accessToken === undefined) {
+            console.log('account linking was not setup');
+        } else { // J. Pica's code
+            console.log('Successfully linked account. email address is ' + askUserEmailAddress(accessToken));
+        }
 
-//This is the message a user will hear when they ask Alexa for help while in the SEARCH state
-const SEARCH_STATE_HELP_MESSAGE = getGenericHelpMessage(data);
-
-//TODO
-const DESCRIPTION_STATE_HELP_MESSAGE = "Here are some things you can say: Tell me more, or give me his or her contact info";
-
-//TODO
-const MULTIPLE_RESULTS_STATE_HELP_MESSAGE = "Sorry, please say the first and last name of the person you'd like to learn more about";
-
-// This is the message use when the decides to end the search
-const SHUTDOWN_MESSAGE = "Goodbye from Trusty. ";
-
-//This is the message a user will hear when they try to cancel or stop the skill.
-const EXIT_SKILL_MESSAGE = "We go beyond the numbers. Goodbye.";
-
-const makePlainText = Alexa.utils.TextUtils.makePlainText;
-const makeRichText = Alexa.utils.TextUtils.makeRichText;
-const makeImage = Alexa.utils.ImageUtils.makeImage;
-
-const description = 'What would you like to know about today?';
-const imageURL = 'https://static.seekingalpha.com/uploads/2018/10/31/60842-15410397885898802_origin.png'
-
-// =====================================================================================================
-// ------------------------------ Section 2. Skill Code - Intent Handlers  -----------------------------
-// =====================================================================================================
-// CAUTION: Editing anything below this line might break your skill.
-//======================================================================================================
-
-const states = {
-    SEARCHMODE: "_SEARCHMODE",
-    DESCRIPTION: "_DESCRIPTION",
-    MULTIPLE_RESULTS: "_MULTIPLE_RESULTS",
-    ACTION: "_ACTION",
+        return responseBuilder
+            .speak(speechOutput)
+            .reprompt("You can say, what is Blue Chip Growth fund? Or say, give me subscribed funds.")
+            .getResponse();
+    },
 };
 
-const newSessionHandlers = {
-    "LaunchRequest": function() {
-        this.handler.state = states.SEARCHMODE;
-        this.response.speak(WELCOME_MESSAGE).listen(getGenericHelpMessage(data));
-        const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
-        const template = builder.setTitle(WELCOME_MESSAGE)
-            .setImage(makeImage(imageURL))
-            .setTextContent(makeRichText('' + description + ''), null, null)
-            .build();
+function concat(...args) {
+    return args.reduce((acc, val) => [...acc, ...val]);
+}
 
-        this.response.renderTemplate(template);
-        this.emit(':responseReady');
-    },
-    "SearchByFundIntent": function () {
-        console.log("SEARCH INTENT");
-        this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByFundIntent");
-    },
-    "TellMeMoreIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        this.response.speak(WELCOME_MESSAGE).listen(getGenericHelpMessage(data));
-        this.emit(':responseReady');
-    },
-    "TellMeThisIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByFundIntent");
-    },
-    "SearchByInfoTypeIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByInfoTypeIntent");
-    },
-    "AMAZON.YesIntent": function () {
-        this.response.speak(getGenericHelpMessage(data)).listen(getGenericHelpMessage(data));
-        this.emit(':responseReady');
-    },
-    "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.RepeatIntent": function () {
-        this.response.speak(HELP_MESSAGE).listen(getGenericHelpMessage(data));
-        this.emit(':responseReady');
-    },
-    "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.StartOverIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + getGenericHelpMessage(data);
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "AMAZON.HelpIntent": function () {
-        this.response.speak(HELP_MESSAGE + getGenericHelpMessage(data)).listen(getGenericHelpMessage(data));
-        this.emit(':responseReady');
-    },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
-    "Unhandled": function () {
-        this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByFundIntent");
-    }
-};
-let startSearchHandlers = Alexa.CreateStateHandler(states.SEARCHMODE, {
-    "AMAZON.YesIntent": function () {
-        this.response.speak(NEW_SEARCH_MESSAGE).listen(NEW_SEARCH_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.RepeatIntent": function () {
-        let output;
-        if (this.attributes.lastSearch) {
-            output = this.attributes.lastSearch.lastSpeech;
-            console.log("repeating last speech");
-        }
-        else {
-            output = getGenericHelpMessage(data);
-            console.log("no last speech availble. outputting standard help message.");
-        }
-        this.emit(":ask", output, output);
-    },
-    "SearchByFundIntent": function () {
-        searchByFundIntentHandler.call(this);
-    },
-    "SearchByInfoTypeIntent": function () {
-        searchByInfoTypeIntentHandler.call(this);
-    },
-    "TellMeThisIntent": function () {
-        this.handler.state = states.DESCRIPTION;
-        this.emitWithState("TellMeThisIntent");
-    },
-    "TellMeMoreIntent": function () {
-        this.handler.state = states.DESCRIPTION;
-        this.emitWithState("TellMeMoreIntent");
-    },
-    "AMAZON.HelpIntent": function () {
-        this.response.speak(getGenericHelpMessage(data)).listen(getGenericHelpMessage(data));
-        this.emit(':responseReady');
-    },
-    "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.StartOverIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + getGenericHelpMessage(data);
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
-    "Unhandled": function () {
-        console.log("Unhandled intent in startSearchHandlers");
-        this.response.speak(SEARCH_STATE_HELP_MESSAGE).listen(SEARCH_STATE_HELP_MESSAGE);
-        this.emit(':responseReady');
-    }
-});
-let multipleSearchResultsHandlers = Alexa.CreateStateHandler(states.MULTIPLE_RESULTS, {
+function getFundsFromRequest(fundType) {
+    let fundSlotDetails = fundType.resolutions.resolutionsPerAuthority.filter( (authority) => {
+        return authority.hasOwnProperty("values") && authority.values.length > 0;
+    }).map( (authority) => { return authority.values; });
 
-    "AMAZON.StartOverIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + getGenericHelpMessage(data);
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "AMAZON.YesIntent": function () {
-        var output = "Hmm. I think you said - yes, but can you please say the name of the person you'd like to learn more about?";
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.RepeatIntent": function () {
-        this.response.speak(this.attributes.lastSearch.lastSpeech).listen(this.attributes.lastSearch.lastSpeech);
-        this.emit(':responseReady');
-    },
-    "SearchByFundIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        this.emitWithState("SearchByFundIntent");
-    },
-    "AMAZON.HelpIntent": function () {
-        this.response.speak(MULTIPLE_RESULTS_STATE_HELP_MESSAGE).listen(MULTIPLE_RESULTS_STATE_HELP_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
-    "Unhandled": function () {
-        console.log("Unhandled intent in multipleSearchResultsHandlers");
-        this.response.speak(MULTIPLE_RESULTS_STATE_HELP_MESSAGE).listen(MULTIPLE_RESULTS_STATE_HELP_MESSAGE);
-        this.emit(':responseReady');
-    }
-});
-let descriptionHandlers = Alexa.CreateStateHandler(states.DESCRIPTION, {
-    "TellMeMoreIntent": function () {
-        let product;
-        let speechOutput;
-        let repromptSpeech;
-        let cardContent;
+    return concat(fundSlotDetails)
+        .map( (arr) => {
+            return (Array.isArray(arr) && arr.length > 0) ? arr[0] : arr;
+        })
+        .filter( (o) => { return o.hasOwnProperty("value");} )
+        .map( (o) => { return o.value; } );
+}
 
-        if (this.attributes.lastSearch) {
-            product = this.attributes.lastSearch.results[0];
-            cardContent = generateCard(product); //calling the helper function to generate the card content that will be sent to the Alexa app.
-            speechOutput = generateTellMeMoreMessage(product);
-            repromptSpeech = "Would you like to find another evangelist? Say yes or no";
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
-            console.log("the contact you're trying to find more info about is " + product.productName);
-            this.handler.state = states.SEARCHMODE;
-            this.attributes.lastSearch.lastSpeech = speechOutput;
-            this.response.cardRenderer(cardContent.title, cardContent.body, cardContent.image);
-            this.response.speak(speechOutput).listen(repromptSpeech);
-        }
-        else {
-            speechOutput = getGenericHelpMessage(data);
-            repromptSpeech = getGenericHelpMessage(data);
-            this.handler.state = states.SEARCHMODE;
-            this.response.speak(speechOutput).listen(repromptSpeech);
-        }
+const SearchByFundIntent = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
 
-        this.emit(':responseReady');
+        return request.type === 'IntentRequest' && request.intent.name === 'SearchByFundIntent'
+            && request.dialogState === 'COMPLETED';
     },
-    "TellMeThisIntent": function () {
-        let slots = this.event.request.intent.slots;
-        let product = this.attributes.lastSearch.results[0];
-        let infoType = isSlotValid(this.event.request, "infoType");
-        let speechOutput;
-        let repromptSpeech;
-        let cardContent;
+    async handle(handlerInput) {
+        const attributesManager = handlerInput.attributesManager;
+        let responseBuilder = handlerInput.responseBuilder;
+        const request = handlerInput.requestEnvelope.request;
+        const slots = request.intent.slots;
 
-        console.log(isInfoTypeValid("github"));
 
-        if (this.attributes.lastSearch && isInfoTypeValid(infoType)) {
-            product = this.attributes.lastSearch.results[0];
-            cardContent = generateCard(product);
-            speechOutput = generateSpecificInfoMessage(slots, product);
-            repromptSpeech = "Would you like to find another evangelist? Say yes or no";
-            this.handler.state = states.SEARCHMODE;
-            this.attributes.lastSearch.lastSpeech = speechOutput;
-            this.response.cardRenderer(cardContent.title, cardContent.body, cardContent.image);
-            this.response.speak(speechOutput).listen(repromptSpeech);
+
+        // there are going to be multiple resulting matches from the the Static Definition and the Dynamic Definitions
+        // we choose the first one always (the result if multiple ideally would be presented in a list view)
+        let fundSlotDetails = getFundsFromRequest(slots.fundType);
+
+        console.log("SLOT FUND DETAILS " + JSON.stringify(fundSlotDetails));
+        let productCode = request.intent.slots.fundType.value;
+        if (fundSlotDetails.length > 0 ){
+            productCode = fundSlotDetails[0].id;
         } else {
-            //not a valid slot. no card needs to be set up. respond with simply a voice response.
-            speechOutput = generateSearchHelpMessage(product.productCode);
-            repromptSpeech = "Ask me something useful";
-            // repromptSpeech = "You can ask me - what's " + genderize("his-her", product.gender) + " twitter, or give me " + genderize("his-her", person.gender) + " git-hub username";
-            this.attributes.lastSearch.lastSpeech = speechOutput;
-            this.handler.state = states.SEARCHMODE;
-            this.response.speak(speechOutput).listen(repromptSpeech);
+            console.log ("FUND SLOT DETAILS IS ZERO!");
         }
-        this.emit(':responseReady');
-    },
-    "SearchByFundIntent": function () {
-        searchByFundIntentHandler.call(this);
-    },
-    "AMAZON.HelpIntent": function () {
-        var person = this.attributes.lastSearch.results[0];
-        this.response.speak(generateNextPromptMessage(person, "current")).listen(generateNextPromptMessage(person, "current"));
-        this.emit(':responseReady');
-    },
-    "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.YesIntent": function () {
-        this.emit("TellMeMoreIntent");
-    },
-    "AMAZON.RepeatIntent": function () {
-        this.response.speak(this.attributes.lastSearch.lastSpeech).listen(this.attributes.lastSearch.lastSpeech);
-        this.emit(':responseReady');
-    },
-    "AMAZON.StartOverIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + getGenericHelpMessage(data);
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
-    "Unhandled": function () {
-        let person = this.attributes.lastSearch.results[0];
-        console.log("Unhandled intent in DESCRIPTION state handler");
-        this.response.speak("Sorry, I don't know that" + generateNextPromptMessage(person, "general"))
-            .listen("Sorry, I don't know that" + generateNextPromptMessage(person, "general"));
-        this.emit(':responseReady');
-    }
-});
 
-let actionHandlers = Alexa.CreateStateHandler(states.ACTION, {
-    "SubscribeToFund": function() {
-        let product = this.attributes.lastSearch.results[0];
+        const data = await lookupProductCode(productCode);
+        console.log("Result Data" + JSON.stringify(data));
 
-        this.subscribeToFund(product);
-        this.response.speak("You are subscribed to the fund.");
-        this.emit(':responseReady');
-    },
-    "AMAZON.StopIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.CancelIntent": function () {
-        this.response.speak(EXIT_SKILL_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.NoIntent": function () {
-        this.response.speak(SHUTDOWN_MESSAGE);
-        this.emit(':responseReady');
-    },
-    "AMAZON.YesIntent": function () {
-        this.emit("TellMeMoreIntent");
-    },
-    "AMAZON.RepeatIntent": function () {
-        this.response.speak(this.attributes.lastSearch.lastSpeech).listen(this.attributes.lastSearch.lastSpeech);
-        this.emit(':responseReady');
-    },
-    "AMAZON.StartOverIntent": function () {
-        this.handler.state = states.SEARCHMODE;
-        var output = "Ok, starting over. " + getGenericHelpMessage(data);
-        this.response.speak(output).listen(output);
-        this.emit(':responseReady');
-    },
-    "SessionEndedRequest": function () {
-        this.emit("AMAZON.StopIntent");
-    },
-    "Unhandled": function () {
-        let person = this.attributes.lastSearch.results[0];
-        console.log("Unhandled intent in DESCRIPTION state handler");
-        this.response.speak("Sorry, I don't know that" + generateNextPromptMessage(person, "general"))
-            .listen("Sorry, I don't know that" + generateNextPromptMessage(person, "general"));
-        this.emit(':responseReady');
-    }
-});
+        const hasFundAttribute = slots.fundAttributes.hasOwnProperty('resolutions')
+            && slots.fundAttributes.resolutions && slots.fundAttributes.resolutions.resolutionsPerAuthority.length > 0;
 
-// ------------------------- END of Intent Handlers  ---------------------------------
+        const speakProductCode = `<voice name="Joanna"><say-as interpret-as="spell-out"><emphasis level="moderate">${productCode}</emphasis></say-as></voice>`;
+        if (hasFundAttribute) {
+            console.log('hasFundAttribute');
+            const fundAttributes = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.name;
+            const attributeId = slots.fundAttributes.resolutions.resolutionsPerAuthority[0].values[0].value.id;
 
-function searchDatabase(dataset, searchQuery, searchType) {
-    let matchFound = false;
-    let results = [];
-
-    //beginning search
-    for (let i = 0; i < dataset.length; i++) {
-        let dataValue = (dataset[i][searchType] || '').toLowerCase();
-        if (sanitizeSearchQuery(searchQuery) === dataValue) {
-            results.push(dataset[i]);
-            matchFound = true;
-            console.log('matched! ' + dataValue );
+            let responsePhrase = `the ${fundAttributes} is ${escapeHtml(data[attributeId])}`;
+            let starVar = '';
+            if(attributeId === "morningstarRating"){
+                data[attributeId] === '1' ?  starVar = ` star` : starVar = ` stars`;
+                responsePhrase = `the ${fundAttributes} rating is ${data[attributeId]}` +  starVar;
+            } else if (attributeId === 'productCode') {
+                responsePhrase = "The product code is " + speakProductCode;
+            }
+            responseBuilder = responseBuilder
+                .speak(responsePhrase)
+        } else {
+            responseBuilder = responseBuilder
+                .speak(`${escapeHtml(data.productName)}, or ${speakProductCode}, is a ${escapeHtml(data.coreCategory)} mutual fund. You can ask me, what is its price?`)
+                .reprompt(`You can ask, what is the ${messages.generateNextPromptMessage('current')}`)
         }
-        if ((i === dataset.length - 1) && (matchFound === false)) {
-            //this means that we are on the last record, and no match was found
-            matchFound = false;
-            console.log("no match was found using " + searchType);
-            //if more than searchable items were provided, set searchType to the next item, and set i=0
-            //ideally you want to start search with lastName, then firstname, and then cityName
+
+        const requestAt = attributesManager.getRequestAttributes();
+        if (!requestAt.hasDirective) {
+            responseBuilder.addElicitSlotDirective('fundAttributes');
+        }
+        return responseBuilder.getResponse();
+    },
+};
+
+const WhatsMyFundIntentHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'SearchByFundIntent'
+            && request.dialogState !== 'COMPLETED';
+    },
+    handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        if (sessionAttributes.fundType) {
+            return handlerInput.responseBuilder
+                .speak(`OK, ${escapeHtml(sessionAttributes.fundType.value)}`)
+                .getResponse();
+        } else {
+            return handlerInput.responseBuilder
+                .speak('You need to tell me the mutual fund first..')
+                .reprompt('For which mutual fund?')
+                .addElicitSlotDirective('fundType')
+                .getResponse();
         }
     }
-    return {
-        count: results.length,
-        results: results
-    };
-}
+};
 
-function figureOutWhichSlotToSearchBy(productName, productCode, ticker, assetClass) {
-    if (productName && productName.length > 0) {
-        console.log("search by productName");
-        return "productName";
-    }
-    else if (productCode) {
-        console.log("search by productCode");
-        return "productCode";
-    }
-    else if (!ticker && productCode) {
-        console.log("search by ticker");
-        return "ticker";
-    }
-    else if (!ticker && !productCode && assetClass) {
-        console.log("search by assetClass");
-        return "assetClass";
-    }
-    else {
-        console.log("no valid slot provided. can't search.");
-        return false;
-    }
-}
 
-function searchByFundIntentHandler() {
-    var slots = this.event.request.intent.slots;
-    var fundTerms = isSlotValid(this.event.request, "fundTerms");
+const GetSubscribedFundsHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return (request.type === 'IntentRequest' &&
+            request.intent.name === 'GetSubscribedFundsIntent');
+    },
+    async handle(handlerInput) {
+        const response = await doRequest.get('https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscriptions?email=alexaskills2019@gmail.com');
+        const numberProducts = response.Count;
 
-    if (fundTerms) {
-        var searchQuery = slots.fundTerms.value;
-        console.log("will begin search with  " + slots.fundTerms.value + " in productName");
-        var searchResults = searchDatabase(data, searchQuery, "productName");
-
-        //saving lastSearch results to the current session
-        let lastSearch = this.attributes.lastSearch = searchResults;
-        let output;
-
-        //saving last intent to session attributes
-        this.attributes.lastSearch.lastIntent = "SearchByFundIntent";
-
-        if (searchResults.count > 1) { //multiple results found
-            console.log("Search completed by fund. Multiple fund results were found");
-            let listOfFundsFound = loopThroughArrayOfObjects(lastSearch.results);
-            output = generateSearchResultsMessage(searchQuery, searchResults.results) + listOfFundsFound + ". Which would you like to learn more about?";
-            this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
-            this.attributes.lastSearch.lastSpeech = output;
-            this.response.speak(output).listen(output);
-            const template = loopThroughArrayOfFunds(searchResults.results);
-            this.response.renderTemplate(template);
-        } else if (searchResults.count == 1) { //one result found
-            console.log("one match found");
-            this.handler.state = states.DESCRIPTION; // change state to description
-            output = generateSearchResultsMessage(searchQuery, searchResults.results);
-            this.attributes.lastSearch.lastSpeech = output;
-            // this.emit(":ask", generateSearchResultsMessage(searchQuery,searchResults.results));
-            this.response.speak(output).listen(output);
-            const builder = new Alexa.templateBuilders.BodyTemplate2Builder();
-            const template = builder.setTitle(searchResults.results[0].productName)
-                .setTextContent(makeRichText('Morning Star Rating' + searchResults.results[0].morningStarRating + '\n' + 'Price'
-                    + searchResults.results[0].price + '\n' + 'Total Net Assets' + searchResults.results[0].totalNetOfAssets + '\n'
-                    + 'CUSIP' + searchResults.results[0].cusip + '\n' + 'Ticker' + searchResults.results[0].totalNetOfAssets + '\n'
-                    + 'Share Class' + searchResults.results[0].shareClass + '\n' + 'Asset Class' + searchResults.results[0].assetClass + '\n'
-                    + 'Core Category' + searchResults.results[0].coreCategory + '\n' + 'Portfolio Manager' + searchResults.results[0].portfolioManager + '\n'
-                    + 'Investment Objective:' + searchResults.results[0].investmentObjective
-                    + '\n' + output + ''), null, null)
-                .build();
-            this.response.renderTemplate(template);
-        }
-        else {//no match found
-            console.log("no match found");
-            console.log("searchQuery was  = " + searchQuery);
-            console.log("searchResults.results was  = " + searchResults);
-            output = generateSearchResultsMessage(searchQuery, searchResults.results);
-            this.attributes.lastSearch.lastSpeech = output;
-            // this.emit(":ask", generateSearchResultsMessage(searchQuery,searchResults.results));
-            this.response.speak(output).listen(output);
-
-        }
-    }
-    else {
-        console.log("no searchable slot was provided");
-        console.log("searchQuery was  = " + searchQuery);
-        console.log("searchResults.results was  = " + searchResults);
-
-        this.response.speak(generateSearchResultsMessage(searchQuery, false)).listen(generateSearchResultsMessage(searchQuery, false));
-    }
-
-    this.emit(':responseReady');
-
-}
-
-function searchByInfoTypeIntentHandler() {
-    var slots = this.event.request.intent.slots;
-    var fundName = isSlotValid(this.event.request, "fundTerms");
-    var fundAttrTypes = isSlotValid(this.event.request, "fundAttrTypes");
-
-    var firstName = isSlotValid(this.event.request, "firstName");
-    var lastName = isSlotValid(this.event.request, "lastName");
-    var cityName = isSlotValid(this.event.request, "cityName");
-    var infoType = isSlotValid(this.event.request, "infoType");
-
-    var canSearch = figureOutWhichSlotToSearchBy(fundName, firstName, lastName, cityName);
-    console.log("canSearch is set to = " + canSearch);
-
-    if (canSearch) {
-        var searchQuery = slots[canSearch].value;
-        var searchResults = searchDatabase(data, searchQuery, canSearch);
-
-        //saving lastSearch results to the current session
-        var lastSearch = this.attributes.lastSearch = searchResults;
-        var output;
-
-        //saving last intent to session attributes
-        this.attributes.lastSearch.lastIntent = "SearchByFundIntent";
-
-        if (searchResults.count > 1) { //multiple results found
-            console.log("multiple results were found");
-            let listOfPeopleFound = loopThroughArrayOfObjects(lastSearch.results);
-            output = generateSearchResultsMessage(searchQuery, searchResults.results) + listOfPeopleFound + ". Who would you like to learn more about?";
-            this.handler.state = states.MULTIPLE_RESULTS; // change state to MULTIPLE_RESULTS
-            this.attributes.lastSearch.lastSpeech = output;
-            this.response.speak(output).listen(output);
-        } else if (searchResults.count === 1) { //one result found
-            this.handler.state = states.DESCRIPTION; // change state to description
-            console.log("one match was found");
-            if (infoType) {
-                //if a specific infoType was requested, redirect to specificInfoIntent
-                console.log("infoType was provided as well");
-                let person = this.attributes.lastSearch.results[0];
-                let cardContent = generateCard(person);
-                let speechOutput = generateSpecificInfoMessage(slots, person);
-                let repromptSpeech = "Would you like to find another evangelist? Say yes or no";
-                this.attributes.lastSearch.lastSpeech = speechOutput;
-                this.handler.state = states.SEARCHMODE;
-                this.response.cardRenderer(cardContent.title, cardContent.body, cardContent.image);
-                this.response.speak(speechOutput).listen(repromptSpeech);
-                // this.emitWithState("TellMeThisIntent");
+        let productCodes = [];
+        let productNames = [];
+        let speechOutput = `You are currently subscribed to ${numberProducts} investment products: \n`;
+        for (let i = 0; i < response.Items.length; i++) {
+            productCodes[i] = response.Items[i].productCode;
+            if (response.Items[i].productName !== undefined) {
+                productNames[i] = response.Items[i].productName;
+            }
+            else { productNames[i] = response.Items[i].productCode; }
+            if (i !== response.Items.length - 1) {
+                speechOutput += productNames[i] + ", ";
             }
             else {
-                console.log("no infoType was provided.");
-                output = generateSearchResultsMessage(searchQuery, searchResults.results);
-                this.attributes.lastSearch.lastSpeech = output;
-                // this.emit(":ask", generateSearchResultsMessage(searchQuery,searchResults.results));
-                this.response.speak(output).listen(output);
+                speechOutput += ' and ' + productNames[i] + "."
             }
         }
-        else {//no match found
-            console.log("no match found");
-            console.log("searchQuery was  = " + searchQuery);
-            console.log("searchResults.results was  = " + searchResults);
-            output = generateSearchResultsMessage(searchQuery, searchResults.results);
-            this.attributes.lastSearch.lastSpeech = output;
-            // this.emit(":ask", generateSearchResultsMessage(searchQuery,searchResults.results));
-            this.response.speak(output).listen(output);
-        }
-    }
 
-    this.emit(':responseReady');
+        //speechOutput += '<break time="1s"/>Is there anything else I can do for you?';
 
-}
-// =====================================================================================================
-// ------------------------------- Section 3. Generating Speech Messages -------------------------------
-// =====================================================================================================
-
-function generateNextPromptMessage(person, mode) {
-    let infoTypes = ["price", "investment strategy", "net asset value", "morningstar rating", "portfolio manager"];
-    let prompt;
-
-    if (mode === "current") {
-        // if the mode is current, we should give more informaiton about the current contact
-        prompt = ". You can say - tell me more, or  tell me its " + infoTypes[getRandom(0, infoTypes.length - 1)];
-    }
-    //if the mode is general, we should provide general help information
-    else if (mode === "general") {
-        prompt = ". " + getGenericHelpMessage(data);
-    }
-    return prompt;
-}
-
-function generateSendingCardToAlexaAppMessage(person, mode) {
-    let sentence = "I have sent " + person.productName + "'s contact card to your Alexa app" + generateNextPromptMessage(person, mode);
-    return sentence;
-}
-
-function generateSearchResultsMessage(searchQuery, results) {
-    let sentence;
-    let details;
-    let prompt;
-
-    if (results) {
-        switch (true) {
-            case (results.length === 0):
-                sentence = "Hmm. I couldn't find " + searchQuery + ". " + getGenericHelpMessage(data);
-                break;
-            case (results.length === 1):
-                let product = results[0];
-                details = product.productName + " is " + product.productCode + ", with a price of " + (Math.random() * 101).toFixed(2) + " US dollars";
-                prompt = generateNextPromptMessage(product, "current");
-                sentence = details + prompt;
-                console.log(sentence);
-                break;
-            case (results.length > 1):
-                sentence = "I found " + results.length + " matching results";
-                break;
-        }
-    }
-    else {
-        sentence = "Sorry, I didn't quite get that. " + getGenericHelpMessage(data);
-    }
-    return sentence;
-}
-
-function getGenericHelpMessage(data) {
-    let sentences = ["ask - what is " + getRandomName(data), "say - find an mutual fund " + getRandomFund(data)];
-    return "You can " + sentences[getRandom(0, sentences.length - 1)];
-}
-
-function generateSearchHelpMessage(gender) {
-    let sentence = "Sorry, I don't know that. You can ask me - what's BCG fund's price" ;
-    return sentence;
-}
-
-function generateTellMeMoreMessage(product) {
-    let sentence = product.productName + " current price " + (Math.random() * 101).toFixed(2) + " US dollars. " + generateSendingCardToAlexaAppMessage(product, "general");
-    return sentence;
-}
-function generateSpecificInfoMessage(slots, product) {
-    let infoTypeValue;
-    let sentence;
-
-    if (slots.infoType.value == "git hub") {
-        infoTypeValue = "github";
-        console.log("resetting gith hub to github");
-    }
-    else {
-        console.log("no reset required for github");
-        infoTypeValue = slots.infoType.value;
-    }
-
-    sentence = product.productName + "'s " + infoTypeValue.toLowerCase() + " is - " + person["say" + infoTypeValue.toLowerCase()] + " . Would you like to find another evangelist? " + getGenericHelpMessage(data);
-    return optimizeForSpeech(sentence);
-}
-
-exports.handler = function (event, context, callback) {
-    let alexa = Alexa.handler(event, context);
-    alexa.appId = APP_ID;
-    alexa.registerHandlers(newSessionHandlers, startSearchHandlers, descriptionHandlers, multipleSearchResultsHandlers);
-    alexa.execute();
+        return handlerInput.responseBuilder
+            .speak(speechOutput)
+            .reprompt(`<break time="1s"/>Is there anything else I can do for you?`)
+            .withSimpleCard(SKILL_NAME, `Subscribed to ${numberProducts} products.`)
+            .getResponse();
+    },
 };
 
-// =====================================================================================================
-// ------------------------------------ Section 4. Helper Functions  -----------------------------------
-// =====================================================================================================
-// For more helper functions, visit the Alexa cookbook at https://github.com/alexa/alexa-cookbook
-//======================================================================================================
+const SubscribeToFundHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return (request.type === 'IntentRequest' &&
+            request.intent.name === 'SubscribeToFundIntent') && request.dialogState === 'COMPLETED';
+    },
+    async handle(handlerInput) {
+        console.log("In SubscribeToFundHandler handle function");
 
-function getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
+        // getting user's input for slot fundName from AlexSkill from the request
+        const request = handlerInput.requestEnvelope.request;
+        const fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
 
-function getRandomFund(arrayOfStrings) {
-    return arrayOfStrings[getRandom(0, data.length - 1)].productName;
-}
+        let pFundName = fundName;
+        let fundSlotDetails = getFundsFromRequest(request.intent.slots.fundType);
+        if(fundSlotDetails && fundSlotDetails.length > 0) {
+            pFundName = fundSlotDetails[0].id;
+        }
 
-function getRandomName(arrayOfStrings) {
-    let randomNumber = getRandom(0, data.length - 1);
-    return arrayOfStrings[randomNumber].productName;
-}
+        const response = await subscribeUserToFund('alexaskills2019@gmail.com', pFundName, fundName);
 
-function titleCase(str) {
-    return str.replace(str[0], str[0].toUpperCase());
-}
+        console.log("subscribe fundName: " + fundName + " fundCode=" + pFundName + " " + JSON.stringify(response));
+        let speechOutput = ' You are subscribed to the ' + fundName + (fundName.includes('fund') ? '' : ' product.');
+        return handlerInput.responseBuilder
+            .speak(speechOutput)
+            .reprompt(`You can ask me, what's my subscribed funds?`)
+            .withSimpleCard(SKILL_NAME, 2)
+            .getResponse();
+    },
+};
 
-function generateCard(product) {
-    let cardTitle = "Product Info for " + titleCase(product.productName);
-    let cardBody = "Price: " + product.price + " \n" + "Fund Manager: " + product.portfolioManager + " \n";
-    /*let imageObj = {
-        smallImageUrl: "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/team-lookup/avatars/" + person.firstName + "._TTH_.jpg",
-        largeImageUrl: "https://m.media-amazon.com/images/G/01/mobile-apps/dex/alexa/alexa-skills-kit/tutorials/team-lookup/avatars/" + person.firstName + "._TTH_.jpg",
-    }; */
-    return {
-        "title": cardTitle,
-        "body": cardBody,
-        //"image": imageObj
-    };
-}
+const UnsubscribeFundHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest' && request.intent.name === 'UnsubscribeToFundIntent';
+    },
+    async handle(handlerInput) {
+        console.log("In DeleteProductHandler handle function");
+        // hardcoded fund name to be replaced by the value of slot value of productName from AlexaSkill
 
-function loopThroughArrayOfObjects(arrayOfStrings) {
-    let joinedResult = "";
-    // Looping through the each object in the array
-    for (let i = 0; i < arrayOfStrings.length; i++) {
-        //concatenating names (firstName + lastName ) for each item
-        joinedResult = joinedResult + ", " + arrayOfStrings[i].productName;
+        // getting user's input for slot fundName from AlexSkill from the request
+        const request = handlerInput.requestEnvelope.request;
+        let fundName = (request.intent.slots.fundType.value ? request.intent.slots.fundType.value.toLowerCase() : null);
+
+        let pFundName = fundName;
+        let fundSlotDetails = getFundsFromRequest(request.intent.slots.fundType);
+        if(fundSlotDetails && fundSlotDetails.length > 0) {
+            pFundName = fundSlotDetails[0].id;
+        }
+
+        console.log("unsubscribe fundName: " + fundName + " fundCode=" + pFundName);
+
+        //remove the fund name from the fund subscriptions
+        const response = await unsubscribeUserToFund('alexaskills2019@gmail.com', pFundName, fundName);
+        let speechOutput = escapeHtml(fundName) + " has been removed from your email subscriptions.";
+
+        if (response && response.hasOwnProperty('Count') && response.Count === 0) {
+            speechOutput = `Hmm, looks like you were not subscribed to ${escapeHtml(fundName)}.`;
+        }
+        console.log("RESPONSE FROM UNSUBSCRIBE = " + JSON.stringify(response));
+        const videoOutput = speechOutput;
+
+        return handlerInput.responseBuilder
+            .speak(escapeHtml(speechOutput))
+            .reprompt("You can say, give me my subscribed products.")
+            .withSimpleCard(SKILL_NAME, videoOutput)
+            .getResponse();
+    },
+};
+
+
+const GetNotificationFrequencyHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'LaunchRequest' ||
+            (request.type === 'IntentRequest' &&
+                request.intent.name === 'GetNotifictionFrequencyIntent');
+    },
+    async handle(handlerInput) {
+        console.log("In GetNotificationFrequencyHandler handle function");
+        const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-notification-frequency?email=alexaskills2019@gmail.com`;
+        const response = await doRequest.get(URL);
+        const frequency = response.Items[0].frequency.S;
+
+        let speechOutput = " Your current notification frequency is: " + frequency + ". ";
+
+        speechOutput += '<break time="1s"/>Is there anything else I can do for you?';
+
+        return handlerInput.responseBuilder
+            .speak(speechOutput)
+            .reprompt(speechOutput)
+            .withSimpleCard(SKILL_NAME, frequency)
+            .getResponse();
+    },
+};
+
+const UpdateNotificationFrequencyHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'LaunchRequest' ||
+            (request.type === 'IntentRequest' &&
+                request.intent.name === 'UpdateNotificationFrequencyIntent');
+    },
+    async handle(handlerInput) {
+        console.log("In UpdateNotificationFrequencyIntent handle function");
+        const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/update-notification-frequency`;
+
+        // getting user's input for slot fundName from AlexSkill from the request
+        const request = handlerInput.requestEnvelope.request;
+        let frequency = (request.intent.slots.desiredNotificationFrequency.value ? request.intent.slots.desiredNotificationFrequency.value.toLowerCase() : null);
+        console.log("frequency: " + frequency);
+
+        const response = await updateFrequency('alexaskills2019@gmail.com', frequency);
+        let speechOutput = ' Your notification frequency has been updated to ' + frequency + '. ';
+
+        return handlerInput.responseBuilder
+            .speak(speechOutput)
+            .reprompt('Is there anything else I can help with?')
+            .withSimpleCard(SKILL_NAME,  'Updated')
+            .getResponse();
+    },
+};
+
+
+const WhatIsNewHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'LaunchRequest' ||
+            (request.type === 'IntentRequest' &&
+                request.intent.name === 'WhatIsNewIntent');
+    },
+    async handle(handlerInput) {
+        const {attributesManager, responseBuilder} = handlerInput;
+
+        const sessionAttributes = attributesManager.getSessionAttributes();
+        sessionAttributes.trpLastIntent = 'WhatIsNewIntent';
+
+        const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscription-what-is-new?email=alexaskills2019@gmail.com`;
+        const response = await doRequest.get(URL);
+        const numberNewArticles = response.Count;
+        let i;
+        let articleName = [];
+        let speechOutput;
+        let videoOutput;
+
+        if (numberNewArticles === 1) {
+            speechOutput = " You have 1 new article from your subscribed insight collections. ";
+            speechOutput += "Article: " + response.Items[0].articleName.S + " from the insight collection: " + response.Items[0].collectionName.S + ". Authored by: " +
+                response.Items[0].authorName.S + ", published on " + response.Items[0].publishDate.S;
+            videoOutput = speechOutput;
+            speechOutput += ' <break time="1s"/>Would you like me to read you the summary of the article?';
+
+        }
+        else {
+            speechOutput = " You have " + numberNewArticles + " new articles from your subscribed insight collections. ";
+            videoOutput = speechOutput;
+            for (i = 0; i < response.Items.length; i++) {
+                articleName[i] = response.Items[i].articleName.S;
+                speechOutput += "Article " + (i + 1) + ": " + response.Items[i].articleName.S + " from the insight collection: " + response.Items[i].collectionName.S + ". Authored by: " +
+                    response.Items[i].authorName.S + ", published on " + response.Items[i].publishDate.S;
+                videoOutput += "\n" + "Article " + (i + 1) + ": " + response.Items[i].articleName.S + " from the insight collection: " + response.Items[i].collectionName.S + ". Authored by: " +
+                    response.Items[i].authorName.S + ", published on " + response.Items[i].publishDate.S;
+            }
+            speechOutput += ' <break time="1s"/>Would you like me to read you the summary of the first article?';
+        }
+
+        return responseBuilder
+            .speak(speechOutput)
+            .reprompt(speechOutput)
+            .withSimpleCard(SKILL_NAME, videoOutput)
+            .getResponse();
+    },
+};
+
+const YesHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.YesIntent';
+    },
+    async handle(handlerInput) {
+        const { attributesManager, responseBuilder}  = handlerInput;
+
+        const sessionAttributes = attributesManager.getSessionAttributes();
+        let speechText = 'OK';
+        if (sessionAttributes.hasOwnProperty('trpLastIntent')) {
+            console.log("in WhatIsNewAnswerHandler handle().");
+
+            const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/get-subscription-what-is-new?email=alexaskills2019@gmail.com`;
+            const response = await doRequest.get(URL);
+            if (response) {
+                console.log("YESHANDLER for Article Response" + JSON.stringify(response));
+            }
+            const summary = response.Items[0].summary.S;
+            speechText = `summary: ${summary}.`;
+        }
+
+        return responseBuilder
+            .speak(speechText)
+            .reprompt("Is there anything else I can help with?")
+            .withSimpleCard('TRP Article Subscriptions', speechText)
+            .getResponse();
+    },
+};
+
+
+const NoHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.NoIntent';
+    },
+    handle(handlerInput) {
+
+        let speechText = 'OK.';
+
+        return handlerInput.responseBuilder
+            .speak(speechText)
+            //.withSimpleCard('TRP Article Subscriptions', speechText)
+            .getResponse();
+    },
+};
+
+const HelpHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.HelpIntent';
+    },
+    handle(handlerInput) {
+        const attributesManager = handlerInput.attributesManager;
+        const responseBuilder = handlerInput.responseBuilder;
+
+        const requestAttributes = attributesManager.getRequestAttributes();
+        return responseBuilder
+            .speak(requestAttributes.t('ASSIST'))
+            .reprompt(requestAttributes.t('ASSIST'))
+            .getResponse();
+    },
+};
+
+const StopHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'IntentRequest'
+            && (request.intent.name === 'AMAZON.NoIntent'
+                || request.intent.name === 'AMAZON.CancelIntent'
+                || request.intent.name === 'AMAZON.StopIntent');
+    },
+    handle(handlerInput) {
+        const attributesManager = handlerInput.attributesManager;
+        const responseBuilder = handlerInput.responseBuilder;
+
+        const requestAttributes = attributesManager.getRequestAttributes();
+        return responseBuilder
+            .speak(requestAttributes.t('STOP'))
+            .getResponse();
+    },
+};
+
+const SessionEndedHandler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+
+        return request.type === 'SessionEndedRequest';
+    },
+    handle(handlerInput) {
+        console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
+
+        return handlerInput.responseBuilder.getResponse();
+    },
+};
+
+const ErrorHandler = {
+    canHandle() {
+        return true;
+    },
+    handle(handlerInput, error) {
+        const request = handlerInput.requestEnvelope.request;
+
+        console.log(`Error handled: ${error.message}`);
+        console.log(` Original request was ${JSON.stringify(request, null, 2)}\n`);
+
+        return handlerInput.responseBuilder
+            .speak('Sorry, I can\'t understand the command. Please say again.')
+            .reprompt('Please try another command.')
+            .getResponse();
+    },
+};
+
+const FallbackHandler = {
+
+    // AMAZON.FallackIntent is only currently available in en-US locale.
+    // This handler will not be triggered except in that locale, so it can be
+    // safely deployed for any locale.
+    canHandle(handlerInput) {
+
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.FallbackIntent';
+
+    },
+    handle(handlerInput) {
+
+        return handlerInput.responseBuilder
+            .speak(FALLBACK_MESSAGE)
+            .reprompt(FALLBACK_REPROMPT)
+            .getResponse();
+
+    },
+
+};
+
+const GetAccountLinkingHandler = {
+    canHandle(handlerInput) {
+        const { request } = handlerInput.requestEnvelope;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'GetAccountLinking';
+    },
+    async handle(handlerInput) {
+        const { requestEnvelope, responseBuilder } = handlerInput;
+
+        const accessToken = requestEnvelope.context.System.user.accessToken;
+        console.log("Access token is " , accessToken);
+
+        if (accessToken === undefined) {
+            return responseBuilder
+                .speak("Please perform account linking for using this skill")
+                .withLinkAccountCard()
+                .getResponse();
+        }
+        else {
+            return responseBuilder
+                .speak("You have successfully linked to your skill and now you can use this skill.")
+                .getResponse();
+        }
+    },
+};
+
+// 2. Constants ==================================================================================
+
+const FALLBACK_MESSAGE = `The ${SKILL_NAME} skill can\'t help you with that.  `;
+const FALLBACK_REPROMPT = 'What can I help you with?';
+
+
+
+// 3. Helper Functions ==========================================================================
+
+
+
+function getFundByName(fundName) {
+    let fund = {};
+    for (let i = 0; i < data.length; i += 1) {
+        if (data.productName === fundName) {
+            restaurant = data[i];
+        }
     }
-    return joinedResult;
+    return fund;
 }
 
-function loopThroughArrayOfFunds(arrayOfStrings) {
-    const builder = new Alexa.templateBuilders.ListTemplate1Builder();
-    // Looping through the each object in the array
-    for (let i = 0; i < arrayOfStrings.length; i++) {
-        builder.addItem("","123","primaryText","secondaryText","tertiaryText");
-    }
-    return builder;
+function randomArrayElement(array) {
+    let i = 0;
+    i = Math.floor(Math.random() * array.length);
+    return (array[i]);
 }
 
-function genderize(type, gender) {
-    let pronouns = {
-        "m": { "he-she": "he", "his-her": "his", "him-her": "him" },
-        "f": { "he-she": "she", "his-her": "her", "him-her": "her" }
-    };
-    return pronouns[gender][type];
+function imageMaker(pDesc, pSource) {
+    const myImage = new Alexa.ImageHelper()
+        .withDescription(pDesc)
+        .addImageInstance(pSource)
+        .getImage();
+
+    return myImage;
 }
 
-function sanitizeSearchQuery(searchQuery) {
-    searchQuery = searchQuery.replace(/’s/g, "").toLowerCase();
-    searchQuery = searchQuery.replace(/'s/g, "").toLowerCase();
-    return searchQuery;
+
+function supportsDisplay(handlerInput) {
+
+    return hasDisplay =
+        handlerInput.requestEnvelope.context &&
+        handlerInput.requestEnvelope.context.System &&
+        handlerInput.requestEnvelope.context.System.device &&
+        handlerInput.requestEnvelope.context.System.device.supportedInterfaces &&
+        handlerInput.requestEnvelope.context.System.device.supportedInterfaces.Display;
+
 }
 
-function optimizeForSpeech(str) {
-    let optimizedString = str.replace("github", "git-hub");
-    return optimizedString;
-}
+const MessagesInterceptor = {
+    process(handlerInput) {
+        const attributes = handlerInput.attributesManager.getRequestAttributes();
+        attributes.t = function (...args) {
+            console.log('Message name' + arguments[0]);
 
-function isSlotValid(request, slotName) {
-    let slot = request.intent.slots[slotName];
-    //console.log("request = "+JSON.stringify(request)); //uncomment if you want to see the request
-    let slotValue;
+            return messages[arguments[0] + '_MESSAGE'];
+        };
+    },
+};
 
-    //if we have a slot, get the text and store it into speechOutput
-    if (slot && slot.value) {
-        // strip the invalid characters (added by Shain)
-        slotValue = slot.value.replace(/[^a-zA-Z0-9 ]+/g, "").toLowerCase();
-        return slotValue;
-    } else {
-        //we didn't get a value in the slot.
-        return false;
-    }
-}
+const InitDataLoaderInterceptor = {
+    async process(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const request = handlerInput.requestEnvelope.request;
+        if (request.type === 'IntentRequest') {
+            console.log('INTERCEPTOR to intent ' + request.intent.name);
+        } else if (!sessionAttributes.hasOwnProperty('fetchedFunds')) {
+            const attributes = handlerInput.attributesManager.getRequestAttributes();
+            const replaceEntityDirective = await fetchFundDynamicSlot();
+            console.log("Fetched directive." + JSON.stringify(replaceEntityDirective));
+            attributes.fundDirective = replaceEntityDirective;
+            handlerInput.responseBuilder.addDirective(replaceEntityDirective);
+            sessionAttributes.fetchedFunds = true;
+            const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+            requestAttributes.hasDirective = true;
+        }
+    },
+};
 
-function isInArray(value, array) {
-    return array.indexOf(value) > -1;
-}
+// 4. Export =====================================================================================
 
-function isInfoTypeValid(infoType) {
-    let validTypes = ["price", "investment strategy", "net asset", "morningstar", "manager"];
-    return isInArray(infoType, validTypes);
-}
-
-function subscribeToFund(product) {
-    function doRequest(url){
-        return new Promise(function(resolve, reject){
-            console.log('URL', url);
-
-            const options = {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'apikey': Q6YT1r7xii7u77ZS81PVI10pKP1srWFvS98MJhZ4
-                },
-                form: {'emailAddress': 'jeff_beninghove@troweprice.com', 'productCode': 'AME'}
-              }
-
-            https.post(url, (resp) => {
-              let data = '';
-            
-              // A chunk of data has been recieved.
-              resp.on('data', (chunk) => {
-                data += chunk;
-              });
-            
-              // The whole response has been received. Print out the result.
-              resp.on('end', () => {
-                resolve(JSON.parse(data));
-              });
-            
-            }).on("error", (err) => {
-                reject(err);
-            });
-        });
-    }
-    
-    const queryValue = event.query;
-
-    if(queryValue) {
-        const URL = `https://t481wdms2i.execute-api.us-east-1.amazonaws.com/default/add-subscription`;
-        const response = await doRequest(URL);
-        return { 
-             statusCode: 200, 
-             body: response
-         };
-    }
-}
+exports.handler = Alexa.SkillBuilders.custom()
+    .addRequestHandlers(
+        LaunchHandler,
+        SearchByFundIntent,
+        WhatsMyFundIntentHandler,
+        GetSubscribedFundsHandler,
+        SubscribeToFundHandler,
+        UnsubscribeFundHandler,
+        WhatIsNewHandler,
+        GetNotificationFrequencyHandler,
+        UpdateNotificationFrequencyHandler,
+        YesHandler,
+        //NoHandler,
+        GetAccountLinkingHandler,
+        HelpHandler,
+        StopHandler,
+        FallbackHandler,
+        SessionEndedHandler
+    )
+    .addRequestInterceptors(MessagesInterceptor, InitDataLoaderInterceptor)
+    .addErrorHandlers(ErrorHandler)
+    .withSkillId('amzn1.ask.skill.256760c6-f794-41d1-a173-d347db50e00e')
+    .lambda();
